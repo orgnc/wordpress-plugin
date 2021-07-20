@@ -1,0 +1,21 @@
+{
+    "name": "empireio/wordpress-plugin",
+    "description": "Wordpress Plugin for Empire Platform",
+    "type": "wordpress-plugin",
+    "require": {
+        "gmostafa/php-graphql-client": "^1.10",
+        "seravo/wp-custom-bulk-actions": "^0.1.4"
+    },
+    "authors": [
+        {
+            "name": "Empire Engineering",
+            "email": "tech@empireio.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Empire\\": "Empire/",
+            "Empire\\SDK\\": "Empire/SDK/"
+        }
+    }
+}
