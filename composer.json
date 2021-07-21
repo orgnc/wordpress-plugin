@@ -1,7 +1,7 @@
 {
     "name": "empireio/wordpress-plugin",
     "description": "Wordpress Plugin for Empire Platform",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "wordpress-plugin",
     "require": {
         "gmostafa/php-graphql-client": "^1.10",
