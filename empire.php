@@ -2,9 +2,9 @@
 
 /**
  * Plugin Name: Empire
- * Plugin URI: http://github.com/the-drive/trackadm
+ * Plugin URI: http://github.com/empireio/wordpress-plugin
  * Description: Ads, Analytics & Affiliate Management
- * Version: 0.1
+ * Version: 0.0.5
  * Author: Empire Software Holdings Inc
  * Author URI: https://empireio.com
  */
