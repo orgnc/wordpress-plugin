@@ -204,16 +204,16 @@ class PageInjection {
 
     (function() {
         function loadAds() {
-            utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/prebid3.23.0.js');
+            utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/assets/prebid3.23.0.js');
             <?php if ( $this->empire->getSiteId() ) { /* This only works if Site ID is set up */ ?>
                 <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
             if ( BVTests.getValue("<?php echo $this->empire->getEmpirePixelTestValue(); ?>") == 'control' ) {
                 utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
             } else {
-                utils.loadScript(document, 'empire-sdk', "https://empireio.com/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
+                utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
             }
             <?php } else { ?>
-            utils.loadScript(document, 'empire-sdk', "https://empireio.com/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
+            utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
                     <?php
             }
             } else {

@@ -214,6 +214,22 @@ class EmpireSdk {
         return $result->data->contentIdMap;
     }
 
+    public function queryAdsTxt() : string {
+        $gql = ( new Query( 'adsTxt' ) );
+        $gql->setArguments(
+            array(
+                'siteGuid' => $this->siteGuid,
+            )
+        );
+        $gql->setSelectionSet(
+            array(
+                'text',
+            )
+        );
+        $result = $this->runQuery( $gql );
+        return $result->data->adsTxt->text;
+    }
+
     /**
      * Helper for standardized error handling when running a GraphQL query or mutation
      *

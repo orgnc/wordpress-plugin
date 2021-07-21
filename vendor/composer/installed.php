@@ -1,31 +1,31 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '0.0.2',
-        'version' => '0.0.2.0',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => NULL,
+        'reference' => 'b2aa5524b81763b6a16d603e79f2195c01b89420',
         'name' => 'empireio/wordpress-plugin',
         'dev' => true,
     ),
     'versions' => array(
         'empireio/wordpress-plugin' => array(
-            'pretty_version' => '0.0.2',
-            'version' => '0.0.2.0',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => NULL,
+            'reference' => 'b2aa5524b81763b6a16d603e79f2195c01b89420',
             'dev_requirement' => false,
         ),
         'gmostafa/php-graphql-client' => array(
-            'pretty_version' => 'v1.11',
-            'version' => '1.11.0.0',
+            'pretty_version' => 'v1.10',
+            'version' => '1.10.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../gmostafa/php-graphql-client',
             'aliases' => array(),
-            'reference' => '41fc5e0d1ff88bf7bf6a2ae1d77189128af72879',
+            'reference' => '7e2d6615007f6f4415907233d20e576dc0b464a2',
             'dev_requirement' => false,
         ),
         'guzzlehttp/guzzle' => array(
@@ -47,12 +47,12 @@
             'dev_requirement' => false,
         ),
         'guzzlehttp/psr7' => array(
-            'pretty_version' => '2.0.0',
-            'version' => '2.0.0.0',
+            'pretty_version' => '1.8.2',
+            'version' => '1.8.2.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../guzzlehttp/psr7',
             'aliases' => array(),
-            'reference' => '1dc8d9cba3897165e16d12bb13d813afb1eb3fe7',
+            'reference' => 'dc960a912984efb74d0a90222870c72c87f10c91',
             'dev_requirement' => false,
         ),
         'psr/http-client' => array(
@@ -65,21 +65,6 @@
             'dev_requirement' => false,
         ),
         'psr/http-client-implementation' => array(
-            'dev_requirement' => false,
-            'provided' => array(
-                0 => '1.0',
-            ),
-        ),
-        'psr/http-factory' => array(
-            'pretty_version' => '1.0.1',
-            'version' => '1.0.1.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../psr/http-factory',
-            'aliases' => array(),
-            'reference' => '12ac7fcd07e5b077433f5f2bee95b3a771bf61be',
-            'dev_requirement' => false,
-        ),
-        'psr/http-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
                 0 => '1.0',

@@ -16,10 +16,6 @@ use function Sentry\captureException;
 class Empire {
 
     private $isEnabled = false;
-    private $geoDetectionSource = null;
-    private $defaultRegion = 'US';
-    private $enabledVendors = array();
-    private $enabledRegions = array();
 
     /**
      * @var AdsTxt
@@ -130,10 +126,6 @@ class Empire {
         $this->enablePrefilledAdSlots = get_option( 'empire::prefill_ad_slots' );
         $this->empirePixelTestPercent = get_option( 'empire::percent_test' );
         $this->empirePixelTestValue = get_option( 'empire::test_value' );
-        $this->geoDetectionSource = get_option( 'empire::geo_detection' );
-        $this->defaultRegion = get_option( 'empire::default_region' );
-        $this->enabledRegions = get_option( 'empire::enabled_regions', array() );
-        $this->enabledVendors = get_option( 'empire::enabled_vendors', array() );
 
         $this->connatixEnabled = get_option( 'empire::connatix_enabled' );
         $this->connatixPlayspaceId = get_option( 'empire::connatix_playspace_id' );
@@ -145,238 +137,15 @@ class Empire {
         /* Load up our sub-page configs */
         new AdminSettings( $this );
         new CCPAPage( $this );
-        new PostEditor( $this );
         new AdsTxt( $this );
         new PageInjection( $this );
         new ContentSyncCommand( $this );
         new ContentIdMapSyncCommand( $this );
-
-        add_action( 'init', array( $this, '_registerGATagTaxonomy' ), 0 );
-        add_action( 'the_content', array( $this, 'substituteTags' ) );
-
-        add_filter( 'empire_tag_link', array( $this, 'tagLink' ), 10, 3 );
+        new AdsTxtSyncCommand( $this );
     }
 
     public function getEnvironment() {
          return $this->environment;
-    }
-
-    /**
-     * If we are configured to do server level Geo detection, then returns
-     * the Region Code of the matching, detected region.
-     *
-     * If the region cannot be detected or is not an enabled region, then
-     * returns the default region code.
-     *
-     * @return string|null Region Code for the detected region for the user
-     */
-    public function getGeo(): ?string {
-        $code = $this->defaultRegion;
-
-        if ( $this->isEnabled && $this->geoDetectionSource ) {
-            if ( $this->geoDetectionSource == 'cloudflare' ) {
-                $code = isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ?
-                    $_SERVER['HTTP_CF_IPCOUNTRY'] :
-                    null;
-            }
-        }
-
-        // Remap the GB code to our "UK" code. All others are fine as default
-        if ( $code == 'GB' ) {
-            $code = 'UK';
-        }
-
-        // Only return enabled regions - if the detected region isn't enabled
-        // then we return the default region
-        if ( $code ) {
-            foreach ( $this->enabledRegions as $region ) {
-                if ( $region['code'] == $code ) {
-                    return $code;
-                }
-            }
-        }
-
-        return $this->defaultRegion;
-    }
-
-    /**
-     * Gets the tag to use for this vendor and this region or null if none is
-     * set.
-     *
-     * @param string $vendorCode
-     * @param string $regionCode
-     * @return string|null
-     */
-    public function getDefaultTag(
-        string $vendorCode,
-        string $regionCode
-    ): ?string {
-        foreach ( $this->enabledVendors as $vendor ) {
-            if ( $vendor['code'] == $vendorCode ) {
-                if ( isset( $vendor['default_tags'] ) && isset( $vendor['default_tags'][ $regionCode ] ) ) {
-                    return $vendor['default_tags'][ $regionCode ];
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Figure out which tag should be placed on all of the URLs in this post
-     * for the given vendor and region.
-     *
-     * If no post-specific tags exist, then looks up the chain to find the right
-     * site-wide tag.
-     *
-     * @param string $vendorCode
-     * @param string $regionCode
-     * @param int $postID
-     * @return string|null
-     */
-    public function getPostTag(
-        string $vendorCode,
-        string $regionCode,
-        int $postID
-    ): ?string {
-        $key = 'empire::tag_' . $vendorCode . '_' . $regionCode;
-        $tag = get_post_meta( $postID, $key, true );
-
-        if ( ! $tag ) {
-            $tag = $this->getDefaultTag( $vendorCode, $regionCode );
-        }
-
-        return $tag;
-    }
-
-    public function filterAmazonProductLink( $usLink, $postID, $productName ) {
-        $geo = $this->getGeo();
-
-        if ( $geo == 'US' ) {
-            return $this->tagAmazonLink( $usLink, $postID );
-        } else {
-            return $this->getAmazonSearchLink( $productName, $postID );
-        }
-    }
-
-    /**
-     * Custom function for tagging Amazon product URLs
-     *
-     * @param $link
-     * @param $postID
-     * @return string
-     */
-    public function tagAmazonLink( $link, $postID ) {
-        $geo = $this->getGeo();
-        $tag = $this->getPostTag( 'amzn', $geo, $postID );
-
-        $urlParts = parse_url( $link );
-
-        /* @todo update this to be region-specific domain */
-        if ( ! isset( $urlParts['host'] ) ) {
-            $urlParts['host'] = 'www.amazon.com';
-        }
-
-        $amazonDomains = array(
-            'US' => 'www.amazon.com',
-            'UK' => 'www.amazon.co.uk',
-            'AU' => 'www.amazon.com.au',
-            'CA' => 'www.amazon.ca',
-            'BR' => 'www.amazon.com.br',
-            'CN' => 'www.amazon.cn',
-            'FR' => 'www.amazon.fr',
-            'DE' => 'www.amazon.de',
-            'IN' => 'www.amazon.in',
-            'IT' => 'www.amazon.it',
-        );
-        if ( isset( $amazonDomains[ $geo ] ) ) {
-            $urlParts['host'] = $amazonDomains[ $geo ];
-        }
-
-        $queryParams = array();
-        parse_str( $urlParts['query'], $queryParams );
-        $queryParams['tag'] = $tag;
-
-        $urlParts['path'] = preg_replace( '/&.+/', '', $urlParts['path'] );
-        $urlParts['path'] = preg_replace( '/tag=.+/', '', $urlParts['path'] );
-
-        $query = http_build_query( $queryParams );
-
-        $url = 'https://' . $urlParts['host'] . $urlParts['path'] . '?' . $query;
-
-        return $url;
-    }
-
-    /**
-     * Generates a properly tagged Amazon affiliate URL for a search page
-     *
-     * @param $term
-     * @param $postID
-     * @return string
-     */
-    public function getAmazonSearchLink( $term, $postID ) {
-        $url = 'https://www.amazon.com/s/?url=search-alias&field-keywords=' .
-            urlencode( $term );
-        return $this->tagAmazonLink( $url, $postID );
-    }
-
-    /**
-     * Figures out which vendor to apply the links for and then calls that
-     * vendor's tagging mechanism to apply the proper tag and/or domain changes.
-     *
-     * If the product link cannot be directly internationalized, then generates
-     * a search link (e.g. with Amazon).
-     *
-     * @param $usLink
-     * @param $postID
-     * @param $productName
-     * @return string
-     */
-    public function tagLink( $usLink, $postID, $productName ) {
-        if ( ! $this->isEnabled ) {
-            return $usLink;
-        }
-
-        $vendorCode = self::detectVendor( $usLink );
-
-        if ( $vendorCode == 'amzn' ) {
-            return $this->filterAmazonProductLink( $usLink, $postID, $productName );
-        } else {
-            return $usLink;
-        }
-    }
-
-    /**
-     * Checks the link and figures out the vendor code for the given link or
-     * null if it's not known.
-     *
-     * Vendor Codes:
-     *  - amzn
-     *  - endurance
-     *  - autopom
-     *
-     * @param $link
-     * @return string|null
-     */
-    public static function detectVendor( $link ) : ?string {
-        $parts = parse_url( $link );
-        if ( ! $parts ) {
-            return null;
-        }
-
-        if ( preg_match( '/amazon/', $parts['host'] ) ) {
-            return 'amzn';
-        }
-
-        if ( $parts['host'] == 'endurancewarranty.com' ) {
-            return 'endurance';
-        }
-
-        if ( $parts['extended-vehicle-warranty.com'] ) {
-            return 'autopom';
-        }
-
-        return null;
     }
 
     /**
@@ -451,7 +220,7 @@ class Empire {
     }
 
     /**
-     * Sychronizes a single Post to Empire
+     * Synchronizes a single Post to Empire
      *
      * @param $post
      */
@@ -498,7 +267,7 @@ class Empire {
         }
         if (
             $author_support_enabled &&
-            function_exists( 'get_article_author' )
+            function_exists( 'App\get_article_author' )
         ) {
             $authors = array();
             $author_data = get_article_author( $post->ID );
@@ -784,6 +553,11 @@ class Empire {
         return $stats;
     }
 
+    public function syncAdsTxt() {
+        $ads_txt_content = $this->sdk->queryAdsTxt();
+        $this->getAdsTxtManager()->update( $ads_txt_content );
+    }
+
     public function substituteTags( string $content ) : string {
         global $post;
 
@@ -894,34 +668,5 @@ class Empire {
         if ( class_exists( '\WP_CLI' ) ) {
             \WP_CLI::debug( $message, 'empire' );
         }
-    }
-
-    public function _registerGATagTaxonomy() {
-        $labels = array(
-            'name' => _x( 'GA Tags', 'Google Analytics Tag', 'text_domain' ),
-            'singular_name' => _x( 'GA Tags', 'Taxonomy Singular Name', 'text_domain' ),
-            'menu_name' => __( 'GA Tags', 'text_domain' ),
-            'all_items' => __( 'All GA Tags', 'text_domain' ),
-            'new_item_name' => __( 'New GA Tag', 'text_domain' ),
-            'add_new_item' => __( 'Add New GA Tag', 'text_domain' ),
-            'edit_item' => __( 'Edit GA Tag', 'text_domain' ),
-            'update_item' => __( 'Update GA Tag', 'text_domain' ),
-            'view_item' => __( 'View GA Tag', 'text_domain' ),
-            'add_or_remove_items' => __( 'Add or remove GA Tags', 'text_domain' ),
-            'popular_items' => __( 'Popular GA Tags', 'text_domain' ),
-            'search_items' => __( 'Search GA Tags', 'text_domain' ),
-        );
-        $args = array(
-            'description' => 'Google Analytics Related Tag',
-            'labels' => $labels,
-            'hierarchical' => false,
-            'public' => false,
-            'show_ui' => true,
-            'show_admin_column' => true,
-            'show_in_nav_menus' => true,
-            'show_tagcloud' => false,
-            'show_in_rest' => true,
-        );
-        register_taxonomy( 'ga_tag', array( 'post' ), $args );
     }
 }

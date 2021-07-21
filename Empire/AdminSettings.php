@@ -31,27 +31,30 @@ class AdminSettings {
     public function adminSettings() {
          // Save any setting updates
         if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
-            update_option( 'empire::enabled', isset( $_POST['empire_enabled'] ) ? true : false, false );
-            update_option( 'empire::ads_txt', $_POST['empire_ads_txt'], false );
-            update_option( 'empire::percent_test', $_POST['empire_percent'], false );
-            update_option( 'empire::test_value', $_POST['empire_value'], false );
-            update_option( 'empire::connatix_enabled', isset( $_POST['empire_connatix_enabled'] ) ? true : false, false );
-            update_option( 'empire::connatix_playspace_id', $_POST['empire_connatix_playspace_id'], false );
-            update_option( 'empire::cmp', $_POST['empire_cmp'] ?: '', false );
-            update_option( 'empire::one_trust_id', $_POST['empire_one_trust_id'] ?: '', false );
-            update_option( 'empire::api_key', $_POST['empire_api_key'] ?: '', false );
-            update_option( 'empire::sdk_key', $_POST['empire_sdk_key'] ?: '', false );
-            update_option( 'empire::site_id', $_POST['empire_site_id'] ?: '', false );
-            $this->empire->getApi()->updateApiKey( $_POST['empire_api_key'] ?: '' );
-            $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
+            if ( isset( $_POST['empire_sync_ads_txt'] ) ) {
+                $this->empire->syncAdsTxt();
+            } else {
+                update_option( 'empire::enabled', isset( $_POST['empire_enabled'] ) ? true : false, false );
+                update_option( 'empire::percent_test', $_POST['empire_percent'], false );
+                update_option( 'empire::test_value', $_POST['empire_value'], false );
+                update_option( 'empire::connatix_enabled', isset( $_POST['empire_connatix_enabled'] ) ? true : false, false );
+                update_option( 'empire::connatix_playspace_id', $_POST['empire_connatix_playspace_id'], false );
+                update_option( 'empire::cmp', $_POST['empire_cmp'] ?: '', false );
+                update_option( 'empire::one_trust_id', $_POST['empire_one_trust_id'] ?: '', false );
+                update_option( 'empire::api_key', $_POST['empire_api_key'] ?: '', false );
+                update_option( 'empire::sdk_key', $_POST['empire_sdk_key'] ?: '', false );
+                update_option( 'empire::site_id', $_POST['empire_site_id'] ?: '', false );
+                $this->empire->getApi()->updateApiKey( $_POST['empire_api_key'] ?: '' );
+                $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
 
-            $newHost = $_POST['empire_host'];
-            if ( $newHost && substr( $newHost, -1 ) == '/' ) {
-                $newHost = substr( $newHost, 0, strlen( $newHost ) - 1 );
+                $newHost = $_POST['empire_host'];
+                if ( $newHost && substr( $newHost, -1 ) == '/' ) {
+                    $newHost = substr( $newHost, 0, strlen( $newHost ) - 1 );
+                }
+                update_option( 'empire::host', $newHost, false );
+
+                echo '<h3>Updates Saved</h3>';
             }
-            update_option( 'empire::host', $newHost, false );
-
-            echo '<h3>Updates Saved</h3>';
         }
 
         $this->showSettings();
@@ -131,22 +134,27 @@ class AdminSettings {
                 document.getElementById("empire_connatix_enabled").onclick = hideShowConnatix;
                 document.getElementById("empire_connatix_enabled").onkeypress = hideShowConnatix;
             </script>
+            <p><label>% of ads on Empire: <input type="text" name="empire_percent" id="empire_percent" value="<?php echo $empire_test; ?>" /></label></p>
+            <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
+
+            <p><input type="submit" value="Update"/></p>
+        </form>
+        <h2>Ads.txt</h2>
+        <form method="post">
             <label>ads.txt
                 <textarea
                         name="empire_ads_txt"
                         id="empire_ads_txt"
                         style="width:650px; height: 500px; display: block;"
+                        readonly
                 ><?php echo $ads_txt; ?></textarea>
             </label>
-            <p><label>% of ads on Empire: <input type="text" name="empire_percent" id="empire_percent" value="<?php echo $empire_test; ?>" /></label></p>
-            <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
-
-            <p><input type="submit" value="Update"/></p>
-
-            <hr />
-            <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
-            <p>Unsynchronized Posts: <?php echo number_format( $total_synced_posts ); ?></p>
+            <input type="hidden" name="empire_sync_ads_txt" id="empire_sync_ads_txt" value="true" />
+        <p><input type="submit" value="Sync ads.txt"/></p>
         </form>
+        <hr />
+        <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
+        <p>Unsynchronized Posts: <?php echo number_format( $total_synced_posts ); ?></p>
         </div>
         <?php
     }

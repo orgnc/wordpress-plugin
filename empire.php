@@ -19,5 +19,3 @@ if ( !$environment ) {
 }
 
 $empire = new Empire($environment);
-
-register_activation_hook(__FILE__, [$empire->getAdsTxtManager(), 'activate']);
