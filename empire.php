@@ -4,7 +4,7 @@
  * Plugin Name: Empire
  * Plugin URI: http://github.com/empireio/wordpress-plugin
  * Description: Ads, Analytics & Affiliate Management
- * Version: 0.0.5
+ * Version: 0.0.6
  * Author: Empire Software Holdings Inc
  * Author URI: https://empireio.com
  */

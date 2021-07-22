@@ -159,71 +159,72 @@ class PageInjection {
             $gamPageId = $gamId ? $gamId : $id;
             $gamExternalId = $id;
             ?>
-<script>var utils={queryString:{},init:function(){var t=this.queryString;location.search.slice(1).split("&").forEach(function(e){e=e.split("="),t[e[0]]=decodeURIComponent(e[1]||"")}),"true"===t.debug_cls&&this.logLayoutShift()},logLayoutShift:function(){function e(e){for(i=0;i<e.getEntries().length;i++){var t=e.getEntries()[i];o+=t.value,console.log("Layout shift: "+t.value+". CLS: "+o+".")}}var o=0;try{new PerformanceObserver(e).observe({type:"layout-shift",buffered:!0})}catch(t){console.log("PerformanceObserver not supported.")}},setCookie:function(e,t,o){var n,r=new Date,i=2147483647;void 0!==o&&(r.setTime(r.getTime()+24*o*60*60*1e3),i=r.toUTCString()),n="expires="+i,document.cookie=e+"="+t+";"+n+";path=/"},getCookie:function(e){var t=document.cookie.match("(^|;) ?"+e+"=([^;]*)(;|$)");return t?t[2]:null},deleteCookie:function(e){utils.setCookie(e,"",-1)},loadScript:function(e,t,o,n,r,i){if(document.querySelector("#"+t))"function"==typeof n&&n();else{var s=e.createElement("script");s.src=o,s.id=t,"function"==typeof n&&(s.onload=n),r&&Object.entries(r).forEach(function(e){s.setAttribute(e[0],e[1])}),(i=i||e.getElementsByTagName("head")[0]).appendChild(s)}}};utils.init(),window.BVTests=function(){function f(){o&&console.log.apply(null,arguments)}function e(e,t){if(!d[e]){var o=utils.queryString[h];if(o){o=o.split(",");for(var n=0;n<o.length;n++){var r=o[n].split("-");if(2===r.length&&r[0]===e)return g[e]=r[1],utils.setCookie(v+e,r[1]),void f("User bucketed from query string param:",e,r[1])}}var i=utils.getCookie(v+e);if(i&&("control"===i||i in t))f("User bucketed from cookie:",e,g[e]=i);else{d[e]=t,g[e]="control";var s,u=[];for(var a in t){s=parseInt(t[a]);for(n=0;n<s;n++)u.push(a)}var c=u.length;if(c<100)for(n=0;n<100-c;n++)u.push("control");f("weightedBuckets",u.length,u);var l=u[Math.floor(Math.random()*u.length)];f("user sampled:",s,e,l),g[e]=l,utils.setCookie(v+e,g[e]),f("user bucketed:",e,g[e])}}}function t(){var e=[];for(var t in g){var o=g[t];e.push(t+"-"+o)}return e}var d={},g={},v="bv_test__",h="debug_bv_tests",o="debug_tests"in utils.queryString;return{create:e,getValue:function(e){return g[e]},getUserBuckets:function(){return g},getTargetingValue:t}}();</script>
-<script>
-            <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
-    BVTests.create('<?php echo $this->empire->getEmpirePixelTestValue(); ?>', {
-        enabled: <?php echo $this->empire->getEmpirePixelTestPercent(); ?>,
-    });
-            <?php } ?></script>
-<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
-<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-<script>
-    var googletag = googletag || {};
-    var pbjs = pbjs || {};
-
-    /* TrackADM Config - to be phased out */
-    window.__trackadm_usp_cookie = 'ne-opt-out';
-    window.tadmPageId = '<?php echo $gamPageId; ?>';
-    window.tadmKeywords = '<?php echo $keywordString; ?>';
-    window.tadmSection = '<?php echo $categoryString; ?>';
-    window.trackADMData = {
-        tests: BVTests.getTargetingValue()
-    };
-
-    /* Empire Config - to be phased in */
-    window.__empire_usp_cookie = 'ne-opt-out';
-    window.empire = window.empire || {};
-    window.empire.apps = window.empire.apps || {};
-    window.empire.apps.ads = window.empire.apps.ads || {};
-    window.empire.apps.ads.config = window.empire.apps.ads.config || {};
-    window.empire.apps.ads.targeting = {
-        pageId: '<?php echo $gamPageId; ?>',
-        externalId: '<?php echo $gamExternalId; ?>',
-        keywords: '<?php echo $keywordString; ?>',
-        disableKeywordReporting: false,
-        section: '<?php echo $categoryString; ?>',
-        disableSectionReporting: false,
-        tests: BVTests.getTargetingValue(),
-    }
-
-    googletag.cmd = googletag.cmd || [];
-    pbjs.que = pbjs.que || [];
-
-    var loadDelay = 2000;
-
-    (function() {
-        function loadAds() {
-            utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/assets/prebid3.23.0.js');
-            <?php if ( $this->empire->getSiteId() ) { /* This only works if Site ID is set up */ ?>
+            <script>var utils={queryString:{},init:function(){var t=this.queryString;location.search.slice(1).split("&").forEach(function(e){e=e.split("="),t[e[0]]=decodeURIComponent(e[1]||"")}),"true"===t.debug_cls&&this.logLayoutShift()},logLayoutShift:function(){function e(e){for(i=0;i<e.getEntries().length;i++){var t=e.getEntries()[i];o+=t.value,console.log("Layout shift: "+t.value+". CLS: "+o+".")}}var o=0;try{new PerformanceObserver(e).observe({type:"layout-shift",buffered:!0})}catch(t){console.log("PerformanceObserver not supported.")}},setCookie:function(e,t,o){var n,r=new Date,i=2147483647;void 0!==o&&(r.setTime(r.getTime()+24*o*60*60*1e3),i=r.toUTCString()),n="expires="+i,document.cookie=e+"="+t+";"+n+";path=/"},getCookie:function(e){var t=document.cookie.match("(^|;) ?"+e+"=([^;]*)(;|$)");return t?t[2]:null},deleteCookie:function(e){utils.setCookie(e,"",-1)},loadScript:function(e,t,o,n,r,i){if(document.querySelector("#"+t))"function"==typeof n&&n();else{var s=e.createElement("script");s.src=o,s.id=t,"function"==typeof n&&(s.onload=n),r&&Object.entries(r).forEach(function(e){s.setAttribute(e[0],e[1])}),(i=i||e.getElementsByTagName("head")[0]).appendChild(s)}}};utils.init(),window.BVTests=function(){function f(){o&&console.log.apply(null,arguments)}function e(e,t){if(!d[e]){var o=utils.queryString[h];if(o){o=o.split(",");for(var n=0;n<o.length;n++){var r=o[n].split("-");if(2===r.length&&r[0]===e)return g[e]=r[1],utils.setCookie(v+e,r[1]),void f("User bucketed from query string param:",e,r[1])}}var i=utils.getCookie(v+e);if(i&&("control"===i||i in t))f("User bucketed from cookie:",e,g[e]=i);else{d[e]=t,g[e]="control";var s,u=[];for(var a in t){s=parseInt(t[a]);for(n=0;n<s;n++)u.push(a)}var c=u.length;if(c<100)for(n=0;n<100-c;n++)u.push("control");f("weightedBuckets",u.length,u);var l=u[Math.floor(Math.random()*u.length)];f("user sampled:",s,e,l),g[e]=l,utils.setCookie(v+e,g[e]),f("user bucketed:",e,g[e])}}}function t(){var e=[];for(var t in g){var o=g[t];e.push(t+"-"+o)}return e}var d={},g={},v="bv_test__",h="debug_bv_tests",o="debug_tests"in utils.queryString;return{create:e,getValue:function(e){return g[e]},getUserBuckets:function(){return g},getTargetingValue:t}}();</script>
+            <script>
                 <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
-            if ( BVTests.getValue("<?php echo $this->empire->getEmpirePixelTestValue(); ?>") == 'control' ) {
-                utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
-            } else {
-                utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
-            }
-            <?php } else { ?>
-            utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
-                    <?php
-            }
-            } else {
-                ?>
-            utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
-            <?php } ?>
-        }
-        setTimeout(loadAds, loadDelay);
-    })();
-</script>
+                window.empireTestKey = "<?php echo $this->empire->getEmpirePixelTestValue(); ?>";
+                BVTests.create('<?php echo $this->empire->getEmpirePixelTestValue(); ?>', {
+                    enabled: <?php echo $this->empire->getEmpirePixelTestPercent(); ?>,
+                });
+                <?php } ?></script>
+            <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
+            <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+            <script>
+                var googletag = googletag || {};
+                var pbjs = pbjs || {};
+
+                /* TrackADM Config - to be phased out */
+                window.__trackadm_usp_cookie = 'ne-opt-out';
+                window.tadmPageId = '<?php echo $gamPageId; ?>';
+                window.tadmKeywords = '<?php echo $keywordString; ?>';
+                window.tadmSection = '<?php echo $categoryString; ?>';
+                window.trackADMData = {
+                    tests: BVTests.getTargetingValue()
+                };
+
+                /* Empire Config - to be phased in */
+                window.__empire_usp_cookie = 'ne-opt-out';
+                window.empire = window.empire || {};
+                window.empire.apps = window.empire.apps || {};
+                window.empire.apps.ads = window.empire.apps.ads || {};
+                window.empire.apps.ads.config = window.empire.apps.ads.config || {};
+                window.empire.apps.ads.targeting = {
+                    pageId: '<?php echo $gamPageId; ?>',
+                    externalId: '<?php echo $gamExternalId; ?>',
+                    keywords: '<?php echo $keywordString; ?>',
+                    disableKeywordReporting: false,
+                    section: '<?php echo $categoryString; ?>',
+                    disableSectionReporting: false,
+                    tests: BVTests.getTargetingValue(),
+                }
+
+                googletag.cmd = googletag.cmd || [];
+                pbjs.que = pbjs.que || [];
+
+                var loadDelay = 2000;
+
+                (function() {
+                    function loadAds() {
+                        utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/assets/prebid3.23.0.js');
+                        <?php if ( $this->empire->getSiteId() ) { /* This only works if Site ID is set up */ ?>
+                        <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
+                        if ( BVTests.getValue("<?php echo $this->empire->getEmpirePixelTestValue(); ?>") == 'control' ) {
+                            utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
+                        } else {
+                            utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
+                        }
+                        <?php } else { ?>
+                        utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
+                        <?php
+                        }
+                        } else {
+                        ?>
+                        utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
+                        <?php } ?>
+                    }
+                    setTimeout(loadAds, loadDelay);
+                })();
+            </script>
             <?php
         }
     }
