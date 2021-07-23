@@ -324,8 +324,8 @@ class Empire {
             return null;
         }
 
-        if ( $result->gamId ) {
-            update_post_meta( $post->ID, 'empire_gam_id', $result->gamId );
+        if ( $result['gamId'] ) {
+            update_post_meta( $post->ID, 'empire_gam_id', $result['gamId'] );
         } else {
             delete_post_meta( $post->ID, 'empire_gam_id' );
         }
@@ -470,9 +470,9 @@ class Empire {
         // pull mapping of gamIds to externalIds
         while ( true ) {
             $id_map = $this->sdk->queryContentIdMap( $first, $skip );
-            $total_objects = $id_map->pageInfo->totalObjects;
-            foreach ( $id_map->edges as $edge ) {
-                $mapping[ $edge->node->gamId ] = $edge->node->externalId;
+            $total_objects = $id_map['pageInfo']['totalObjects'];
+            foreach ( $id_map['edges'] as $edge ) {
+                $mapping[ $edge['node']['gamId'] ] = $edge['node']['externalId'];
                 $count++;
             }
 
