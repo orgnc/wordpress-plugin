@@ -47,7 +47,8 @@ class EmpireSdk {
     public function __construct(
         string $siteGuid,
         ?string $token = null,
-        string $url = 'https://api.empireio.com/graphql'
+        //string $url = 'https://api.empireio.com/graphql'
+        string $url = 'http://api.lcl.empireio.com:8000/graphql'
     ) {
          $params = array();
         if ( $token ) {
@@ -179,7 +180,7 @@ class EmpireSdk {
             ),
         );
         $result = $this->runQuery( $mutation, $variables );
-        return $result->data->contentCreateOrUpdate;
+        return $result['data']['contentCreateOrUpdate'];
     }
 
     public function queryContentIdMap( $first, $skip ) {
@@ -211,7 +212,7 @@ class EmpireSdk {
             )
         );
         $result = $this->runQuery( $gql );
-        return $result->data->contentIdMap;
+        return $result['data']['contentIdMap'];
     }
 
     public function queryAdsTxt() : string {
@@ -227,7 +228,7 @@ class EmpireSdk {
             )
         );
         $result = $this->runQuery( $gql );
-        return $result->data->adsTxt->text;
+        return $result['data']['adsTxt']['text'];
     }
 
     /**
@@ -240,7 +241,7 @@ class EmpireSdk {
      */
     private function runQuery( $query, array $variables = array() ) {
         try {
-            $result = $this->client->runQuery( $query, false, $variables );
+            $result = $this->client->runQuery( $query, true, $variables );
             $responseCode = $result->getResponseObject()->getStatusCode();
             if ( $responseCode > 201 ) {
                 throw new RuntimeException( 'Empire API Failed with Error Code ' . $responseCode );
