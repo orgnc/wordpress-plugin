@@ -141,6 +141,7 @@ class Empire {
         new PageInjection( $this );
         new ContentSyncCommand( $this );
         new ContentIdMapSyncCommand( $this );
+        new AdConfigSyncCommand( $this );
         new AdsTxtSyncCommand( $this );
     }
 
@@ -555,6 +556,15 @@ class Empire {
         $stats['total'] = array_sum( $stats );
 
         return $stats;
+    }
+
+    public function syncAdConfig() {
+        $settings = $this->sdk->queryAdConfig();
+        $this->debug( 'Got AdConfig: ' . json_encode( $settings ) );
+        update_option( 'empire::ad_config', $settings, false );
+        return array(
+            'updated' => 1,
+        );
     }
 
     public function syncAdsTxt() {

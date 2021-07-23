@@ -215,6 +215,50 @@ class EmpireSdk {
         return $result['data']['contentIdMap'];
     }
 
+    public function queryAdConfig() {
+        $gql = ( new Query( 'appAds' ) );
+        $gql->setArguments(
+            array(
+                'siteGuids' => array( $this->siteGuid ),
+            )
+        );
+        $gql->setSelectionSet(
+            array(
+                ( new Query( 'sites' ) )->setSelectionSet(
+                    array(
+                        ( new Query( 'settings' ) )->setSelectionSet(
+                            array(
+                                ( new Query( 'adRules' ) )->setSelectionSet(
+                                    array(
+                                        'guid',
+                                        'component',
+                                        'comparator',
+                                        'value',
+                                        'enabled',
+                                    )
+                                ),
+                                ( new Query( 'placements' ) )->setSelectionSet(
+                                    array(
+                                        'guid',
+                                        'key',
+                                        'name',
+                                        'description',
+                                        'enabled',
+                                        'desktopEnabled',
+                                        'tabletEnabled',
+                                        'mobileEnabled',
+                                    )
+                                ),
+                            )
+                        ),
+                    )
+                ),
+            )
+        );
+        $result = $this->runQuery( $gql );
+        return $result['data']['appAds']['sites'][0]['settings'];
+    }
+
     public function queryAdsTxt() : string {
         $gql = ( new Query( 'adsTxt' ) );
         $gql->setArguments(
