@@ -251,12 +251,23 @@ class EmpireSdk {
                                 ),
                             )
                         ),
+                        ( new Query( 'ampConfig' ) )->setSelectionSet(
+                            array(
+                                ( new Query( 'amps' ) )->setSelectionSet(
+                                    array(
+                                        'key',
+                                        'component',
+                                    )
+                                ),
+                                'requiredScripts',
+                            )
+                        ),
                     )
                 ),
             )
         );
         $result = $this->runQuery( $gql );
-        return $result['data']['appAds']['sites'][0]['settings'];
+        return $result['data']['appAds']['sites'][0];
     }
 
     public function queryAdsTxt() : string {
