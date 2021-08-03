@@ -559,11 +559,16 @@ class Empire {
     }
 
     public function syncAdConfig() {
-        $settings = $this->sdk->queryAdConfig();
-        $this->debug( 'Got AdConfig: ' . json_encode( $settings ) );
-        update_option( 'empire::ad_config', $settings, false );
+        $config = $this->sdk->queryAdConfig();
+
+        $this->debug( 'Got Ad Settings: ' . json_encode( $config['settings'] ) );
+        update_option( 'empire::ad_settings', $config['settings'], false );
+
+        $this->debug( 'Got Amp Config: ' . json_encode( $config['ampConfig'] ) );
+        update_option( 'empire::ad_amp_config', $config['ampConfig'], false );
+
         return array(
-            'updated' => 1,
+            'updated' => true,
         );
     }
 
