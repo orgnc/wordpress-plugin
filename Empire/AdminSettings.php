@@ -43,6 +43,7 @@ class AdminSettings {
                 update_option( 'empire::one_trust_id', $_POST['empire_one_trust_id'] ?: '', false );
                 update_option( 'empire::sdk_key', $_POST['empire_sdk_key'] ?: '', false );
                 update_option( 'empire::site_id', $_POST['empire_site_id'] ?: '', false );
+                update_option( 'empire::amp_ads_enabled', isset( $_POST['empire_amp_ads_enabled'] ) ? true : false, false );
                 $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
 
                 echo '<h3>Updates Saved</h3>';
@@ -63,6 +64,7 @@ class AdminSettings {
         $ads_txt = get_option( 'empire::ads_txt' );
         $empire_test = get_option( 'empire::percent_test' );
         $empire_value = get_option( 'empire::test_value' );
+        $amp_ads_enabled = get_option( 'empire::amp_ads_enabled' );
 
         $total_published_posts = $this->empire->buildQueryAllSyncablePosts()->found_posts;
         $total_synced_posts =
@@ -128,6 +130,10 @@ class AdminSettings {
                 </script>
                 <p><label>% of ads on Empire: <input type="text" name="empire_percent" id="empire_percent" value="<?php echo $empire_test; ?>" /></label></p>
                 <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
+
+                <p><label><input type="checkbox" name="empire_amp_ads_enabled"
+                                 id="empire_amp_ads_enabled" <?php echo $amp_ads_enabled ? 'checked' : ''; ?>> AMP Ads
+                        Enabled</label></p>
 
                 <p><input type="submit" value="Update"/></p>
             </form>

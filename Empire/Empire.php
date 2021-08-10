@@ -121,6 +121,7 @@ class Empire {
         $this->adsTxt = new AdsTxt( $this );
 
         $this->isEnabled = get_option( 'empire::enabled' );
+        $this->ampAdsEnabled = get_option( 'empire::amp_ads_enabled' );
         $this->cmp = get_option( 'empire::cmp' );
         $this->oneTrustId = get_option( 'empire::one_trust_id' );
         $this->enablePrefilledAdSlots = get_option( 'empire::prefill_ad_slots' );
@@ -218,6 +219,15 @@ class Empire {
      */
     public function prefillAdSlots() : bool {
         return $this->enablePrefilledAdSlots;
+    }
+
+    /**
+     * Check if the AMP Ads are configured and enabled
+     *
+     * @return bool
+     */
+    public function useAmpAds() : bool {
+        return $this->isEnabled() && $this->ampAdsEnabled;
     }
 
     /**

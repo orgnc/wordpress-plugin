@@ -26,6 +26,7 @@ class PageInjection {
      * @var bool True if Connatix player is already on the page
      */
     private $connatixInjected = false;
+    private $ampAdsInjected = false;
 
     public function __construct( Empire $empire ) {
         $this->empire = $empire;
@@ -36,6 +37,57 @@ class PageInjection {
             add_action( 'ads_article_header', array( $this, 'injectPresizedAdSlot' ) );
             add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
         }
+
+        if ( $is_amp && $this->empire->useAmpAds() ) {
+            $this->setupAmpAds();
+        }
+    }
+    public function setupAmpAds( ) {
+        // Skip it if we already injected once
+        if ( $this->ampAdsInjected ) {
+            return;
+        }
+
+        $amp_config = get_option( 'empire::ad_amp_config' );
+        $amps = $amp_config['amps'] ?? [];
+        if ( empty(amps) ) {
+            return;
+        }
+        add_filter( 'the_content', function ( $content ) use ( $amps ) {
+            return $this->injectAmpAds($content, $amps);
+        }, 1 );
+
+        $scripts = $amp_config['requiredScripts'] ?? [];
+        if ( empty($scripts) ) {
+            return;
+        }
+        add_action( 'wp_head', function ( ) use ( $scripts ) {
+            $this->injectAmpAdsScripts($scripts);
+        });
+
+    }
+
+    public function injectAmpAdsScripts( $scripts ) {
+        foreach ($scripts as $script) {
+            echo $script;
+        }
+    }
+
+    public function injectAmpAds($content, $amps ) {
+        $sticky_footer = false;
+        foreach ($amps as $amp) {
+            if ($amp['key'] != 'Mobile_Sticky_Footer') {
+                continue;
+            }
+            $sticky_footer = $amp['component'];
+        }
+        $this->ampAdsInjected = true;
+
+        if (!$sticky_footer) {
+            return $content;
+        }
+
+        return $content . $sticky_footer;
     }
 
     public function injectPresizedAdSlot() {
