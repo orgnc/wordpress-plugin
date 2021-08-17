@@ -257,13 +257,17 @@ class Empire {
         }
 
         // If we are using our advanced author taxonomy support, then override with that
-        $author_support_data = get_field( 'opt_author_support', 'option' );
-        $author_support_enabled = true;
-        if (
-            ! isset( $author_support_data['enabled'] ) ||
-            empty( $author_support_data['enabled'] )
-        ) {
-            $author_support_enabled = false;
+        // (requires Advanced Custom Fields plugin)
+        $author_support_enabled = false;
+        if ( function_exists('get_field') ) {
+            $author_support_data = get_field( 'opt_author_support', 'option' );
+            $author_support_enabled = true;
+            if (
+                ! isset( $author_support_data['enabled'] ) ||
+                empty( $author_support_data['enabled'] )
+            ) {
+                $author_support_enabled = false;
+            }
         }
         if (
             $author_support_enabled &&
