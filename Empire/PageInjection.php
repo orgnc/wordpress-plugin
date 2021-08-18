@@ -3,8 +3,6 @@
 
 namespace Empire;
 
-use DOMDocument;
-
 /**
  * Handles adding data into the various pages on the website based on the selected
  * configuration.
@@ -39,55 +37,31 @@ class PageInjection {
         }
 
         if ( $is_amp && $this->empire->useAmpAds() ) {
-            $this->setupAmpAds();
-        }
-    }
-    public function setupAmpAds( ) {
-        // Skip it if we already injected once
-        if ( $this->ampAdsInjected ) {
-            return;
-        }
-
-        $amp_config = get_option( 'empire::ad_amp_config' );
-        $amps = $amp_config['amps'] ?? [];
-        if ( empty(amps) ) {
-            return;
-        }
-        add_filter( 'the_content', function ( $content ) use ( $amps ) {
-            return $this->injectAmpAds($content, $amps);
-        }, 1 );
-
-        $scripts = $amp_config['requiredScripts'] ?? [];
-        if ( empty($scripts) ) {
-            return;
-        }
-        add_action( 'wp_head', function ( ) use ( $scripts ) {
-            $this->injectAmpAdsScripts($scripts);
-        });
-
-    }
-
-    public function injectAmpAdsScripts( $scripts ) {
-        foreach ($scripts as $script) {
-            echo $script;
+            $this->setupAmpAdsInjector();
         }
     }
 
-    public function injectAmpAds($content, $amps ) {
-        $sticky_footer = false;
-        foreach ($amps as $amp) {
-            if ($amp['key'] != 'Mobile_Sticky_Footer') {
-                continue;
-            }
-            $sticky_footer = $amp['component'];
-        }
-        $this->ampAdsInjected = true;
-
-        if (!$sticky_footer) {
-            return $content;
+    public function setupAmpAdsInjector( ) {
+        $ampConfig = $this->empire->getAmpConfig();
+        if ( empty($ampConfig['forPlacement']) ) {
+            return;
         }
 
-        return $content . $sticky_footer;
+        $adsConfig = $this->empire->getAdsConfig();
+        $getTargeting = function() {
+            return $this->empire->getTargeting();
+        };
+        add_filter( 'amp_content_sanitizers', 
+            function ( $sanitizer_classes, $post) use ($ampConfig, $adsConfig, $getTargeting) {
+                require_once( dirname( __FILE__ ) . '/AmpAdsInjector.php');
+                $sanitizer_classes['\Empire\AmpAdsInjector'] = [
+                    'ampConfig' => $ampConfig,
+                    'adsConfig' => $adsConfig,
+                    'getTargeting' => $getTargeting,
+                ];
+                return $sanitizer_classes;
+            }, 
+        10, 2);
     }
 
     public function injectPresizedAdSlot() {
@@ -172,40 +146,28 @@ class PageInjection {
         }
 
         if ( $this->empire->getPixelPublishedUrl() || $this->empire->getSiteId() ) {
+            $post = get_post();
             $categoryString = '';
             $keywordString = '';
             $id = '';
             $gamId = '';
 
+            $category = $this->empire->getCategoryForCurrentPage();
+            if (!is_null($category)) {
+                $categoryString = $category->slug;
+            }
+
             if ( is_single() ) {
                 $id = esc_html( get_the_ID() );
                 $gamId = get_post_meta( $id, 'empire_gam_id', true );
-                $category = $this->getArticlePrimaryCategory( $id );
-                $keywords = get_the_tags();
 
-                if ( $keywords && is_array( $keywords ) ) {
-                    $keywords = array_map(
-                        function( $tag ) {
-                            return $tag->slug;
-                        },
-                        $keywords
-                    );
+                $keywords = $this->empire->getKeywordsFor( $post->ID );
+                if (!empty($keywords)) {
                     $keywordString = esc_html( implode( ',', $keywords ) );
                 }
-
-                if ( $category && isset( $category['primary_category'] ) ) {
-                    $categoryString = $category['primary_category']['obj']->slug;
-                }
             } else if ( is_category() ) {
-                $category = get_queried_object();
                 $id = 'channel-' . $category->slug;
-
-                $categoryString = '';
-                if ( $category ) {
-                    $categoryString = $category->slug;
-                }
             } else if ( is_page() ) {
-                $post = get_post();
                 $id = 'page-' . $post->post_name;
             }
 
@@ -280,62 +242,5 @@ class PageInjection {
             </script>
             <?php
         }
-    }
-
-    /**
-     * Get the article's primary category/all categories
-     *
-     * Uses Yoast SEO primary if it set, otherwise uses the first category
-     *
-     * @param $article_id
-     * @param string $term
-     * @param false $return_all_categories
-     * @return array
-     */
-    private function getArticlePrimaryCategory(
-        $article_id,
-        $term = 'category',
-        $return_all_categories = false
-    ) {
-        $result = array();
-
-        if ( class_exists( '\WPSEO_Primary_Term' ) ) {
-            // Show Primary category by Yoast if it is enabled & set
-            $wpseo_primary_term = new \WPSEO_Primary_Term( $term, $article_id );
-            $primary_term = get_term( $wpseo_primary_term->get_primary_term() );
-
-            if ( ! is_wp_error( $primary_term ) ) {
-                $result['primary_category'] = array(
-                    'obj' => $primary_term,
-                    'link' => get_term_link( $primary_term ),
-                );
-            }
-        }
-
-        if ( empty( $result['primary_category'] ) || $return_all_categories ) {
-            $categories_list = get_the_terms( $article_id, $term );
-            if ( empty( $return['primary_category'] ) && ! empty( $categories_list ) ) {
-                $last_category = end( $categories_list );
-                $result['primary_category'] = array(
-                    'obj' => $last_category,
-                    'link' => get_term_link( $last_category ),
-                );  //get the first category
-            }
-            if ( $return_all_categories ) {
-                $result['all_categories'] = array();
-
-                array_pop( $categories_list );
-                if ( ! empty( $categories_list ) ) {
-                    foreach ( $categories_list as &$category ) {
-                        $result['all_categories'][] = array(
-                            'obj' => $category,
-                            'link' => get_term_link( $category ),
-                        );
-                    }
-                }
-            }
-        }
-
-        return $result;
     }
 }

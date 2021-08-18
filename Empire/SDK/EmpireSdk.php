@@ -243,6 +243,9 @@ class EmpireSdk {
                                         'key',
                                         'name',
                                         'description',
+                                        'relative',
+                                        'selectors',
+                                        'limit',
                                         'enabled',
                                         'desktopEnabled',
                                         'tabletEnabled',
@@ -253,7 +256,7 @@ class EmpireSdk {
                         ),
                         ( new Query( 'ampConfig' ) )->setSelectionSet(
                             array(
-                                ( new Query( 'amps' ) )->setSelectionSet(
+                                ( new Query( 'placements' ) )->setSelectionSet(
                                     array(
                                         'key',
                                         'component',
