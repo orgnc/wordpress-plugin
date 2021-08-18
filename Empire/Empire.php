@@ -106,6 +106,16 @@ class Empire {
     private $siteId;
 
     /**
+     * @var array Configuration for AMP
+     */
+    private $ampConfig = null;
+
+    /**
+     * @var array Configuration for Ads
+     */
+    private $adsConfig = null;
+
+    /**
      * Create the Empire plugin ecosystem
      *
      * @param $environment string PRODUCTION or DEVELOPMENT
@@ -230,13 +240,63 @@ class Empire {
         return $this->isEnabled() && $this->ampAdsEnabled;
     }
 
-    /**
-     * Synchronizes a single Post to Empire
-     *
-     * @param $post
-     */
-    public function syncPost( $post ) {
-        $canonical = get_permalink( $post->ID );
+    public function getAmpConfig() : array {
+        if ( !empty($this->ampConfig) ) {
+            return $this->ampConfig;
+        }
+
+        $ampConfig = get_option( 'empire::ad_amp_config' );
+        if ( empty($ampConfig)) {
+            $this->ampConfig = [
+                'forPlacement' => [],
+            ];
+            return $this->ampConfig;
+        }
+
+        $forPlacement = array_reduce($ampConfig['placements'], function($byKey, $amp) {
+            $byKey[$amp['key']] = $amp;
+            return $byKey;
+        }, []);
+
+        $this->ampConfig = [
+            'forPlacement' => $forPlacement,
+        ];
+        return $this->ampConfig;
+    }
+
+    public function getAdsConfig() : array {
+        if ( !empty($this->adsConfig) ) {
+            return $this->adsConfig;
+        }
+
+        $adsConfig = get_option( 'empire::ad_settings' );
+        if ( empty($adsConfig)) {
+            $this->adsConfig = [
+                'adRules' => [],
+                'forPlacement' => [],
+            ];
+            return $this->adsConfig;
+        }
+
+        $forPlacement = array_reduce($adsConfig['placements'], function($byKey, $place) {
+            $byKey[$place['key']] = $place;
+            return $byKey;
+        }, []);
+
+        $this->adsConfig = [
+            'adRules' => $adsConfig['adRules'],
+            'forPlacement' => $forPlacement,
+        ];
+        return $this->adsConfig;
+    }
+
+    public function getCurrentUrl() {
+        $protocol = is_ssl() ? 'https://' : 'http://';
+        return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
+    }
+
+    public function getCanonicalUrlFor( $postId ) {
+        $canonical = get_permalink( $postId );
 
         // Cleanup canonicals - hack for initial migrations from dev
         $canonical = str_replace( 'lcl.taskandpurpose', 'taskandpurpose', $canonical );
@@ -246,6 +306,113 @@ class Empire {
         $canonical = str_replace( 'dev.', 'www.', $canonical );
         $canonical = str_replace( 'stg.', 'www.', $canonical );
         $canonical = str_replace( 'http://', 'https://', $canonical );
+
+        return $canonical;
+    }
+
+    public function getKeywordsFor( $postId ) {
+        $keywords = get_the_tags( $postId );
+
+        if ( $keywords && is_array( $keywords ) ) {
+            return array_map(
+                function( $tag ) {
+                    return $tag->slug;
+                },
+                $keywords
+            );
+        }
+        return [];
+    }
+
+    public function getCategoryForCurrentPage() {
+        if ( is_single() ) {
+            $id = esc_html( get_the_ID() );
+            $category = $this->getArticlePrimaryCategory( $id );
+            if ( $category && isset( $category['primary_category'] ) ) {
+                return $category['primary_category']['obj'] ?? null;
+            } else {
+                return null;
+            }
+        } else if ( is_category() ) {
+            return get_queried_object();
+        } else {
+            return null;
+        }
+    }
+
+    public function getTargeting() {
+        $post = get_post();
+        return [
+            'url' => $this->getCurrentUrl(),
+            'keywords' => $this->getKeywordsFor( $post->ID ),
+            'category' => $this->getCategoryForCurrentPage(),
+        ];
+    }
+
+    /**
+     * Get the article's primary category/all categories
+     *
+     * Uses Yoast SEO primary if it set, otherwise uses the first category
+     *
+     * @param $article_id
+     * @param string $term
+     * @param false $return_all_categories
+     * @return array
+     */
+    public function getArticlePrimaryCategory(
+        $article_id,
+        $term = 'category',
+        $return_all_categories = false
+    ) {
+        $result = array();
+
+        if ( class_exists( '\WPSEO_Primary_Term' ) ) {
+            // Show Primary category by Yoast if it is enabled & set
+            $wpseo_primary_term = new \WPSEO_Primary_Term( $term, $article_id );
+            $primary_term = get_term( $wpseo_primary_term->get_primary_term() );
+
+            if ( ! is_wp_error( $primary_term ) ) {
+                $result['primary_category'] = array(
+                    'obj' => $primary_term,
+                    'link' => get_term_link( $primary_term ),
+                );
+            }
+        }
+
+        if ( empty( $result['primary_category'] ) || $return_all_categories ) {
+            $categories_list = get_the_terms( $article_id, $term );
+            if ( empty( $return['primary_category'] ) && ! empty( $categories_list ) ) {
+                $last_category = end( $categories_list );
+                $result['primary_category'] = array(
+                    'obj' => $last_category,
+                    'link' => get_term_link( $last_category ),
+                );  //get the first category
+            }
+            if ( $return_all_categories ) {
+                $result['all_categories'] = array();
+
+                array_pop( $categories_list );
+                if ( ! empty( $categories_list ) ) {
+                    foreach ( $categories_list as &$category ) {
+                        $result['all_categories'][] = array(
+                            'obj' => $category,
+                            'link' => get_term_link( $category ),
+                        );
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Synchronizes a single Post to Empire
+     *
+     * @param $post
+     */
+    public function syncPost( $post ) {
+        $canonical = $this->getCanonicalUrlFor( $post->ID );
 
         $title = $post->post_title;
         $external_id = $post->ID;

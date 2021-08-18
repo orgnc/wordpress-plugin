@@ -4,7 +4,11 @@
     "type": "wordpress-plugin",
     "require": {
         "gmostafa/php-graphql-client": "^1.10",
-        "seravo/wp-custom-bulk-actions": "^0.1.4"
+        "seravo/wp-custom-bulk-actions": "^0.1.4",
+        "fluentdom/fluentdom": "^8.0",
+        "fluentdom/html5": "^2.0",
+        "fluentdom/selectors-symfony": "^4.0",
+        "fluentdom/selectors-phpcss": "^2.0"
     },
     "authors": [
         {
