@@ -6,16 +6,40 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
     public function sanitize() {
         $ampConfig = $this->args['ampConfig'];
         $adsConfig = $this->args['adsConfig'];
-        $getTargeting = $this->args['getTargeting'];
+        $targeting = $this->args['getTargeting']();
 
-        if ($this->checkAdsBlocked($adsConfig['adRules'], $getTargeting())) {
+        if ($this->checkAdsBlocked($adsConfig['adRules'], $targeting)) {
             return;
         }
 
         foreach ($ampConfig['forPlacement'] as $key => $amp) {
-            $place = $adsConfig['forPlacement'][$key];
-            $this->injectAds($amp['component'], $place['selectors'], $place['limit']);
+            $placement = $adsConfig['forPlacement'][$key];
+            $component = $this->applyTargeting($amp['component'], $targeting);
+            $this->injectAds($component, $placement['selectors'], $placement['limit']);
         }
+    }
+
+    public function applyTargeting($component, $values) {
+        $targeting = [
+            'site' => $values['siteDomain'],
+            'article' => $values['gamPageId'],
+            'targeting_article' => $values['gamExternalId'],
+        ];
+
+        $keywords = $values['keywords'];
+        if (!empty($keywords)) {
+            $targeting['content_keyword'] = $keywords;
+            $targeting['targeting_keyword'] = $keywords;
+        }
+
+        $category = $values['category'];
+        if (!is_null($category)) {
+            $targeting['site_section'] = $category->slug;
+            $targeting['targeting_section'] = $category->slug;
+        }
+
+        $json = json_encode(['targeting' => $targeting]);
+        return str_replace('json="{}"', 'json='. $json, $component);
     }
 
     public function injectAds($ad, $selectors, $limit) {

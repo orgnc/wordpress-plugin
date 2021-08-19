@@ -146,33 +146,22 @@ class PageInjection {
         }
 
         if ( $this->empire->getPixelPublishedUrl() || $this->empire->getSiteId() ) {
-            $post = get_post();
             $categoryString = '';
             $keywordString = '';
-            $id = '';
-            $gamId = '';
+            [
+                'keywords' => $keywords,
+                'category' => $category,
+                'gamPageId' => $gamPageId,
+                'gamExternalId' => $gamExternalId,
+            ] = $this->empire->getTargeting();
 
-            $category = $this->empire->getCategoryForCurrentPage();
             if (!is_null($category)) {
                 $categoryString = $category->slug;
             }
 
-            if ( is_single() ) {
-                $id = esc_html( get_the_ID() );
-                $gamId = get_post_meta( $id, 'empire_gam_id', true );
-
-                $keywords = $this->empire->getKeywordsFor( $post->ID );
-                if (!empty($keywords)) {
-                    $keywordString = esc_html( implode( ',', $keywords ) );
-                }
-            } else if ( is_category() ) {
-                $id = 'channel-' . $category->slug;
-            } else if ( is_page() ) {
-                $id = 'page-' . $post->post_name;
+            if (!empty($keywords)) {
+                $keywordString = esc_html( implode( ',', $keywords ) );
             }
-
-            $gamPageId = $gamId ? $gamId : $id;
-            $gamExternalId = $id;
             ?>
             <script>var utils={queryString:{},init:function(){var t=this.queryString;location.search.slice(1).split("&").forEach(function(e){e=e.split("="),t[e[0]]=decodeURIComponent(e[1]||"")}),"true"===t.debug_cls&&this.logLayoutShift()},logLayoutShift:function(){function e(e){for(i=0;i<e.getEntries().length;i++){var t=e.getEntries()[i];o+=t.value,console.log("Layout shift: "+t.value+". CLS: "+o+".")}}var o=0;try{new PerformanceObserver(e).observe({type:"layout-shift",buffered:!0})}catch(t){console.log("PerformanceObserver not supported.")}},setCookie:function(e,t,o){var n,r=new Date,i=2147483647;void 0!==o&&(r.setTime(r.getTime()+24*o*60*60*1e3),i=r.toUTCString()),n="expires="+i,document.cookie=e+"="+t+";"+n+";path=/"},getCookie:function(e){var t=document.cookie.match("(^|;) ?"+e+"=([^;]*)(;|$)");return t?t[2]:null},deleteCookie:function(e){utils.setCookie(e,"",-1)},loadScript:function(e,t,o,n,r,i){if(document.querySelector("#"+t))"function"==typeof n&&n();else{var s=e.createElement("script");s.src=o,s.id=t,"function"==typeof n&&(s.onload=n),r&&Object.entries(r).forEach(function(e){s.setAttribute(e[0],e[1])}),(i=i||e.getElementsByTagName("head")[0]).appendChild(s)}}};utils.init(),window.BVTests=function(){function f(){o&&console.log.apply(null,arguments)}function e(e,t){if(!d[e]){var o=utils.queryString[h];if(o){o=o.split(",");for(var n=0;n<o.length;n++){var r=o[n].split("-");if(2===r.length&&r[0]===e)return g[e]=r[1],utils.setCookie(v+e,r[1]),void f("User bucketed from query string param:",e,r[1])}}var i=utils.getCookie(v+e);if(i&&("control"===i||i in t))f("User bucketed from cookie:",e,g[e]=i);else{d[e]=t,g[e]="control";var s,u=[];for(var a in t){s=parseInt(t[a]);for(n=0;n<s;n++)u.push(a)}var c=u.length;if(c<100)for(n=0;n<100-c;n++)u.push("control");f("weightedBuckets",u.length,u);var l=u[Math.floor(Math.random()*u.length)];f("user sampled:",s,e,l),g[e]=l,utils.setCookie(v+e,g[e]),f("user bucketed:",e,g[e])}}}function t(){var e=[];for(var t in g){var o=g[t];e.push(t+"-"+o)}return e}var d={},g={},v="bv_test__",h="debug_bv_tests",o="debug_tests"in utils.queryString;return{create:e,getValue:function(e){return g[e]},getUserBuckets:function(){return g},getTargetingValue:t}}();</script>
             <script>
