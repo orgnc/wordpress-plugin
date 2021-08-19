@@ -226,6 +226,7 @@ class EmpireSdk {
             array(
                 ( new Query( 'sites' ) )->setSelectionSet(
                     array(
+                        'domain',
                         ( new Query( 'settings' ) )->setSelectionSet(
                             array(
                                 ( new Query( 'adRules' ) )->setSelectionSet(

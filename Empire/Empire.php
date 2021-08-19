@@ -125,6 +125,7 @@ class Empire {
         $apiKey = get_option( 'empire::api_key' );
         $this->sdkKey = get_option( 'empire::sdk_key' );
         $this->siteId = get_option( 'empire::site_id' );
+        $this->siteDomain = get_option( 'empire::site_domain' );
         $this->api = new Api( $this->environment, $apiKey );
         $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey );
 
@@ -342,10 +343,31 @@ class Empire {
 
     public function getTargeting() {
         $post = get_post();
+
+        $url = $this->getCurrentUrl();
+        $keywords = $this->getKeywordsFor( $post->ID );
+        $category = $this->getCategoryForCurrentPage();
+
+        $id = '';
+        $gamId = '';
+        if ( is_single() ) {
+            $id = esc_html( get_the_ID() );
+            $gamId = get_post_meta( $id, 'empire_gam_id', true );
+        } else if ( is_category() ) {
+            $id = 'channel-' . $category->slug;
+        } else if ( is_page() ) {
+            $id = 'page-' . $post->post_name;
+        }
+        $gamPageId = $gamId ? $gamId : $id;
+        $gamExternalId = $id;
+
         return [
-            'url' => $this->getCurrentUrl(),
-            'keywords' => $this->getKeywordsFor( $post->ID ),
-            'category' => $this->getCategoryForCurrentPage(),
+            'siteDomain' => $this->siteDomain,
+            'url' => $url,
+            'keywords' => $keywords,
+            'category' => $category,
+            'gamPageId' => $gamPageId,
+            'gamExternalId' => $gamExternalId,
         ];
     }
 
@@ -737,6 +759,9 @@ class Empire {
 
     public function syncAdConfig() {
         $config = $this->sdk->queryAdConfig();
+
+        $this->debug( 'Got site domain: ' . $config['domain'] );
+        update_option( 'empire::site_domain', $config['domain'], false );
 
         $this->debug( 'Got Ad Settings: ' . json_encode( $config['settings'] ) );
         update_option( 'empire::ad_settings', $config['settings'], false );
