@@ -47,8 +47,7 @@ class EmpireSdk {
     public function __construct(
         string $siteGuid,
         ?string $token = null,
-        //string $url = 'https://api.empireio.com/graphql'
-        string $url = 'http://api.lcl.empireio.com:8000/graphql'
+        string $url = 'https://api.empireio.com/graphql'
     ) {
          $params = array();
         if ( $token ) {
