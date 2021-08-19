@@ -14,8 +14,15 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
 
         foreach ($ampConfig['forPlacement'] as $key => $amp) {
             $placement = $adsConfig['forPlacement'][$key];
-            $component = $this->applyTargeting($amp['component'], $targeting);
-            $this->injectAds($component, $placement['selectors'], $placement['limit']);
+
+            [
+                'selectors' => $selectors,
+                'limit' => $limit,
+                'relative' => $relative,
+            ] = $placement;
+
+            $adHtml = $this->applyTargeting($amp['component'], $targeting);
+            $this->injectAds($adHtml, $relative, $selectors, $limit);
         }
     }
 
@@ -42,22 +49,38 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         return str_replace('json="{}"', 'json='. $json, $component);
     }
 
-    public function injectAds($ad, $selectors, $limit) {
+    public function injectAds($adHtml, $relative, $selectors, $limit) {
         $count = 0;
         $transformer = \FluentDOM::getXPathTransformer();
         foreach ($selectors as $selector) {
             $path = $transformer->toXpath($selector);
 
             foreach ($this->dom->xpath->query($path) as $elem) {
-                $component = $this->nodeFromHtml($ad);
-                # TODO: respect relative option
-                $elem->insertBefore($component);
+                $ad = $this->nodeFromHtml($adHtml);
+                $this->injectAd($ad, $relative, $elem);
                 $count++;
 
                 if ($count == $limit) {
                     return;
                 }
             }
+        }
+    }
+
+    public function injectAd($ad, $relative, $elem) {
+        switch ($relative) {
+            case 'inside_start':
+                return $elem->insertBefore($ad, $elem->firstChild);
+            case 'inside_end':
+                return $elem->appendChild($ad);
+            case 'after':
+                return $elem->parentNode->insertBefore($ad, $elem->nextSibling);
+            case 'before':
+                return $elem->parentNode->insertBefore($ad, $elem);
+            case 'sticky_footer':
+                return $elem->appendChild($ad);
+            default:
+                return false;
         }
     }
 
