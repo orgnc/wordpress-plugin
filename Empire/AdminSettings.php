@@ -131,9 +131,17 @@ class AdminSettings {
                 <p><label>% of ads on Empire: <input type="text" name="empire_percent" id="empire_percent" value="<?php echo $empire_test; ?>" /></label></p>
                 <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
 
-                <p><label><input type="checkbox" name="empire_amp_ads_enabled"
-                                 id="empire_amp_ads_enabled" <?php echo $amp_ads_enabled ? 'checked' : ''; ?>> AMP Ads
-                        Enabled</label></p>
+                <p>
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="empire_amp_ads_enabled"
+                      id="empire_amp_ads_enabled"
+                      <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
+                    />
+                    AMP Ads Enabled
+                  </label>
+                </p>
 
                 <p><input type="submit" value="Update"/></p>
             </form>
