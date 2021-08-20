@@ -6,12 +6,20 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
+    'Symfony\\Component\\CssSelector\\' => array($vendorDir . '/symfony/css-selector'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
     'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
+    'PhpCss\\' => array($vendorDir . '/carica/phpcss/src/PhpCss'),
+    'Masterminds\\' => array($vendorDir . '/masterminds/html5/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
     'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'GraphQL\\' => array($vendorDir . '/gmostafa/php-graphql-client/src'),
+    'FluentDOM\\Symfony\\CssSelector\\' => array($vendorDir . '/fluentdom/selectors-symfony/src'),
+    'FluentDOM\\PhpCss\\' => array($vendorDir . '/fluentdom/selectors-phpcss/src'),
+    'FluentDOM\\HTML5\\' => array($vendorDir . '/fluentdom/html5/src'),
+    'FluentDOM\\' => array($vendorDir . '/fluentdom/fluentdom/src/FluentDOM'),
     'Empire\\SDK\\' => array($baseDir . '/Empire/SDK'),
     'Empire\\' => array($baseDir . '/Empire'),
 );
