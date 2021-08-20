@@ -21,12 +21,12 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
                 'relative' => $relative,
             ] = $placement;
 
-            $adHtml = $this->applyTargeting($amp['component'], $targeting);
+            $adHtml = $this->applyTargeting($amp['html'], $targeting);
             $this->injectAds($adHtml, $relative, $selectors, $limit);
         }
     }
 
-    public function applyTargeting($component, $values) {
+    public function applyTargeting($html, $values) {
         $targeting = [
             'site' => $values['siteDomain'],
             'article' => $values['gamPageId'],
@@ -46,7 +46,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         }
 
         $json = json_encode(['targeting' => $targeting]);
-        return str_replace('json="{}"', 'json='. $json, $component);
+        return str_replace('json="{}"', 'json='. $json, $html);
     }
 
     public function injectAds($adHtml, $relative, $selectors, $limit) {

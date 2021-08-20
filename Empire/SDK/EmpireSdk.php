@@ -259,7 +259,7 @@ class EmpireSdk {
                                 ( new Query( 'placements' ) )->setSelectionSet(
                                     array(
                                         'key',
-                                        'component',
+                                        'html',
                                     )
                                 ),
                                 'requiredScripts',
