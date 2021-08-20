@@ -7,17 +7,33 @@ namespace Composer\Autoload;
 class ComposerStaticInite81a26c22628869022da8f3fcb63b556
 {
     public static $files = array (
+        '00032f3d1c63c80843348abd4f65f78f' => __DIR__ . '/..' . '/fluentdom/fluentdom/src/FluentDOM.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        'd7c9a5138b45deb428e175ae748db2c5' => __DIR__ . '/..' . '/carica/phpcss/src/PhpCss.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
+        'b7187e2c212dd315c666a01c3e4a54d2' => __DIR__ . '/..' . '/fluentdom/selectors-phpcss/src/plugin.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '98f6b46ebc37d4e03ae0657efc3a20c7' => __DIR__ . '/..' . '/fluentdom/html5/src/plugin.php',
+        '873b7d4c7165a46f8bfe6f253c23fb15' => __DIR__ . '/..' . '/fluentdom/selectors-symfony/src/plugin.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'S' => 
+        array (
+            'Symfony\\Polyfill\\Php80\\' => 23,
+            'Symfony\\Component\\CssSelector\\' => 30,
+        ),
         'P' => 
         array (
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
+            'PhpCss\\' => 7,
+        ),
+        'M' => 
+        array (
+            'Masterminds\\' => 12,
         ),
         'G' => 
         array (
@@ -25,6 +41,13 @@ class ComposerStaticInite81a26c22628869022da8f3fcb63b556
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
             'GraphQL\\' => 8,
+        ),
+        'F' => 
+        array (
+            'FluentDOM\\Symfony\\CssSelector\\' => 30,
+            'FluentDOM\\PhpCss\\' => 17,
+            'FluentDOM\\HTML5\\' => 16,
+            'FluentDOM\\' => 10,
         ),
         'E' => 
         array (
@@ -34,6 +57,14 @@ class ComposerStaticInite81a26c22628869022da8f3fcb63b556
     );
 
     public static $prefixDirsPsr4 = array (
+        'Symfony\\Polyfill\\Php80\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
+        ),
+        'Symfony\\Component\\CssSelector\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/css-selector',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
@@ -41,6 +72,14 @@ class ComposerStaticInite81a26c22628869022da8f3fcb63b556
         'Psr\\Http\\Client\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-client/src',
+        ),
+        'PhpCss\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/carica/phpcss/src/PhpCss',
+        ),
+        'Masterminds\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/masterminds/html5/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -58,6 +97,22 @@ class ComposerStaticInite81a26c22628869022da8f3fcb63b556
         array (
             0 => __DIR__ . '/..' . '/gmostafa/php-graphql-client/src',
         ),
+        'FluentDOM\\Symfony\\CssSelector\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fluentdom/selectors-symfony/src',
+        ),
+        'FluentDOM\\PhpCss\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fluentdom/selectors-phpcss/src',
+        ),
+        'FluentDOM\\HTML5\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fluentdom/html5/src',
+        ),
+        'FluentDOM\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fluentdom/fluentdom/src/FluentDOM',
+        ),
         'Empire\\SDK\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Empire/SDK',
@@ -69,7 +124,11 @@ class ComposerStaticInite81a26c22628869022da8f3fcb63b556
     );
 
     public static $classMap = array (
+        'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
+        'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
+        'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
