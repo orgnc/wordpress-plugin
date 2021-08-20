@@ -17,10 +17,18 @@ class AdConfigSyncCommand {
             \WP_CLI::add_command( 'empire-sync-ad-config', $this );
         }
 
+        add_filter( 'cron_schedules', function ( $schedules ) {
+            $schedules['empire_every10minutes'] = array(
+                'interval' => 600,
+                'display' => __('Every 10 minutes')
+            );
+            return $schedules;
+        });
+
         // Include this command in cron schedule every hour
         add_action( 'empire_cron_sync_ad_config', array( $this, 'run' ) );
         if ( ! wp_next_scheduled( 'empire_cron_sync_ad_config' ) ) {
-            wp_schedule_event( time(), 'hourly', 'empire_cron_sync_ad_config' );
+            wp_schedule_event( time(), 'empire_every10minutes', 'empire_cron_sync_ad_config' );
         }
     }
 
