@@ -109,9 +109,6 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
                 case 'PATH':
                     $components = [parse_url($url)['path'] ?? '/'];
                     break;
-                case 'URL':
-                    $components = [$targeting['url']];
-                    break;
                 case 'TAG':
                     $components = $targeting['keywords'];
                     break;
