@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /src/empire
+    schedule:
+      interval: daily
