@@ -18,8 +18,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "Empire\\": "Empire/",
-            "Empire\\SDK\\": "Empire/SDK/"
+            "Empire\\": "src/empire/Empire/",
+            "Empire\\SDK\\": "src/empire/Empire/SDK/"
         }
     }
 }
