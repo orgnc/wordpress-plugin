@@ -67,9 +67,7 @@ class AdminSettings {
         $amp_ads_enabled = get_option( 'empire::amp_ads_enabled' );
 
         $total_published_posts = $this->empire->buildQueryAllSyncablePosts()->found_posts;
-        $total_synced_posts =
-            $this->empire->buildQueryNewlyUnsyncedPosts()->found_posts +
-            $this->empire->buildQueryNeverSyncedPosts()->found_posts;
+        $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts()->found_posts;
         ?>
         <style>
             #empire_host {
@@ -160,7 +158,7 @@ class AdminSettings {
             </form>
             <hr />
             <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
-            <p>Unsynchronized Posts: <?php echo number_format( $total_synced_posts ); ?></p>
+            <p>Recently Updated Posts (unsynced): <?php echo number_format( $total_synced_posts ); ?></p>
         </div>
         <?php
     }
