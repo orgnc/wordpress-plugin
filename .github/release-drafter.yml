@@ -1,0 +1,16 @@
+name-template: $NEXT_PATCH_VERSION
+tag-template: $NEXT_PATCH_VERSION
+categories:
+  - title: 🚀 Features
+    labels:
+      - enhancement
+      - feature
+  - title: 🐛 Bug Fixes
+    labels:
+      - bugfix
+      - fix
+      - bug
+template: |
+  ## Changes
+
+  $CHANGES
