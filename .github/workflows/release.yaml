@@ -58,17 +58,19 @@ jobs:
           access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # Push zip to S3 Bucket & GitHub Release Archive
-      - name: Upload the artifacts
+      # Push zip to GitHub Release Archive
+      - name: Upload the artifacts to GitHub
         uses: skx/github-action-publish-binaries@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: 'empire-*.zip'
+
+      # Push zip to S3 for easy integration with Empire Platform
       - name: Deploy
         run: |
-          s3cmd put empire-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/
           s3cmd put empire-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/empire-latest.zip
+          s3cmd setacl s3://${{ env.AWS_BUCKET }}/empire-latest.zip --acl-public
 
       # Pre-configured step to send notification on build success
       - name: Notify slack success
