@@ -1,0 +1,95 @@
+name: Build Plugin Zip and Push to S3
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  deploy:
+    name: Empire Wordpress Plugin - Build & Publish Package
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-west-2
+      AWS_BUCKET: empire-wordpress-plugin
+      BUILD_NUMBER: ${{ github.event.release.tag_name }}
+
+    steps:
+      # This is a pre-configured step to send build notifications to slack
+      - uses: voxmedia/github-action-slack-notify-build@v1
+        id: slack
+        with:
+          channel: dev-notifications
+          status: STARTED
+          color: warning
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Install dependencies
+      - name: Composer (php-actions)
+        uses: php-actions/composer@v6
+        with:
+          dev: no
+
+      # Create a packaged up zip file
+      - name: Set Version Number & Build Zip
+        id: build-zip
+        run: |
+          sed -i 's/VERSION/${{ env.BUILD_NUMBER }}/' empire.php
+          mkdir empire
+          ls -alh
+          sudo chown -R runner:docker .
+          mv empire.php empire/
+          mv composer.json empire/
+          mv composer.lock empire/
+          mv vendor empire/
+          zip -r empire-${{ env.BUILD_NUMBER }}.zip empire
+
+      # Set up our S3 Connection
+      - name: Set up S3cmd cli tool
+        uses: s3-actions/s3cmd@v1.1
+        with:
+          provider: aws # default is linode
+          region: ${{ env.AWS_REGION }}
+          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # Push zip to S3 Bucket & GitHub Release Archive
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'empire-*.zip'
+      - name: Deploy
+        run: |
+          s3cmd put empire-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/
+          s3cmd put empire-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/empire-latest.zip
+
+      # Pre-configured step to send notification on build success
+      - name: Notify slack success
+        if: success()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          message_id: ${{ steps.slack.outputs.message_id }}
+          channel: dev-notifications
+          status: SUCCESS
+          color: good
+
+      # Pre-configured step to send notification on build failure
+      - name: Notify slack fail
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          message_id: ${{ steps.slack.outputs.message_id }}
+          channel: dev-notifications
+          status: FAILED
+          color: danger

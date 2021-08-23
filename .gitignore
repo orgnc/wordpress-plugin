@@ -1,4 +1,1 @@
-# This is commented out intentionally so that we can get the vendors included in the
-# packaged up "Release" version for now and included in the downloadable zip for the
-# Wordpress dependency.
-#vendor/
+vendor/
