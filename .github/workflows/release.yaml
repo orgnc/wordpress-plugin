@@ -40,13 +40,16 @@ jobs:
         id: build-zip
         run: |
           sed -i 's/VERSION/${{ env.BUILD_NUMBER }}/' empire.php
-          mkdir empire
+          composer install
+          mkdir -p build/empire
           ls -alh
-          sudo chown -R runner:docker .
-          mv empire.php empire/
-          mv composer.json empire/
-          mv composer.lock empire/
-          mv vendor empire/
+          #sudo chown -R runner:docker .
+          cp -r Empire build/empire/
+          cp empire.php build/empire/
+          cp composer.json build/empire/
+          cp composer.lock build/empire/
+          cp -r vendor build/empire/
+          cd build
           zip -r empire-${{ env.BUILD_NUMBER }}.zip empire
 
       # Set up our S3 Connection
