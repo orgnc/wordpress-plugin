@@ -787,8 +787,8 @@ class Empire {
         }
 
         // This fails silently for now since we don't have much control over the user's config
-        $purgely = new Purgely_Purge();
-        $purgely->purge( Purgely_Purge::URL, get_home_url( null, '/ads.txt' ) );
+        $purgely = new \Purgely_Purge();
+        $purgely->purge( \Purgely_Purge::URL, get_home_url( null, '/ads.txt' ) );
     }
 
     public function substituteTags( string $content ) : string {
