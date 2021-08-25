@@ -33,6 +33,9 @@ class AdminSettings {
         if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
             if ( isset( $_POST['empire_sync_ads_txt'] ) ) {
                 $this->empire->syncAdsTxt();
+            } else if ( isset ( $_POST['empire_post_types']) ) {
+                update_option( 'empire::post_types', $_POST['empire_post_types'], false );
+                $this->empire->setPostTypes($_POST['empire_post_types']);
             } else {
                 update_option( 'empire::enabled', isset( $_POST['empire_enabled'] ) ? true : false, false );
                 update_option( 'empire::percent_test', $_POST['empire_percent'], false );
@@ -97,16 +100,16 @@ class AdminSettings {
                     <label>One Trust ID: <input type="text" name="empire_one_trust_id" style="width: 355px;" value="<?php echo $one_trust_id; ?>" /></label>
                 </p>
                 <script>
-                    var hideShowOneTrust = function() {
-                        if ( document.getElementById("empire_cmp").value === 'one-trust' ) {
-                            document.getElementById('one-trust-config').style.display = "block";
-                        } else {
-                            document.getElementById('one-trust-config').style.display = "none";
-                        }
+                  var hideShowOneTrust = function() {
+                    if ( document.getElementById("empire_cmp").value === 'one-trust' ) {
+                      document.getElementById('one-trust-config').style.display = "block";
+                    } else {
+                      document.getElementById('one-trust-config').style.display = "none";
                     }
-                    document.getElementById("empire_cmp").onchange = hideShowOneTrust;
-                    document.getElementById("empire_cmp").onclick = hideShowOneTrust;
-                    document.getElementById("empire_cmp").onkeypress = hideShowOneTrust;
+                  }
+                  document.getElementById("empire_cmp").onchange = hideShowOneTrust;
+                  document.getElementById("empire_cmp").onclick = hideShowOneTrust;
+                  document.getElementById("empire_cmp").onkeypress = hideShowOneTrust;
                 </script>
                 <p><label><input type="checkbox" name="empire_connatix_enabled"
                                  id="empire_connatix_enabled" <?php echo $connatix_enabled ? 'checked' : ''; ?>> Connatix Ads
@@ -115,30 +118,30 @@ class AdminSettings {
                     <label>Playspace Player ID: <input type="text" name="empire_connatix_playspace_id" style="width: 355px;" value="<?php echo $connatix_playspace_id; ?>" /></label>
                 </p>
                 <script>
-                    var hideShowConnatix = function() {
-                        if ( document.getElementById("empire_connatix_enabled").checked ) {
-                            document.getElementById('connatix-config').style.display = "block";
-                        } else {
-                            document.getElementById('connatix-config').style.display = "none";
-                        }
+                  var hideShowConnatix = function() {
+                    if ( document.getElementById("empire_connatix_enabled").checked ) {
+                      document.getElementById('connatix-config').style.display = "block";
+                    } else {
+                      document.getElementById('connatix-config').style.display = "none";
                     }
-                    document.getElementById("empire_connatix_enabled").onchange = hideShowConnatix;
-                    document.getElementById("empire_connatix_enabled").onclick = hideShowConnatix;
-                    document.getElementById("empire_connatix_enabled").onkeypress = hideShowConnatix;
+                  }
+                  document.getElementById("empire_connatix_enabled").onchange = hideShowConnatix;
+                  document.getElementById("empire_connatix_enabled").onclick = hideShowConnatix;
+                  document.getElementById("empire_connatix_enabled").onkeypress = hideShowConnatix;
                 </script>
                 <p><label>% of ads on Empire: <input type="text" name="empire_percent" id="empire_percent" value="<?php echo $empire_test; ?>" /></label></p>
                 <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
 
                 <p>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="empire_amp_ads_enabled"
-                      id="empire_amp_ads_enabled"
-                      <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
-                    />
-                    AMP Ads Enabled
-                  </label>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="empire_amp_ads_enabled"
+                                id="empire_amp_ads_enabled"
+                            <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
+                        />
+                        AMP Ads Enabled
+                    </label>
                 </p>
 
                 <p><input type="submit" value="Update"/></p>
@@ -156,9 +159,41 @@ class AdminSettings {
                 <input type="hidden" name="empire_sync_ads_txt" id="empire_sync_ads_txt" value="true" />
                 <p><input type="submit" value="Sync ads.txt"/></p>
             </form>
+
             <hr />
             <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
             <p>Recently Updated Posts (unsynced): <?php echo number_format( $total_synced_posts ); ?></p>
+
+            <hr />
+            <h2>Post Types</h2>
+            <p>Which post types from your CMS should be treated as Content for synchronization with
+                the Empire platform and eligible for Ads to be injected?</p>
+            <form method="post">
+                <ul>
+                    <?php
+                    $all_post_types = get_post_types();
+                    $exclude = [
+                        "attachment", "attachment", "revision", "nav_menu_item", "custom_css",
+                        "customize_changeset", "oembed_cache", "user_request", "wp_block",
+                        "wp_template", "amp_validated_url", "acf-field-group", "acf-field",
+                        "mc4wp-form"
+                    ];
+                    $post_types = array_diff($all_post_types, $exclude);
+                    foreach ( $post_types as $post_type ) {
+                        $checked = "";
+                        if ( in_array($post_type, $this->empire->getPostTypes()) ) {
+                            $checked = 'checked="checked"';
+                        }
+
+                        echo "<li><label>";
+                        echo "<input type='checkbox' $checked name='empire_post_types[]' value='" . $post_type . "' /> ";
+                        echo $post_type;
+                        echo "</label></li>\n";
+                    }
+                    ?>
+                </ul>
+                <p><input type="submit" value="Save" />
+            </form>
         </div>
         <?php
     }
@@ -190,8 +225,8 @@ class AdminSettings {
      * @param $update
      */
     public function handleSavePostHook( $post_ID, $post, $update ) {
-        // sync only real 'posts' not revisions, pages or attachments
-        if ( $post->post_type != 'post' ) {
+        // sync only real 'posts' not revisions or attachments
+        if ( ! in_array($post->post_type, $this->empire->getPostTypes()) ) {
             return;
         }
 

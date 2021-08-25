@@ -116,6 +116,13 @@ class Empire {
     private $adsConfig = null;
 
     /**
+     * List of Post Types that we are synchronizing with Empire Platform
+     *
+     * @var string[]
+     */
+    private $postTypes;
+
+    /**
      * Create the Empire plugin ecosystem
      *
      * @param $environment string PRODUCTION or DEVELOPMENT
@@ -146,6 +153,8 @@ class Empire {
         $this->pixelPublishedUrl = get_option( 'empire::pixel_published_url' );
         $this->pixelTestingUrl = get_option( 'empire::pixel_testing_url' );
 
+        $this->postTypes = get_option('empire::post_types', ['post', 'page']);
+
         /* Load up our sub-page configs */
         new AdminSettings( $this );
         new CCPAPage( $this );
@@ -158,7 +167,7 @@ class Empire {
     }
 
     public function getEnvironment() {
-         return $this->environment;
+        return $this->environment;
     }
 
     /**
@@ -178,6 +187,24 @@ class Empire {
      */
     public function getCmp() : bool {
         return $this->cmp;
+    }
+
+    /**
+     * Post types that we synchronize with Empire Platform
+     *
+     * @return string[]
+     */
+    public function getPostTypes()
+    {
+        return $this->postTypes;
+    }
+
+    /**
+     * Update the list of post types we synchronize and inject ads on
+     */
+    public function setPostTypes($types)
+    {
+        $this->postTypes = $types;
     }
 
     /**
@@ -293,7 +320,7 @@ class Empire {
 
     public function getCurrentUrl() {
         $protocol = is_ssl() ? 'https://' : 'http://';
-        return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
+        return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     }
 
     public function getCanonicalUrlFor( $postId ) {
