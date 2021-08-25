@@ -776,7 +776,27 @@ class Empire {
 
     public function syncAdsTxt() {
         $ads_txt_content = $this->sdk->queryAdsTxt();
+        $old_ads_txt = $this->getAdsTxtManager()->get();
+
+        // Make sure there was actually a change
+        if ( $old_ads_txt == $ads_txt_content ) {
+            return;
+        }
+
+        // If there was a change then trigger the update
         $this->getAdsTxtManager()->update( $ads_txt_content );
+
+        // and clear CDN (only Fastly supported so far)
+        if (
+            ! is_plugin_active( 'fastly/purgely.php' ) ||
+            ! class_exists( 'Purgely_Purge' )
+        ) {
+            return;
+        }
+
+        // This fails silently for now since we don't have much control over the user's config
+        $purgely = new \Purgely_Purge();
+        $purgely->purge( \Purgely_Purge::URL, get_home_url( null, '/ads.txt' ) );
     }
 
     public function substituteTags( string $content ) : string {

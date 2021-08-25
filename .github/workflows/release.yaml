@@ -40,13 +40,15 @@ jobs:
         id: build-zip
         run: |
           sed -i 's/VERSION/${{ env.BUILD_NUMBER }}/' empire.php
-          mkdir empire
+          mkdir -p build/empire
           ls -alh
           sudo chown -R runner:docker .
-          mv empire.php empire/
-          mv composer.json empire/
-          mv composer.lock empire/
-          mv vendor empire/
+          cp -r Empire build/empire/
+          cp empire.php build/empire/
+          cp composer.json build/empire/
+          cp composer.lock build/empire/
+          cp -r vendor build/empire/
+          cd build
           zip -r empire-${{ env.BUILD_NUMBER }}.zip empire
 
       # Set up our S3 Connection
@@ -64,12 +66,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: 'empire-*.zip'
+          args: 'build/empire-*.zip'
 
       # Push zip to S3 for easy integration with Empire Platform
       - name: Deploy
         run: |
-          s3cmd put empire-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/empire-latest.zip
+          s3cmd put build/empire-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/empire-latest.zip
           s3cmd setacl s3://${{ env.AWS_BUCKET }}/empire-latest.zip --acl-public
 
       # Pre-configured step to send notification on build success

@@ -21,6 +21,10 @@ class AdsTxt {
         add_action( 'init', array( $this, 'show' ) );
     }
 
+    public function get() {
+        return get_option( 'empire::ads_txt' );
+    }
+
     public function show() {
         if ( isset( $_SERVER ) && $_SERVER['REQUEST_URI'] === '/ads.txt' ) {
             $enabled = get_option( 'empire::enabled' );
