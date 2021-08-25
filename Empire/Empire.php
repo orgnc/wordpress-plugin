@@ -776,9 +776,17 @@ class Empire {
 
     public function syncAdsTxt() {
         $ads_txt_content = $this->sdk->queryAdsTxt();
+        $old_ads_txt = $this->getAdsTxtManager()->get();
+
+        // Make sure there was actually a change
+        if ( $old_ads_txt == $ads_txt_content ) {
+            return;
+        }
+
+        // If there was a change then trigger the update
         $this->getAdsTxtManager()->update( $ads_txt_content );
 
-        // Clear CDN (only Fastly supported so far)
+        // and clear CDN (only Fastly supported so far)
         if (
             ! is_plugin_active( 'fastly/purgely.php' ) ||
             ! class_exists( 'Purgely_Purge' )
