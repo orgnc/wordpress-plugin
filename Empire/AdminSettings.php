@@ -100,16 +100,16 @@ class AdminSettings {
                     <label>One Trust ID: <input type="text" name="empire_one_trust_id" style="width: 355px;" value="<?php echo $one_trust_id; ?>" /></label>
                 </p>
                 <script>
-                  var hideShowOneTrust = function() {
-                    if ( document.getElementById("empire_cmp").value === 'one-trust' ) {
-                      document.getElementById('one-trust-config').style.display = "block";
-                    } else {
-                      document.getElementById('one-trust-config').style.display = "none";
+                    var hideShowOneTrust = function() {
+                        if ( document.getElementById("empire_cmp").value === 'one-trust' ) {
+                            document.getElementById('one-trust-config').style.display = "block";
+                        } else {
+                            document.getElementById('one-trust-config').style.display = "none";
+                        }
                     }
-                  }
-                  document.getElementById("empire_cmp").onchange = hideShowOneTrust;
-                  document.getElementById("empire_cmp").onclick = hideShowOneTrust;
-                  document.getElementById("empire_cmp").onkeypress = hideShowOneTrust;
+                    document.getElementById("empire_cmp").onchange = hideShowOneTrust;
+                    document.getElementById("empire_cmp").onclick = hideShowOneTrust;
+                    document.getElementById("empire_cmp").onkeypress = hideShowOneTrust;
                 </script>
                 <p><label><input type="checkbox" name="empire_connatix_enabled"
                                  id="empire_connatix_enabled" <?php echo $connatix_enabled ? 'checked' : ''; ?>> Connatix Ads
@@ -118,16 +118,16 @@ class AdminSettings {
                     <label>Playspace Player ID: <input type="text" name="empire_connatix_playspace_id" style="width: 355px;" value="<?php echo $connatix_playspace_id; ?>" /></label>
                 </p>
                 <script>
-                  var hideShowConnatix = function() {
-                    if ( document.getElementById("empire_connatix_enabled").checked ) {
-                      document.getElementById('connatix-config').style.display = "block";
-                    } else {
-                      document.getElementById('connatix-config').style.display = "none";
+                    var hideShowConnatix = function() {
+                        if ( document.getElementById("empire_connatix_enabled").checked ) {
+                            document.getElementById('connatix-config').style.display = "block";
+                        } else {
+                            document.getElementById('connatix-config').style.display = "none";
+                        }
                     }
-                  }
-                  document.getElementById("empire_connatix_enabled").onchange = hideShowConnatix;
-                  document.getElementById("empire_connatix_enabled").onclick = hideShowConnatix;
-                  document.getElementById("empire_connatix_enabled").onkeypress = hideShowConnatix;
+                    document.getElementById("empire_connatix_enabled").onchange = hideShowConnatix;
+                    document.getElementById("empire_connatix_enabled").onclick = hideShowConnatix;
+                    document.getElementById("empire_connatix_enabled").onkeypress = hideShowConnatix;
                 </script>
                 <p><label>% of ads on Empire: <input type="text" name="empire_percent" id="empire_percent" value="<?php echo $empire_test; ?>" /></label></p>
                 <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
