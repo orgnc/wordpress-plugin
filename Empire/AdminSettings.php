@@ -171,14 +171,12 @@ class AdminSettings {
             <form method="post">
                 <ul>
                     <?php
-                    $all_post_types = get_post_types();
-                    $exclude = [
-                        "attachment", "attachment", "revision", "nav_menu_item", "custom_css",
-                        "customize_changeset", "oembed_cache", "user_request", "wp_block",
-                        "wp_template", "amp_validated_url", "acf-field-group", "acf-field",
-                        "mc4wp-form"
-                    ];
-                    $post_types = array_diff($all_post_types, $exclude);
+                    $post_types = get_post_types( array(
+                        'public'   => true,
+                        '_builtin' => false,
+                    ) );
+                    $post_types[] = 'post';
+                    $post_types[] = 'page';
                     foreach ( $post_types as $post_type ) {
                         $checked = "";
                         if ( in_array($post_type, $this->empire->getPostTypes()) ) {

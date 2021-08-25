@@ -596,7 +596,7 @@ class Empire {
      */
     public function buildQueryAllSyncablePosts( $per_page = 1000 ) {
         $args = array(
-            'post_type' => $this->postTypes,
+            'post_type' => $this->getPostTypes(),
             'post_status' => 'publish',
             'posts_per_page' => $per_page,
         );
@@ -611,7 +611,7 @@ class Empire {
      */
     public function buildQueryNeverSyncedPosts( $per_page = 1000 ) {
         $args = array(
-            'post_type' => $this->postTypes,
+            'post_type' => $this->getPostTypes(),
             'post_status' => 'publish',
             'posts_per_page' => $per_page,
             'meta_query' => array(
@@ -632,7 +632,7 @@ class Empire {
      */
     public function buildQueryNewlyUnsyncedPosts( $per_page = 1000 ) {
         $args = array(
-            'post_type' => $this->postTypes,
+            'post_type' => $this->getPostTypes(),
             'post_status' => 'publish',
             'posts_per_page' => $per_page,
             'meta_query' => array(
@@ -716,7 +716,7 @@ class Empire {
                 $this->debug( $prefix . ' gamId(' . $gam_id . ') for ' . $post_id . ' - no such post' );
                 return true;
             }
-            if ( ! in_array($post->post_type, $this->postTypes) ) {
+            if ( ! in_array($post->post_type, $this->getPostTypes) ) {
                 $this->debug( $prefix . ' gamId(' . $gam_id . ') for ' . $post_id . " - not synchable type" );
                 return true;
             }
