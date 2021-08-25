@@ -716,7 +716,7 @@ class Empire {
                 $this->debug( $prefix . ' gamId(' . $gam_id . ') for ' . $post_id . ' - no such post' );
                 return true;
             }
-            if ( ! in_array($post->post_type, $this->getPostTypes) ) {
+            if ( ! in_array( $post->post_type, $this->getPostTypes()) ) {
                 $this->debug( $prefix . ' gamId(' . $gam_id . ') for ' . $post_id . " - not synchable type" );
                 return true;
             }
@@ -824,6 +824,9 @@ class Empire {
         // This fails silently for now since we don't have much control over the user's config
         $purgely = new \Purgely_Purge();
         $purgely->purge( \Purgely_Purge::URL, get_home_url( null, '/ads.txt' ) );
+
+        // Add in a hook that can be used to purge more complex caches
+        do_action( 'empire_ads_txt_changed' );
     }
 
     public function substituteTags( string $content ) : string {
