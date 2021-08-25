@@ -33,6 +33,9 @@ class AdminSettings {
         if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
             if ( isset( $_POST['empire_sync_ads_txt'] ) ) {
                 $this->empire->syncAdsTxt();
+            } else if ( isset ( $_POST['empire_post_types']) ) {
+                update_option( 'empire::post_types', $_POST['empire_post_types'], false );
+                $this->empire->setPostTypes($_POST['empire_post_types']);
             } else {
                 update_option( 'empire::enabled', isset( $_POST['empire_enabled'] ) ? true : false, false );
                 update_option( 'empire::percent_test', $_POST['empire_percent'], false );
@@ -130,15 +133,15 @@ class AdminSettings {
                 <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
 
                 <p>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="empire_amp_ads_enabled"
-                      id="empire_amp_ads_enabled"
-                      <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
-                    />
-                    AMP Ads Enabled
-                  </label>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="empire_amp_ads_enabled"
+                                id="empire_amp_ads_enabled"
+                            <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
+                        />
+                        AMP Ads Enabled
+                    </label>
                 </p>
 
                 <p><input type="submit" value="Update"/></p>
@@ -156,9 +159,39 @@ class AdminSettings {
                 <input type="hidden" name="empire_sync_ads_txt" id="empire_sync_ads_txt" value="true" />
                 <p><input type="submit" value="Sync ads.txt"/></p>
             </form>
+
             <hr />
             <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
             <p>Recently Updated Posts (unsynced): <?php echo number_format( $total_synced_posts ); ?></p>
+
+            <hr />
+            <h2>Post Types</h2>
+            <p>Which post types from your CMS should be treated as Content for synchronization with
+                the Empire platform and eligible for Ads to be injected?</p>
+            <form method="post">
+                <ul>
+                    <?php
+                    $post_types = get_post_types( array(
+                        'public'   => true,
+                        '_builtin' => false,
+                    ) );
+                    $post_types[] = 'post';
+                    $post_types[] = 'page';
+                    foreach ( $post_types as $post_type ) {
+                        $checked = "";
+                        if ( in_array($post_type, $this->empire->getPostTypes()) ) {
+                            $checked = 'checked="checked"';
+                        }
+
+                        echo "<li><label>";
+                        echo "<input type='checkbox' $checked name='empire_post_types[]' value='" . $post_type . "' /> ";
+                        echo $post_type;
+                        echo "</label></li>\n";
+                    }
+                    ?>
+                </ul>
+                <p><input type="submit" value="Save" />
+            </form>
         </div>
         <?php
     }
@@ -190,8 +223,8 @@ class AdminSettings {
      * @param $update
      */
     public function handleSavePostHook( $post_ID, $post, $update ) {
-        // sync only real 'posts' not revisions, pages or attachments
-        if ( $post->post_type != 'post' ) {
+        // sync only real 'posts' not revisions or attachments
+        if ( ! in_array($post->post_type, $this->empire->getPostTypes()) ) {
             return;
         }
 
