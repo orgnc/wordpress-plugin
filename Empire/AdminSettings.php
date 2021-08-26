@@ -69,8 +69,8 @@ class AdminSettings {
         $empire_value = get_option( 'empire::test_value' );
         $amp_ads_enabled = get_option( 'empire::amp_ads_enabled' );
 
-        $total_published_posts = $this->empire->buildQueryAllSyncablePosts()->found_posts;
-        $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts()->found_posts;
+        $total_published_posts = $this->empire->buildQueryAllSyncablePosts(1)->found_posts;
+        $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts(1)->found_posts;
         ?>
         <style>
             #empire_host {
