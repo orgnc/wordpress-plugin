@@ -463,11 +463,13 @@ class Empire {
     public function syncPost( $post ) {
         $canonical = $this->getCanonicalUrlFor( $post->ID );
 
-        $title = $post->post_title;
-        $external_id = $post->ID;
-        $content = $post->post_content;
-        $published_date = $post->post_date;
-        $modified_date = $post->post_modified;
+        # In order to support non-standard post metadata, we have a filter for each attribute
+        $canonical = apply_filter('empire_post_url', $canonical);
+        $title = apply_filter('empire_post_title', $post->post_title);
+        $external_id = apply_filter('empire_post_id', $post->ID);
+        $content = apply_filter('empire_post_content', $post->post_content);
+        $published_date = apply_filter('empire_post_publish_date', $post->post_date);
+        $modified_date = apply_filter('empire_post_modified_date', $post->post_modified);
 
         $authors = array();
 
