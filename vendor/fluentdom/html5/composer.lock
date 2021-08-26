@@ -1,0 +1,258 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "6afbebb2d4c6c697cf5d2e85103ae286",
+    "packages": [
+        {
+            "name": "fluentdom/fluentdom",
+            "version": "8.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ThomasWeinert/FluentDOM.git",
+                "reference": "22ee56352bb5fd0bc41ccf7906780aabc2bccf33"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ThomasWeinert/FluentDOM/zipball/22ee56352bb5fd0bc41ccf7906780aabc2bccf33",
+                "reference": "22ee56352bb5fd0bc41ccf7906780aabc2bccf33",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "php": "~7.2 || ~8.0"
+            },
+            "require-dev": {
+                "ext-simplexml": "*",
+                "ext-xmlreader": "*",
+                "ext-xmlwriter": "*"
+            },
+            "suggest": {
+                "ext-json": "JSON support, needed for several loaders/serializers",
+                "ext-xmlreader": "XMLReader, XML pull parser, read large XMLs",
+                "ext-xmlwriter": "XMLWriter, Write large XMLs",
+                "fluentdom/css-selector": "Allows to use css selectors."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/FluentDOM.php"
+                ],
+                "psr-4": {
+                    "FluentDOM\\": "src/FluentDOM"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "FluentDOM Contributors",
+                    "homepage": "https://github.com/FluentDOM/FluentDOM/contributors"
+                }
+            ],
+            "description": "A fluent api for the php dom extension.",
+            "homepage": "http://fluentdom.org",
+            "keywords": [
+                "XMLReader",
+                "XMLWriter",
+                "Xpath",
+                "dom",
+                "jquery",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/ThomasWeinert/FluentDOM/issues",
+                "source": "https://github.com/ThomasWeinert/FluentDOM/tree/8.0.0"
+            },
+            "time": "2021-04-18T18:12:11+00:00"
+        },
+        {
+            "name": "masterminds/html5",
+            "version": "2.7.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Masterminds/html5-php.git",
+                "reference": "9227822783c75406cfe400984b2f095cdf03d417"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/9227822783c75406cfe400984b2f095cdf03d417",
+                "reference": "9227822783c75406cfe400984b2f095cdf03d417",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-dom": "*",
+                "ext-libxml": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Masterminds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Butcher",
+                    "email": "technosophos@gmail.com"
+                },
+                {
+                    "name": "Matt Farina",
+                    "email": "matt@mattfarina.com"
+                },
+                {
+                    "name": "Asmir Mustafic",
+                    "email": "goetas@gmail.com"
+                }
+            ],
+            "description": "An HTML5 parser and serializer.",
+            "homepage": "http://masterminds.github.io/html5-php",
+            "keywords": [
+                "HTML5",
+                "dom",
+                "html",
+                "parser",
+                "querypath",
+                "serializer",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/Masterminds/html5-php/issues",
+                "source": "https://github.com/Masterminds/html5-php/tree/2.7.4"
+            },
+            "time": "2020-10-01T13:52:52+00:00"
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "carica/phpcss",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ThomasWeinert/PhpCss.git",
+                "reference": "944cdd0cf21655ceb1bd3262dee9b33602020c09"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ThomasWeinert/PhpCss/zipball/944cdd0cf21655ceb1bd3262dee9b33602020c09",
+                "reference": "944cdd0cf21655ceb1bd3262dee9b33602020c09",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpCss\\": "src/PhpCss"
+                },
+                "files": [
+                    "src/PhpCss.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Thomas Weinert",
+                    "email": "thomas@weinert.info"
+                }
+            ],
+            "description": "An css selector parser and converter",
+            "support": {
+                "issues": "https://github.com/ThomasWeinert/PhpCss/issues",
+                "source": "https://github.com/ThomasWeinert/PhpCss/tree/2.0.0"
+            },
+            "time": "2021-04-25T14:14:13+00:00"
+        },
+        {
+            "name": "fluentdom/selectors-phpcss",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ThomasWeinert/FluentDOM-Selectors-PHPCss.git",
+                "reference": "e0c49bcaf0fd861e2411bcc72e60c845fa76ba33"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ThomasWeinert/FluentDOM-Selectors-PHPCss/zipball/e0c49bcaf0fd861e2411bcc72e60c845fa76ba33",
+                "reference": "e0c49bcaf0fd861e2411bcc72e60c845fa76ba33",
+                "shasum": ""
+            },
+            "require": {
+                "carica/phpcss": "^2.0.0",
+                "fluentdom/fluentdom": "^8.0.0"
+            },
+            "provide": {
+                "fluentdom/css-selector": "1.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/plugin.php"
+                ],
+                "psr-4": {
+                    "FluentDOM\\PhpCss\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "FluentDOM Contributors",
+                    "homepage": "https://github.com/FluentDOM/FluentDOM/contributors"
+                }
+            ],
+            "description": "Provides CSS selector for FluentDOM using Carica PHPCss.",
+            "homepage": "http://fluentdom.org",
+            "keywords": [
+                "css",
+                "css selectors",
+                "dom",
+                "jquery",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/ThomasWeinert/FluentDOM-Selectors-PHPCss/issues",
+                "source": "https://github.com/ThomasWeinert/FluentDOM-Selectors-PHPCss/tree/2.0.0"
+            },
+            "time": "2021-04-25T17:34:28+00:00"
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=7.2",
+        "ext-dom": "*"
+    },
+    "platform-dev": [],
+    "platform-overrides": {
+        "php": "7.2"
+    },
+    "plugin-api-version": "2.0.0"
+}

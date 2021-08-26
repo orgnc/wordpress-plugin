@@ -1,0 +1,36 @@
+{
+    "name": "fluentdom/html5",
+    "type": "library",
+    "description": "HTML5 support for FluentDOM",
+    "keywords": [
+        "xml", "dom", "fluentdom", "html5"
+    ],
+    "license": "MIT",
+    "homepage": "http://fluentdom.org",
+    "authors": [
+        {
+            "name": "FluentDOM Contributors",
+            "homepage": "https://github.com/FluentDOM/FluentDOM/contributors"
+        }
+    ],
+    "config": {
+        "platform": {
+            "php": "7.2"
+        }
+    },
+    "require": {
+        "php": ">=7.2",
+        "ext-dom": "*",
+        "fluentdom/fluentdom": "^8.0.0",
+        "masterminds/html5": "^2.7.0"
+    },
+    "require-dev": {
+        "fluentdom/selectors-phpcss": "^2.0"
+    },
+    "autoload": {
+        "files" : ["src/plugin.php"],
+        "psr-4": {
+            "FluentDOM\\HTML5\\": "src/"
+        }
+    }
+}
