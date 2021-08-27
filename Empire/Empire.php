@@ -464,12 +464,12 @@ class Empire {
         $canonical = $this->getCanonicalUrlFor( $post->ID );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
-        $canonical = apply_filter('empire_post_url', $canonical);
-        $title = apply_filter('empire_post_title', $post->post_title);
-        $external_id = apply_filter('empire_post_id', $post->ID);
-        $content = apply_filter('empire_post_content', $post->post_content);
-        $published_date = apply_filter('empire_post_publish_date', $post->post_date);
-        $modified_date = apply_filter('empire_post_modified_date', $post->post_modified);
+        $external_id = \apply_filters('empire_post_id', $post->ID);
+        $canonical = \apply_filters('empire_post_url', $post->ID, $canonical);
+        $title = \apply_filters('empire_post_title', $post->ID, $post->post_title);
+        $content = \apply_filters('empire_post_content', $post->ID, $post->post_content);
+        $published_date = \apply_filters('empire_post_publish_date', $post->ID, $post->post_date);
+        $modified_date = \apply_filters('empire_post_modified_date', $post->ID, $post->post_modified);
 
         $authors = array();
 
