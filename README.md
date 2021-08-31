@@ -15,11 +15,19 @@ of the Synchronization to Empire Platform.
 * `empire_post_publish_date` - transform the publish date of the post
 * `empire_post_modified_date` - transform the modified date of the post
 
-Example Filter Implementation:
+Example Filter Implementations:
 ```php
 function get_custom_post_id($id) {
     $ext_id = get_post_meta($id, 'custom_post_id', true);
     return $ext_id ?: $id;
 }
 add_filter( 'empire_post_id', 'get_custom_post_id', 10, 1);
+```
+
+```php
+function get_custom_post_title($title, $id) {
+    $title = 'Our Brand | ' . $title;
+    return $title;
+}
+add_filter( 'empire_post_title', 'get_custom_post_title', 10, 2);
 ```
