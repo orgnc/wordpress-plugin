@@ -28,6 +28,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
 
     public function applyTargeting($html, $values) {
         $targeting = [
+            'amp' => 1,
             'site' => $values['siteDomain'],
             'article' => $values['gamPageId'],
             'targeting_article' => $values['gamExternalId'],
