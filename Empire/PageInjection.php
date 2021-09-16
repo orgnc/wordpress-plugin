@@ -209,7 +209,7 @@ class PageInjection {
 
                 (function() {
                     function loadAds() {
-                        utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/assets/prebid3.23.0.js');
+                        utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/assets/prebid5.13.0.js');
                         <?php if ( $this->empire->getSiteId() ) { /* This only works if Site ID is set up */ ?>
                         <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
                         if ( BVTests.getValue("<?php echo $this->empire->getEmpirePixelTestValue(); ?>") == 'control' ) {
