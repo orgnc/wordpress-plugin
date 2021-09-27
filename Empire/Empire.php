@@ -140,6 +140,7 @@ class Empire {
 
         $this->isEnabled = get_option( 'empire::enabled' );
         $this->ampAdsEnabled = get_option( 'empire::amp_ads_enabled' );
+        $this->injectAdsConfig = get_option( 'empire::inject_ads_config' );
         $this->cmp = get_option( 'empire::cmp' );
         $this->oneTrustId = get_option( 'empire::one_trust_id' );
         $this->enablePrefilledAdSlots = get_option( 'empire::prefill_ad_slots' );
@@ -268,6 +269,10 @@ class Empire {
         return $this->isEnabled() && $this->ampAdsEnabled;
     }
 
+    public function useInjectedAdsConfig() : bool {
+        return $this->isEnabled() && $this->injectAdsConfig;
+    }
+
     public function getAmpConfig() : array {
         if ( !empty($this->ampConfig) ) {
             return $this->ampConfig;
@@ -302,6 +307,7 @@ class Empire {
             $this->adsConfig = [
                 'adRules' => [],
                 'forPlacement' => [],
+                'raw' => [],
             ];
             return $this->adsConfig;
         }
@@ -314,6 +320,7 @@ class Empire {
         $this->adsConfig = [
             'adRules' => $adsConfig['adRules'],
             'forPlacement' => $forPlacement,
+            'raw' => $adsConfig,
         ];
         return $this->adsConfig;
     }

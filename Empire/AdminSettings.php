@@ -47,6 +47,7 @@ class AdminSettings {
                 update_option( 'empire::sdk_key', $_POST['empire_sdk_key'] ?: '', false );
                 update_option( 'empire::site_id', $_POST['empire_site_id'] ?: '', false );
                 update_option( 'empire::amp_ads_enabled', isset( $_POST['empire_amp_ads_enabled'] ) ? true : false, false );
+                update_option( 'empire::inject_ads_config', isset( $_POST['empire_inject_ads_config'] ) ? true : false, false );
                 $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
 
                 echo '<h3>Updates Saved</h3>';
@@ -68,6 +69,7 @@ class AdminSettings {
         $empire_test = get_option( 'empire::percent_test' );
         $empire_value = get_option( 'empire::test_value' );
         $amp_ads_enabled = get_option( 'empire::amp_ads_enabled' );
+        $inject_ads_config = get_option( 'empire::inject_ads_config' );
 
         $total_published_posts = $this->empire->buildQueryAllSyncablePosts(1)->found_posts;
         $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts(1)->found_posts;
@@ -141,6 +143,18 @@ class AdminSettings {
                             <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
                         AMP Ads Enabled
+                    </label>
+                </p>
+
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="empire_inject_ads_config"
+                                id="empire_inject_ads_config"
+                            <?php echo $inject_ads_config  ? 'checked' : ''; ?>
+                        />
+                        Inject Ad Config into page to avoid AJAX-request to the Empire API
                     </label>
                 </p>
 
