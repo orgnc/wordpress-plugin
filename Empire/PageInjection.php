@@ -198,6 +198,12 @@ class PageInjection {
                 window.empire.apps = window.empire.apps || {};
                 window.empire.apps.ads = window.empire.apps.ads || {};
                 window.empire.apps.ads.config = window.empire.apps.ads.config || {};
+            <?php if ( $this->empire->useInjectedAdsConfig() ) { ?>
+
+                window.empire.apps.ads.config.siteDomain = "<?php echo $this->empire->siteDomain ?>";
+                window.empire.apps.ads.config.adConfig = <?php echo json_encode($this->empire->getAdsConfig()['raw']) ?>;
+            <?php } ?>
+
                 window.empire.apps.ads.targeting = {
                     pageId: '<?php echo $gamPageId; ?>',
                     externalId: '<?php echo $gamExternalId; ?>',

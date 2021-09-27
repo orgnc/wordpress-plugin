@@ -228,6 +228,31 @@ class EmpireSdk {
                         'domain',
                         ( new Query( 'settings' ) )->setSelectionSet(
                             array(
+                                ( new Query( 'adSettings' ) )->setSelectionSet(
+                                    array(
+                                        'enableRefresh',
+                                        'tabletBreakpointMin',
+                                        'desktopBreakpointMin',
+                                        ( new Query( 'amazon' ) )->setSelectionSet(
+                                            array(
+                                                'enabled',
+                                                'pubId',
+                                            )
+                                        ),
+                                        ( new Query( 'indexServer' ) )->setSelectionSet(
+                                            array(
+                                                'enabled',
+                                                'tag',
+                                            )
+                                        ),
+                                        ( new Query( 'nonRefresh' ) )->setSelectionSet(
+                                            array(
+                                                'advertiserIds',
+                                                'lineitemIds',
+                                            )
+                                        ),
+                                    )
+                                ),
                                 ( new Query( 'adRules' ) )->setSelectionSet(
                                     array(
                                         'guid',
@@ -243,13 +268,39 @@ class EmpireSdk {
                                         'key',
                                         'name',
                                         'description',
+                                        'adUnitId',
                                         'relative',
                                         'selectors',
                                         'limit',
+                                        'isOutOfPage',
+                                        'sizes',
+                                        'pinHeightTo',
+                                        'css',
+                                        'customTargeting',
                                         'enabled',
                                         'desktopEnabled',
                                         'tabletEnabled',
                                         'mobileEnabled',
+                                        'refreshEnabled',
+                                        'refreshStrategy',
+                                        'disablePrebid',
+                                        'disableAmazon',
+                                    )
+                                ),
+                                ( new Query( 'prebid' ) )->setSelectionSet(
+                                    array(
+                                        'enabled',
+                                        'timeout',
+                                        ( new Query( 'bidders' ) )->setSelectionSet(
+                                            array(
+                                                'key',
+                                                'name',
+                                                'enabled',
+                                                'placementSettings',
+                                                'bidAssignment',
+                                                'bidCpmAdjustment',
+                                            )
+                                        ),
                                     )
                                 ),
                             )
