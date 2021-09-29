@@ -88,6 +88,12 @@ class PageInjection {
             return $content;
         }
 
+        // Skip out on injecting Playspace if there is already a Connatix Elements player on the
+        // page.
+        if ( str_contains($content, 'connatix-elements') ) {
+            return $content;
+        }
+
         // Figure out if there is a paragraph to inject after
         $injectionPoint = strpos( $content, '</p>' );
         if ( $injectionPoint === false ) {
