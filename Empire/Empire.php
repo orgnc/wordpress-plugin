@@ -466,7 +466,7 @@ class Empire {
         # In order to support non-standard post metadata, we have a filter for each attribute
         $external_id = \apply_filters('empire_post_id', $post->ID);
         $canonical = \apply_filters('empire_post_url', $canonical, $post->ID);
-        $title = htmlspecialcars_decode($post->post_title);
+        $title = \htmlspecialchars_decode($post->post_title);
         $title = \apply_filters('empire_post_title', $title, $post->ID);
         $content = \apply_filters('empire_post_content', $post->post_content, $post->ID);
         $published_date = \apply_filters('empire_post_publish_date', $post->post_date, $post->ID);
