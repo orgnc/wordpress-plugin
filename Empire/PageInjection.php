@@ -30,14 +30,16 @@ class PageInjection {
         $this->empire = $empire;
         $is_amp = empire_is_amp();
 
-        if ( ! $is_amp ) {
+        if ( $is_amp ) {
+            if ( $this->empire->useAmpAds() ) {
+                $this->setupAmpAdsInjector();
+            }
+        } else {
             add_action( 'wp_head', array( $this, 'injectPixel' ) );
-            add_action( 'ads_article_header', array( $this, 'injectPresizedAdSlot' ) );
             add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
-        }
-
-        if ( $is_amp && $this->empire->useAmpAds() ) {
-            $this->setupAmpAdsInjector();
+            if ( $this->empire->useAdsSlotsPrefill() ) {
+                $this->setupAdsSlotsPrefill();
+            }
         }
     }
 
@@ -51,6 +53,7 @@ class PageInjection {
         $getTargeting = function() {
             return $this->empire->getTargeting();
         };
+
         add_filter( 'amp_content_sanitizers', 
             function ( $sanitizer_classes, $post) use ($ampConfig, $adsConfig, $getTargeting) {
                 require_once( dirname( __FILE__ ) . '/AmpAdsInjector.php');
@@ -64,10 +67,31 @@ class PageInjection {
         10, 2);
     }
 
-    public function injectPresizedAdSlot() {
-        if ( $this->empire->prefillAdSlots() ) {
-            echo '<div class="ad-block"></div>';
+    public function setupAdsSlotsPrefill( ) {
+        $prefillConfig = $this->empire->getPrefillConfig();
+        if ( empty($prefillConfig['forPlacement']) ) {
+            return;
         }
+
+        add_action( 'template_redirect', function() {
+            ob_start(function ( $content ) {
+                if (! $this->empire->eligibleForAds($content)) {
+                    return $content;
+                }
+
+                $adsConfig = $this->empire->getAdsConfig();
+                $prefillConfig = $this->empire->getPrefillConfig();
+                $targeting = $this->empire->getTargeting();
+
+                $prefillInjector = new PrefillAdsInjector(
+                    $adsConfig, $prefillConfig, $targeting,
+                );
+
+                $content = $prefillInjector->prefill($content);
+
+                return $content;
+            });
+        });
     }
 
     /**

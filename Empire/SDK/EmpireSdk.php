@@ -271,6 +271,7 @@ class EmpireSdk {
                                         'adUnitId',
                                         'relative',
                                         'selectors',
+                                        'prefillContainerCssClass',
                                         'limit',
                                         'isOutOfPage',
                                         'sizes',
@@ -314,6 +315,17 @@ class EmpireSdk {
                                     )
                                 ),
                                 'requiredScripts',
+                            )
+                        ),
+                        ( new Query( 'prefillConfig' ) )->setSelectionSet(
+                            array(
+                                ( new Query( 'placements' ) )->setSelectionSet(
+                                    array(
+                                        'key',
+                                        'html',
+                                        'css',
+                                    )
+                                ),
                             )
                         ),
                     )
