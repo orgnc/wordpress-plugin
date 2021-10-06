@@ -43,11 +43,6 @@ class Empire {
     private $connatixPlayspaceId;
 
     /**
-     * @var bool Flag to preload ad slots with common heights for better CLS scores
-     */
-    private $enablePrefilledAdSlots = false;
-
-    /**
      * @var int % of traffic to send to Empire SDK instead of TrackADM Pixel
      */
     private $empirePixelTestPercent = 0;
@@ -111,6 +106,11 @@ class Empire {
     private $ampConfig = null;
 
     /**
+     * @var array Configuration for Prefill
+     */
+    private $prefillConfig = null;
+
+    /**
      * @var array Configuration for Ads
      */
     private $adsConfig = null;
@@ -141,9 +141,9 @@ class Empire {
         $this->isEnabled = get_option( 'empire::enabled' );
         $this->ampAdsEnabled = get_option( 'empire::amp_ads_enabled' );
         $this->injectAdsConfig = get_option( 'empire::inject_ads_config' );
+        $this->adSlotsPrefillEnabled = get_option( 'empire::ad_slots_prefill_enabled' );
         $this->cmp = get_option( 'empire::cmp' );
         $this->oneTrustId = get_option( 'empire::one_trust_id' );
-        $this->enablePrefilledAdSlots = get_option( 'empire::prefill_ad_slots' );
         $this->empirePixelTestPercent = get_option( 'empire::percent_test' );
         $this->empirePixelTestValue = get_option( 'empire::test_value' );
 
@@ -252,15 +252,6 @@ class Empire {
     }
 
     /**
-     * Returns true if we are supposed to fill in certain ad slots with presized blanks
-     *
-     * @return bool
-     */
-    public function prefillAdSlots() : bool {
-        return $this->enablePrefilledAdSlots;
-    }
-
-    /**
      * Check if the AMP Ads are configured and enabled
      *
      * @return bool
@@ -272,6 +263,34 @@ class Empire {
     public function useInjectedAdsConfig() : bool {
         return $this->isEnabled() && $this->injectAdsConfig;
     }
+
+    public function useAdsSlotsPrefill() : bool {
+        return $this->isEnabled() && $this->adSlotsPrefillEnabled;
+    }
+
+    public function eligibleForAds($content) {
+        global $wp_query;
+
+        if (is_admin() || wp_doing_ajax()) {
+            return false;
+        }
+
+        if (
+            $wp_query->is_page ||
+            $wp_query->is_home ||
+            $wp_query->is_single ||
+            $wp_query->is_category ||
+            $wp_query->is_tag ||
+            $wp_query->is_tax ||
+            $wp_query->is_archive ||
+            $wp_query->is_search ||
+            $wp_query->is_404
+        ) {
+            return preg_match( '/<\/html>/i', $content );
+        }
+
+        return false;
+	}
 
     public function getAmpConfig() : array {
         if ( !empty($this->ampConfig) ) {
@@ -295,6 +314,30 @@ class Empire {
             'forPlacement' => $forPlacement,
         ];
         return $this->ampConfig;
+    }
+
+    public function getPrefillConfig() : array {
+        if ( !empty($this->prefillConfig) ) {
+            return $this->prefillConfig;
+        }
+
+        $prefillConfig = get_option( 'empire::ad_prefill_config' );
+        if ( empty($prefillConfig)) {
+            $this->prefillConfig = [
+                'forPlacement' => [],
+            ];
+            return $this->prefillConfig;
+        }
+
+        $forPlacement = array_reduce($prefillConfig['placements'], function($byKey, $amp) {
+            $byKey[$amp['key']] = $amp;
+            return $byKey;
+        }, []);
+
+        $this->prefillConfig = [
+            'forPlacement' => $forPlacement,
+        ];
+        return $this->prefillConfig;
     }
 
     public function getAdsConfig() : array {
@@ -805,6 +848,9 @@ class Empire {
 
         $this->debug( 'Got Amp Config: ' . json_encode( $config['ampConfig'] ) );
         update_option( 'empire::ad_amp_config', $config['ampConfig'], false );
+
+        $this->debug( 'Got Prefill Config: ' . json_encode( $config['prefillConfig'] ) );
+        update_option( 'empire::ad_prefill_config', $config['prefillConfig'], false );
 
         return array(
             'updated' => true,

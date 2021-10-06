@@ -48,6 +48,7 @@ class AdminSettings {
                 update_option( 'empire::site_id', $_POST['empire_site_id'] ?: '', false );
                 update_option( 'empire::amp_ads_enabled', isset( $_POST['empire_amp_ads_enabled'] ) ? true : false, false );
                 update_option( 'empire::inject_ads_config', isset( $_POST['empire_inject_ads_config'] ) ? true : false, false );
+                update_option( 'empire::ad_slots_prefill_enabled', isset( $_POST['empire_ad_slots_prefill_enabled'] ) ? true : false, false );
                 $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
 
                 echo '<h3>Updates Saved</h3>';
@@ -70,6 +71,7 @@ class AdminSettings {
         $empire_value = get_option( 'empire::test_value' );
         $amp_ads_enabled = get_option( 'empire::amp_ads_enabled' );
         $inject_ads_config = get_option( 'empire::inject_ads_config' );
+        $ad_slots_prefill_enabled = get_option( 'empire::ad_slots_prefill_enabled' );
 
         $total_published_posts = $this->empire->buildQueryAllSyncablePosts(1)->found_posts;
         $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts(1)->found_posts;
@@ -145,7 +147,6 @@ class AdminSettings {
                         AMP Ads Enabled
                     </label>
                 </p>
-
                 <p>
                     <label>
                         <input
@@ -157,7 +158,17 @@ class AdminSettings {
                         Inject Ad Config into page to avoid AJAX-request to the Empire API
                     </label>
                 </p>
-
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="empire_ad_slots_prefill_enabled"
+                                id="empire_ad_slots_prefill_enabled"
+                            <?php echo $ad_slots_prefill_enabled  ? 'checked' : ''; ?>
+                        />
+                        Prefill ad containers on the page where ads will be placed by JS SDK
+                    </label>
+                </p>
                 <p><input type="submit" value="Update"/></p>
             </form>
             <h2>Ads.txt</h2>
