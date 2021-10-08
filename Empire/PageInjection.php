@@ -262,7 +262,11 @@ class PageInjection {
                         utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
                         <?php } ?>
                     }
+              <?php if ( $this->empire->useAdsSlotsPrefill() ) { ?>
+                    loadAds();
+              <?php } else { ?>
                     setTimeout(loadAds, loadDelay);
+              <?php } ?>
                 })();
             </script>
             <?php
