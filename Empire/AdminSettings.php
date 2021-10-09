@@ -155,7 +155,8 @@ class AdminSettings {
                                 id="empire_inject_ads_config"
                             <?php echo $inject_ads_config  ? 'checked' : ''; ?>
                         />
-                        Inject Ad Config into page to avoid AJAX-request to the Empire API
+                        Automatically inject ad configuration into the page
+                        to increase page performance by reducing frontend requests
                     </label>
                 </p>
                 <p>
@@ -166,7 +167,7 @@ class AdminSettings {
                                 id="empire_ad_slots_prefill_enabled"
                             <?php echo $ad_slots_prefill_enabled  ? 'checked' : ''; ?>
                         />
-                        Prefill ad containers on the page where ads will be placed by JS SDK
+                        Prefill ad containers to prevent Content Layout Shift (CLS) issues
                     </label>
                 </p>
                 <p><input type="submit" value="Update"/></p>
