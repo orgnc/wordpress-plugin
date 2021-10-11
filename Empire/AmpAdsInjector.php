@@ -13,12 +13,12 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             return $document->getElementsByTagName('body')->item(0);
         });
 
-        if ($adsInjector->checkAdsBlocked($adsConfig['adRules'], $targeting)) {
+        if ($adsInjector->checkAdsBlocked($adsConfig->adRules, $targeting)) {
             return;
         }
 
-        foreach ($ampConfig['forPlacement'] as $key => $amp) {
-            $placement = $adsConfig['forPlacement'][$key];
+        foreach ($ampConfig->forPlacement as $key => $amp) {
+            $placement = $adsConfig->forPlacement[$key];
 
             [
                 'selectors' => $selectors,
