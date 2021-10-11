@@ -45,7 +45,7 @@ class PageInjection {
 
     public function setupAmpAdsInjector( ) {
         $ampConfig = $this->empire->getAmpConfig();
-        if ( empty($ampConfig['forPlacement']) ) {
+        if ( empty($ampConfig->forPlacement) ) {
             return;
         }
 
@@ -56,6 +56,10 @@ class PageInjection {
 
         add_filter( 'amp_content_sanitizers', 
             function ( $sanitizer_classes, $post) use ($ampConfig, $adsConfig, $getTargeting) {
+                if (! $this->empire->eligibleForAds()) {
+                    return $sanitizer_classes;
+                }
+
                 require_once( dirname( __FILE__ ) . '/AmpAdsInjector.php');
                 $sanitizer_classes['\Empire\AmpAdsInjector'] = [
                     'ampConfig' => $ampConfig,
@@ -69,7 +73,7 @@ class PageInjection {
 
     public function setupAdsSlotsPrefill( ) {
         $prefillConfig = $this->empire->getPrefillConfig();
-        if ( empty($prefillConfig['forPlacement']) ) {
+        if ( empty($prefillConfig->forPlacement) ) {
             return;
         }
 
@@ -225,7 +229,7 @@ class PageInjection {
             <?php if ( $this->empire->useInjectedAdsConfig() ) { ?>
 
                 window.empire.apps.ads.config.siteDomain = "<?php echo $this->empire->siteDomain ?>";
-                window.empire.apps.ads.config.adConfig = <?php echo json_encode($this->empire->getAdsConfig()['raw']) ?>;
+                window.empire.apps.ads.config.adConfig = <?php echo json_encode($this->empire->getAdsConfig()->raw) ?>;
             <?php } ?>
 
                 window.empire.apps.ads.targeting = {

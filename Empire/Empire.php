@@ -10,6 +10,91 @@ use function App\get_article_author;
 use function \get_user_by;
 use function Sentry\captureException;
 
+class BaseConfig {
+
+    /**
+     * Map (key -> config-for-placement) of configs for Placements
+     */
+    public array $forPlacement;
+
+    /**
+     * Raw Config returned from Empire Platform API
+     */
+    public array $raw;
+
+    public function __construct( array $raw ) {
+        if ( empty($raw)) {
+            $this->forPlacement = [];
+            $this->raw = [];
+            return;
+        }
+
+        $forPlacement = array_reduce($raw['placements'], function($byKey, $config) {
+            $byKey[$config['key']] = $config;
+            return $byKey;
+        }, []);
+
+        $this->forPlacement = $forPlacement;
+        $this->raw = $raw;
+    }
+}
+
+class AdsConfig extends BaseConfig {
+
+    /**
+     * List of AdRules returned from Empire Platform API
+     * Each AdRule must contain at least:
+     *  bool enabled
+     *  string component
+     *  string comparator
+     *  string value
+     */
+    public array $adRules;
+
+    /**
+     * Map (key -> Placement) of Placements returned from Empire Platform API
+     * Each Placement must contain at least:
+     *  array[string] selectors
+     *  int limit
+     *  string relative
+     */
+    public array $forPlacement;
+
+    public function __construct( array $raw ) {
+        parent::__construct( $raw );
+        if ( empty($raw)) {
+            $this->adRules = [];
+            return;
+        }
+
+        $this->adRules = $raw['adRules'];
+    }
+}
+
+
+class AmpConfig extends BaseConfig {
+
+    /**
+     * Map (key -> amp) of amps for placements returned from Empire Platform API
+     * Each amp must contain at least:
+     *  string html
+     */
+    public array $forPlacement;
+}
+
+
+class PrefillConfig extends BaseConfig {
+
+    /**
+     * Map (key -> prefill) of prefills for placements returned from Empire Platform API
+     * Each prefill must contain at least:
+     *  string html
+     *  string css
+     */
+    public array $forPlacement;
+}
+
+
 /**
  * Client Plugin for TrackADM.com ads, analytics and affiliate management platform
  */
@@ -103,17 +188,17 @@ class Empire {
     /**
      * @var array Configuration for AMP
      */
-    private $ampConfig = null;
+    private ?AmpConfig $ampConfig = null;
 
     /**
      * @var array Configuration for Prefill
      */
-    private $prefillConfig = null;
+    private ?PrefillConfig $prefillConfig = null;
 
     /**
-     * @var array Configuration for Ads
+     * @var AdsConfig Configuration for Ads
      */
-    private $adsConfig = null;
+    private ?AdsConfig $adsConfig = null;
 
     /**
      * List of Post Types that we are synchronizing with Empire Platform
@@ -268,103 +353,65 @@ class Empire {
         return $this->isEnabled() && $this->adSlotsPrefillEnabled;
     }
 
-    public function eligibleForAds($content) {
+    public function eligibleForAds(?string $content = null) {
         global $wp_query;
 
         if (is_admin() || wp_doing_ajax()) {
             return false;
         }
 
-        if (
-            $wp_query->is_page ||
+        $post = get_post();
+
+        if ( ! (
             $wp_query->is_home ||
-            $wp_query->is_single ||
             $wp_query->is_category ||
             $wp_query->is_tag ||
             $wp_query->is_tax ||
             $wp_query->is_archive ||
             $wp_query->is_search ||
-            $wp_query->is_404
-        ) {
+            ( $post && in_array($post->post_type, $this->getPostTypes()) )
+        ) ) {
+            return false;
+        }
+
+        if ( $content ) {
+            // Additional check that this is HTML if content blob was provided
             return preg_match( '/<\/html>/i', $content );
         }
 
-        return false;
+        return true;
 	}
 
-    public function getAmpConfig() : array {
+    public function getAmpConfig() : AmpConfig {
         if ( !empty($this->ampConfig) ) {
             return $this->ampConfig;
         }
 
-        $ampConfig = get_option( 'empire::ad_amp_config' );
-        if ( empty($ampConfig)) {
-            $this->ampConfig = [
-                'forPlacement' => [],
-            ];
-            return $this->ampConfig;
-        }
+        $rawAmpConfig = get_option( 'empire::ad_amp_config' );
+        $this->ampConfig = new AmpConfig( $rawAmpConfig );
 
-        $forPlacement = array_reduce($ampConfig['placements'], function($byKey, $amp) {
-            $byKey[$amp['key']] = $amp;
-            return $byKey;
-        }, []);
-
-        $this->ampConfig = [
-            'forPlacement' => $forPlacement,
-        ];
         return $this->ampConfig;
     }
 
-    public function getPrefillConfig() : array {
+    public function getPrefillConfig() : PrefillConfig {
         if ( !empty($this->prefillConfig) ) {
             return $this->prefillConfig;
         }
 
-        $prefillConfig = get_option( 'empire::ad_prefill_config' );
-        if ( empty($prefillConfig)) {
-            $this->prefillConfig = [
-                'forPlacement' => [],
-            ];
-            return $this->prefillConfig;
-        }
+        $rawPrefillConfig = get_option( 'empire::ad_prefill_config' );
+        $this->prefillConfig = new PrefillConfig( $rawPrefillConfig );
 
-        $forPlacement = array_reduce($prefillConfig['placements'], function($byKey, $amp) {
-            $byKey[$amp['key']] = $amp;
-            return $byKey;
-        }, []);
-
-        $this->prefillConfig = [
-            'forPlacement' => $forPlacement,
-        ];
         return $this->prefillConfig;
     }
 
-    public function getAdsConfig() : array {
+    public function getAdsConfig() : AdsConfig {
         if ( !empty($this->adsConfig) ) {
             return $this->adsConfig;
         }
 
-        $adsConfig = get_option( 'empire::ad_settings' );
-        if ( empty($adsConfig)) {
-            $this->adsConfig = [
-                'adRules' => [],
-                'forPlacement' => [],
-                'raw' => [],
-            ];
-            return $this->adsConfig;
-        }
+        $rawAdsConfig = get_option( 'empire::ad_settings' );
+        $this->adsConfig = new AdsConfig( $rawAdsConfig );
 
-        $forPlacement = array_reduce($adsConfig['placements'], function($byKey, $place) {
-            $byKey[$place['key']] = $place;
-            return $byKey;
-        }, []);
-
-        $this->adsConfig = [
-            'adRules' => $adsConfig['adRules'],
-            'forPlacement' => $forPlacement,
-            'raw' => $adsConfig,
-        ];
         return $this->adsConfig;
     }
 

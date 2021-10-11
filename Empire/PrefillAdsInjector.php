@@ -4,11 +4,11 @@ namespace Empire;
 
 
 class PrefillAdsInjector {
-    private $adsConfig;
-    private $prefillConfig;
+    private AdsConfig $adsConfig;
+    private PrefillConfig $prefillConfig;
     private $targeting;
 
-    public function __construct( $adsConfig, $prefillConfig, $targeting ) {
+    public function __construct( AdsConfig $adsConfig, PrefillConfig $prefillConfig, $targeting ) {
         $this->adsConfig = $adsConfig;
         $this->prefillConfig = $prefillConfig;
         $this->targeting = $targeting;
@@ -26,13 +26,13 @@ class PrefillAdsInjector {
             return $document->getElementsByTagName('html')->item(0);
         });
 
-        if ($adsInjector->checkAdsBlocked($this->adsConfig['adRules'], $this->targeting)) {
+        if ($adsInjector->checkAdsBlocked($this->adsConfig->adRules, $this->targeting)) {
             return $content;
         }
 
         $styles = '';
-        foreach ($this->prefillConfig['forPlacement'] as $key => $prefill) {
-            $placement = $this->adsConfig['forPlacement'][$key];
+        foreach ($this->prefillConfig->forPlacement as $key => $prefill) {
+            $placement = $this->adsConfig->forPlacement[$key];
 
             [
                 'selectors' => $selectors,
@@ -54,7 +54,7 @@ class PrefillAdsInjector {
         return $contentDom->saveHTML();
     }
 
-    public function injectStyles($dom, $styles) {
+    public function injectStyles(\FluentDOM\DOM\Document $dom, string $styles) {
         $dom->getElementsByTagName('head')->item(0)->appendElement(
           'style', $styles, ['type' => 'text/css', 'id' => 'empire-prefill-css']
         );
