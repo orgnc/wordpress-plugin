@@ -22,10 +22,12 @@ class AdsInjector {
 
             foreach ((new DOMXPath($this->dom))->query($path) as $elem) {
                 $ad = $this->nodeFromHtml($adHtml);
-                $this->injectAd($ad, $relative, $elem);
-                $count++;
+                $injected = $this->injectAd($ad, $relative, $elem);
+                if ( $injected ) {
+                    $count++;
+                }
 
-                if ($count == $limit) {
+                if ($count >= $limit) {
                     return $count;
                 }
             }
