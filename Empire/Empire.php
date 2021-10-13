@@ -387,7 +387,7 @@ class Empire {
             return $this->ampConfig;
         }
 
-        $rawAmpConfig = get_option( 'empire::ad_amp_config' );
+        $rawAmpConfig = get_option( 'empire::ad_amp_config', [] );
         $this->ampConfig = new AmpConfig( $rawAmpConfig );
 
         return $this->ampConfig;
@@ -398,7 +398,7 @@ class Empire {
             return $this->prefillConfig;
         }
 
-        $rawPrefillConfig = get_option( 'empire::ad_prefill_config' );
+        $rawPrefillConfig = get_option( 'empire::ad_prefill_config', [] );
         $this->prefillConfig = new PrefillConfig( $rawPrefillConfig );
 
         return $this->prefillConfig;
@@ -409,7 +409,7 @@ class Empire {
             return $this->adsConfig;
         }
 
-        $rawAdsConfig = get_option( 'empire::ad_settings' );
+        $rawAdsConfig = get_option( 'empire::ad_settings', [] );
         $this->adsConfig = new AdsConfig( $rawAdsConfig );
 
         return $this->adsConfig;
