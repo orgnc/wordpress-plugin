@@ -79,6 +79,10 @@ class PageInjection {
 
         add_action( 'template_redirect', function() {
             ob_start(function ( $content ) {
+                if (! $content) {
+                    return $content;
+                }
+
                 if (! $this->empire->eligibleForAds($content)) {
                     return $content;
                 }
