@@ -249,18 +249,7 @@ class AdminSettings {
      * @param $update
      */
     public function handleSavePostHook( $post_ID, $post, $update ) {
-        // sync only real 'posts' not revisions or attachments
-        if ( ! in_array($post->post_type, $this->empire->getPostTypes()) ) {
-            return;
-        }
-
-        // sync only published posts
-        if ( $post->post_status != 'publish' ) {
-            return;
-        }
-
-        // post should have at least title
-        if ( ! $post->post_title ) {
+        if ( ! $this->empire->isPostEligibleForSync( $post ) ) {
             return;
         }
 

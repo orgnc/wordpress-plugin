@@ -34,23 +34,48 @@ class ContentSyncCommand {
     /**
      * Execute the command to synchronize content from the current site into Empire
      *
-     * @param array $args The attributes.
+     * [--full]
+     * : Enforce full re-sync
+     *
+     * [--batch-size]
+     * : Size of the batch
+     *
+     * [--start-from]
+     * : Start sync from offset
+     *
+     * [--sleep-between]
+     * : Sleep for N seconds between batches
+     *
+     * [--posts]
+     * : List of comma-separated post IDs: --posts=1234,34534,6456
+     *
+     * @param array $args The attributes
+     * @param array $opts The options
      * @return void
      * @throws Exception if post published or modified date is invalid
      * @since 0.1.0
      */
-    public function __invoke( $args ) {
+    public function __invoke( $args, $opts ) {
         // Only both trying if the API key is set
         if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
             $this->empire->log( 'Cannot sync articles without Empire SDK API Key and Site ID' );
-        } else {
-            if ( ! count( $args ) ) {
-                $updated = $this->empire->syncContent();
-                $this->empire->log( 'Empire Sync: total_posts=' . $updated );
-                return;
-            }
+            return;
+        }
 
-            foreach ( $args as $post_id ) {
+        if ( $opts['full'] ?? false ) {
+            $this->empire->debug( 'Empire Sync: opts=' . json_encode($opts) );
+            $updated = $this->empire->fullResyncContent(
+                (int)($opts['batch-size'] ?? 100),
+                (int)($opts['start-from'] ?? 0),
+                (int)($opts['sleep-between'] ?? 1),
+            );
+            $this->empire->log( 'Empire Sync: total_posts=' . $updated );
+            return;
+        }
+
+        $post_ids = array_filter(explode(',', ($opts['posts'] ?? '')));
+        if ( count( $post_ids ) ) {
+            foreach ( $post_ids as $post_id ) {
                 $post = \WP_Post::get_instance( $post_id );
                 if ( ! $post ) {
                     $this->empire->log( 'Post ' . $post_id . ' not found. Skipping...' );
@@ -58,6 +83,10 @@ class ContentSyncCommand {
                 }
                 $this->empire->syncPost( $post );
             }
+            return;
         }
+
+        $updated = $this->empire->syncContent();
+        $this->empire->log( 'Empire Sync: total_posts=' . $updated );
     }
 }
