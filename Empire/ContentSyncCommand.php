@@ -58,18 +58,17 @@ class ContentSyncCommand {
     public function __invoke( $args, $opts ) {
         // Only both trying if the API key is set
         if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
-            $this->empire->log( 'Cannot sync articles without Empire SDK API Key and Site ID' );
+            $this->empire->warning( 'Cannot sync articles without Empire SDK API Key and Site ID' );
             return;
         }
 
         if ( $opts['full'] ?? false ) {
-            $this->empire->debug( 'Empire Sync: opts=' . json_encode($opts) );
             $updated = $this->empire->fullResyncContent(
                 (int)($opts['batch-size'] ?? 100),
                 (int)($opts['start-from'] ?? 0),
                 (int)($opts['sleep-between'] ?? 1),
             );
-            $this->empire->log( 'Empire Sync: total_posts=' . $updated );
+            $this->empire->info( 'Empire Sync stats', [ 'updated' => $updated ] );
             return;
         }
 
@@ -78,7 +77,7 @@ class ContentSyncCommand {
             foreach ( $post_ids as $post_id ) {
                 $post = \WP_Post::get_instance( $post_id );
                 if ( ! $post ) {
-                    $this->empire->log( 'Post ' . $post_id . ' not found. Skipping...' );
+                    $this->empire->info( 'Post ' . $post_id . ' not found. Skipping...' );
                     continue;
                 }
                 $this->empire->syncPost( $post );
@@ -87,6 +86,6 @@ class ContentSyncCommand {
         }
 
         $updated = $this->empire->syncContent();
-        $this->empire->log( 'Empire Sync: total_posts=' . $updated );
+        $this->empire->info( 'Empire Sync stats', [ 'updated' => $updated ] );
     }
 }

@@ -95,6 +95,14 @@ class PrefillConfig extends BaseConfig {
 }
 
 
+class LogLevel
+{
+    const WARNING   = 'warning';
+    const INFO      = 'info';
+    const DEBUG     = 'debug';
+}
+
+
 /**
  * Client Plugin for TrackADM.com ads, analytics and affiliate management platform
  */
@@ -584,12 +592,12 @@ class Empire {
     public function syncPost( $post ) {
         if ( ! $this->isPostEligibleForSync( $post ) ) {
             $this->debug(
-                'Empire Sync: SKIPPED | ' . json_encode([
+                'Empire Sync: SKIPPED', [
                     'post_id' => $post->ID,
                     'post_type' => $post->post_title,
                     'post_status' => $post->post_status,
                     'post_title' => $post->post_title,
-                ])
+                ]
             );
             return null;
         }
@@ -678,20 +686,20 @@ class Empire {
                 $tags
             );
             $this->debug(
-                'Empire Sync: SUCCESS | ' . json_encode([
+                'Empire Sync: SUCCESS', [
                     'external_id' => $external_id,
                     'url' => $canonical,
-                ])
+                ]
             );
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API
             // shouldn't error out here.
             captureException( $e );
-            $this->debug(
-                'Empire Sync: ERROR | ' . json_encode([
+            $this->warning(
+                'Empire Sync: ERROR', [
                     'external_id' => $external_id,
                     'url' => $canonical,
-                ])
+                ]
             );
 
             // Either way, don't disrupt the CMS operations about it
@@ -835,14 +843,14 @@ class Empire {
             $query = $this->buildQuerySyncablePosts( $batch, $offset );
             $updated += $this->_syncPosts( $query->posts );
             $this->debug(
-                'Empire Sync: ' . json_encode([
+                'Empire Sync: SYNCING', [
                     'updated' => $updated,
                     'offset' => $offset,
                     'found_posts' => $query->found_posts,
                     'max_num_pages' => $query->max_num_pages,
                     'post_count' => $query->post_count,
                     'request' => $query->request,
-                ])
+                ]
             );
 
             if ($query->post_count < $batch) {
@@ -976,13 +984,13 @@ class Empire {
         $this->debug( 'Got site domain: ' . $config['domain'] );
         update_option( 'empire::site_domain', $config['domain'], false );
 
-        $this->debug( 'Got Ad Settings: ' . json_encode( $config['settings'] ) );
+        $this->debug( 'Got Ad Settings', $config['settings'] );
         update_option( 'empire::ad_settings', $config['settings'], false );
 
-        $this->debug( 'Got Amp Config: ' . json_encode( $config['ampConfig'] ) );
+        $this->debug( 'Got Amp Config', $config['ampConfig'] );
         update_option( 'empire::ad_amp_config', $config['ampConfig'], false );
 
-        $this->debug( 'Got Prefill Config: ' . json_encode( $config['prefillConfig'] ) );
+        $this->debug( 'Got Prefill Config', $config['prefillConfig'] );
         update_option( 'empire::ad_prefill_config', $config['prefillConfig'], false );
 
         return array(
@@ -1118,15 +1126,38 @@ class Empire {
         return $this->empirePixelTestPercent;
     }
 
-    public function log( $message ) {
-        if ( class_exists( '\WP_CLI' ) ) {
-            \WP_CLI::log( $message );
+    public function log(string $level, string $message, array $context = [] ) {
+        if ( ! class_exists( '\WP_CLI' ) ) {
+            return;
+        }
+
+        if ($context) {
+            $message = $message . ' | ' . json_encode( $context );
+        }
+
+        switch ($level) {
+            case LogLevel::WARNING:
+                return \WP_CLI::warning( $message );
+            case LogLevel::INFO:
+                return \WP_CLI::log( $message );
+            case LogLevel::DEBUG:
+                return \WP_CLI::debug( $message, 'empire' );
+            default:
+                $this->warning('Unknown log-level', [ 'level' => $level ]);
+                $this->info($message, $context);
+                return;
         }
     }
 
-    public function debug( $message ) {
-        if ( class_exists( '\WP_CLI' ) ) {
-            \WP_CLI::debug( $message, 'empire' );
-        }
+    public function warning( string $message, array $context = [] ) {
+        $this->log( LogLevel::WARNING, $message, $context )
+    }
+
+    public function info( string $message, array $context = [] ) {
+        $this->log( LogLevel::INFO, $message, $context )
+    }
+
+    public function debug( string $message, array $context = [] ) {
+        $this->log( LogLevel::DEBUG, $message, $context )
     }
 }

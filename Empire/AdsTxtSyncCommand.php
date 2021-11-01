@@ -40,11 +40,11 @@ class AdsTxtSyncCommand {
     public function __invoke( $args ) {
         // Only both trying if the API key is set
         if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
-            $this->empire->log( 'Cannot sync Ads.txt without Empire SDK API Key and Site ID' );
+            $this->empire->warning( 'Cannot sync Ads.txt without Empire SDK API Key and Site ID' );
             return;
         }
 
         $stats = $this->empire->syncAdsTxt();
-        $this->empire->log( 'Ads.txt Sync: ' . json_encode( $stats ) );
+        $this->empire->info( 'Ads.txt Sync stats', $stats );
     }
 }
