@@ -160,14 +160,15 @@ class Empire
         $this->postTypes = get_option('empire::post_types', ['post', 'page']);
 
         /* Load up our sub-page configs */
-        new AdminSettings($this);
-        new CCPAPage($this);
-        new AdsTxt($this);
-        new PageInjection($this);
-        new ContentSyncCommand($this);
-        new ContentIdMapSyncCommand($this);
-        new AdConfigSyncCommand($this);
-        new AdsTxtSyncCommand($this);
+        new AdminSettings( $this );
+        new CCPAPage( $this );
+        new AdsTxt( $this );
+        new PageInjection( $this );
+        new ContentSyncCommand( $this );
+        new ContentIdMapSyncCommand( $this );
+        new AdConfigSyncCommand( $this );
+        new AdsTxtSyncCommand( $this );
+        new GraphQL( $this );
     }
 
     public function getEnvironment()
