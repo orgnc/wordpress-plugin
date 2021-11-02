@@ -220,14 +220,14 @@ class Empire {
      *
      * @param $environment string PRODUCTION or DEVELOPMENT
      */
-    public function __construct( $environment ) {
+    public function __construct( $environment, ?string $apiUrl = null ) {
         $this->environment = $environment;
         $apiKey = get_option( 'empire::api_key' );
         $this->sdkKey = get_option( 'empire::sdk_key' );
         $this->siteId = get_option( 'empire::site_id' );
         $this->siteDomain = get_option( 'empire::site_domain' );
         $this->api = new Api( $this->environment, $apiKey );
-        $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey );
+        $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey, $apiUrl );
 
         $this->adsTxt = new AdsTxt( $this );
 

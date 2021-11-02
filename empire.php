@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: Empire
  * Plugin URI: http://github.com/empireio/wordpress-plugin
@@ -18,4 +17,4 @@ if ( !$environment ) {
     $environment = 'PRODUCTION';
 }
 
-$empire = new Empire($environment);
+$empire = new Empire($environment, getenv('EMPIRE_API_URL'));
