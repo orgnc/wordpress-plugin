@@ -215,6 +215,23 @@ class Empire {
      */
     private $postTypes;
 
+    private static $instance = null;
+
+    /**
+     * Main purpose is to allow access to the plugin instance from the `wp shell`:
+     *  >>> $empire = Empire\Empire::getInstance()
+     *  => Empire\Empire {#1829
+     *       +sdk: Empire\SDK\EmpireSdk {#1830},
+     *       +"siteDomain": "domino.com",
+     *       +"ampAdsEnabled": "1",
+     *       +"injectAdsConfig": "1",
+     *       +"adSlotsPrefillEnabled": "1",
+     *     }
+     */
+    public static function getInstance() {
+        return static::$instance;
+    }
+
     /**
      * Create the Empire plugin ecosystem
      *
@@ -258,6 +275,8 @@ class Empire {
         new ContentIdMapSyncCommand( $this );
         new AdConfigSyncCommand( $this );
         new AdsTxtSyncCommand( $this );
+
+        static::$instance = $this;
     }
 
     public function getEnvironment() {
