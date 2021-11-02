@@ -14,6 +14,7 @@ of the Synchronization to Empire Platform.
 * `empire_post_content` - transform the body of the post
 * `empire_post_publish_date` - transform the publish date of the post
 * `empire_post_modified_date` - transform the modified date of the post
+* `empire_post_authors` - accepts array with one author info based on $post->post_author data and $post->ID; expects an array of dicts with 'externalId' and 'name' keys
 
 Example Filter Implementations:
 ```php
