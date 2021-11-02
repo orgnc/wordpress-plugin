@@ -1150,14 +1150,14 @@ class Empire {
     }
 
     public function warning( string $message, array $context = [] ) {
-        $this->log( LogLevel::WARNING, $message, $context )
+        $this->log( LogLevel::WARNING, $message, $context );
     }
 
     public function info( string $message, array $context = [] ) {
-        $this->log( LogLevel::INFO, $message, $context )
+        $this->log( LogLevel::INFO, $message, $context );
     }
 
     public function debug( string $message, array $context = [] ) {
-        $this->log( LogLevel::DEBUG, $message, $context )
+        $this->log( LogLevel::DEBUG, $message, $context );
     }
 }
