@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Empire;
 
 /**
@@ -9,7 +8,8 @@ namespace Empire;
  *
  * @package Empire
  */
-class PageInjection {
+class PageInjection
+{
 
     /**
      * @var Empire
@@ -26,59 +26,65 @@ class PageInjection {
     private $connatixInjected = false;
     private $ampAdsInjected = false;
 
-    public function __construct( Empire $empire ) {
+    public function __construct(Empire $empire)
+    {
         $this->empire = $empire;
         $is_amp = empire_is_amp();
 
-        if ( $is_amp ) {
-            if ( $this->empire->useAmpAds() ) {
+        if ($is_amp) {
+            if ($this->empire->useAmpAds()) {
                 $this->setupAmpAdsInjector();
             }
         } else {
-            add_action( 'wp_head', array( $this, 'injectPixel' ) );
-            add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
-            if ( $this->empire->useAdsSlotsPrefill() ) {
+            add_action('wp_head', array( $this, 'injectPixel' ));
+            add_filter('the_content', array( $this, 'injectConnatixPlayer' ), 1);
+            if ($this->empire->useAdsSlotsPrefill()) {
                 $this->setupAdsSlotsPrefill();
             }
         }
     }
 
-    public function setupAmpAdsInjector( ) {
+    public function setupAmpAdsInjector()
+    {
         $ampConfig = $this->empire->getAmpConfig();
-        if ( empty($ampConfig->forPlacement) ) {
+        if (empty($ampConfig->forPlacement)) {
             return;
         }
 
         $adsConfig = $this->empire->getAdsConfig();
-        $getTargeting = function() {
+        $getTargeting = function () {
             return $this->empire->getTargeting();
         };
 
-        add_filter( 'amp_content_sanitizers', 
-            function ( $sanitizer_classes, $post) use ($ampConfig, $adsConfig, $getTargeting) {
+        add_filter(
+            'amp_content_sanitizers',
+            function ($sanitizer_classes, $post) use ($ampConfig, $adsConfig, $getTargeting) {
                 if (! $this->empire->eligibleForAds()) {
                     return $sanitizer_classes;
                 }
 
-                require_once( dirname( __FILE__ ) . '/AmpAdsInjector.php');
+                require_once(dirname(__FILE__) . '/AmpAdsInjector.php');
                 $sanitizer_classes['\Empire\AmpAdsInjector'] = [
                     'ampConfig' => $ampConfig,
                     'adsConfig' => $adsConfig,
                     'getTargeting' => $getTargeting,
                 ];
                 return $sanitizer_classes;
-            }, 
-        10, 2);
+            },
+            10,
+            2
+        );
     }
 
-    public function setupAdsSlotsPrefill( ) {
+    public function setupAdsSlotsPrefill()
+    {
         $prefillConfig = $this->empire->getPrefillConfig();
-        if ( empty($prefillConfig->forPlacement) ) {
+        if (empty($prefillConfig->forPlacement)) {
             return;
         }
 
-        add_action( 'template_redirect', function() {
-            ob_start(function ( $content ) {
+        add_action('template_redirect', function () {
+            ob_start(function ($content) {
                 if (! $this->empire->eligibleForAds($content)) {
                     return $content;
                 }
@@ -88,7 +94,9 @@ class PageInjection {
                 $targeting = $this->empire->getTargeting();
 
                 $prefillInjector = new PrefillAdsInjector(
-                    $adsConfig, $prefillConfig, $targeting,
+                    $adsConfig,
+                    $prefillConfig,
+                    $targeting,
                 );
 
                 $content = $prefillInjector->prefill($content);
@@ -101,30 +109,31 @@ class PageInjection {
     /**
      * Places a Connatix Playspace player into the article content after the first <p> tag
      */
-    public function injectConnatixPlayer( $content ) {
+    public function injectConnatixPlayer($content)
+    {
         // Skip it if we already injected once
-        if ( $this->connatixInjected ) {
+        if ($this->connatixInjected) {
             return $content;
         }
 
-        if ( ! $this->empire->useConnatix() || ! is_single() ) {
+        if (! $this->empire->useConnatix() || ! is_single()) {
             return $content;
         }
 
         // Only do this on individual post pages
-        if ( ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
+        if (! is_singular() || ! in_the_loop() || ! is_main_query()) {
             return $content;
         }
 
         // Skip out on injecting Playspace if there is already a Connatix Elements player on the
         // page.
-        if ( str_contains($content, 'connatix-elements') ) {
+        if (str_contains($content, 'connatix-elements')) {
             return $content;
         }
 
         // Figure out if there is a paragraph to inject after
-        $injectionPoint = strpos( $content, '</p>' );
-        if ( $injectionPoint === false ) {
+        $injectionPoint = strpos($content, '</p>');
+        if ($injectionPoint === false) {
             return $content;
         }
         // Adjust for the length of </p>
@@ -162,24 +171,30 @@ class PageInjection {
                 }).render("404a5343b1434e25bf26b4e6356298bc");
             });</script>';
 
-        $connatixPlayerCode = apply_filters( 'empire_video_outstream', $connatixPlayerCode );
+        $connatixPlayerCode = apply_filters('empire_video_outstream', $connatixPlayerCode);
 
-        return substr( $content, 0, $injectionPoint ) .
+        return substr($content, 0, $injectionPoint) .
             $connatixPlayerCode .
-            substr( $content, $injectionPoint );
+            substr($content, $injectionPoint);
     }
 
-    public function injectPixel() {
+    public function injectPixel()
+    {
         // If Empire isn't enabled, then don't bother injecting anything
-        if ( ! $this->empire->isEnabled() ) {
+        if (! $this->empire->isEnabled()) {
             return;
         }
 
-        if ( $this->empire->useConnatix() ) {
-            echo '<script>!function(n){if(!window.cnxps){window.cnxps={},window.cnxps.cmd=[];var t=n.createElement(\'iframe\');t.display=\'none\',t.onload=function(){var n=t.contentWindow.document,c=n.createElement(\'script\');c.src=\'//cd.connatix.com/connatix.playspace.js\',c.setAttribute(\'async\',\'1\'),c.setAttribute(\'type\',\'text/javascript\'),n.body.appendChild(c)},n.head.appendChild(t)}}(document);</script>';
+        if ($this->empire->useConnatix()) {
+            echo '<script>!function(n){if(!window.cnxps){window.cnxps={},window.cnxps.cmd=[];' .
+                'var t=n.createElement(\'iframe\');t.display=\'none\',t.onload=function(){' .
+                'var n=t.contentWindow.document,c=n.createElement(\'script\');' .
+                'c.src=\'//cd.connatix.com/connatix.playspace.js\',c.setAttribute(\'async\',\'1\'),' .
+                'c.setAttribute(\'type\',\'text/javascript\'),n.body.appendChild(c)},n.head.appendChild(t)}}' .
+                '(document);</script>';
         }
 
-        if ( $this->empire->getPixelPublishedUrl() || $this->empire->getSiteId() ) {
+        if ($this->empire->getPixelPublishedUrl() || $this->empire->getSiteId()) {
             $categoryString = '';
             $keywordString = '';
             [
@@ -194,12 +209,36 @@ class PageInjection {
             }
 
             if (!empty($keywords)) {
-                $keywordString = esc_html( implode( ',', $keywords ) );
+                $keywordString = esc_html(implode(',', $keywords));
             }
+
+            // A pre-minimized blob of our split testing utilities
+            echo '<script>var utils={queryString:{},init:function(){var t=this.queryString;location.search.slice(1).' .
+                'split("&").forEach(function(e){e=e.split("="),t[e[0]]=decodeURIComponent(e[1]||"")}),"true"===t.deb' .
+                'ug_cls&&this.logLayoutShift()},logLayoutShift:function(){function e(e){for(i=0;i<e.getEntries().len' .
+                'gth;i++){var t=e.getEntries()[i];o+=t.value,console.log("Layout shift: "+t.value+". CLS: "+o+".")}}' .
+                'var o=0;try{new PerformanceObserver(e).observe({type:"layout-shift",buffered:!0})}catch(t){console.' .
+                'log("PerformanceObserver not supported.")}},setCookie:function(e,t,o){var n,r=new Date,i=2147483647' .
+                ';void 0!==o&&(r.setTime(r.getTime()+24*o*60*60*1e3),i=r.toUTCString()),n="expires="+i,document.cook' .
+                'ie=e+"="+t+";"+n+";path=/"},getCookie:function(e){var t=document.cookie.match("(^|;) ?"+e+"=([^;]*)' .
+                '(;|$)");return t?t[2]:null},deleteCookie:function(e){utils.setCookie(e,"",-1)},loadScript:function(' .
+                'e,t,o,n,r,i){if(document.querySelector("#"+t))"function"==typeof n&&n();else{var s=e.createElement(' .
+                '"script");s.src=o,s.id=t,"function"==typeof n&&(s.onload=n),r&&Object.entries(r).forEach(function(e' .
+                '){s.setAttribute(e[0],e[1])}),(i=i||e.getElementsByTagName("head")[0]).appendChild(s)}}};utils.init' .
+                '(),window.BVTests=function(){function f(){o&&console.log.apply(null,arguments)}function e(e,t){if(!' .
+                'd[e]){var o=utils.queryString[h];if(o){o=o.split(",");for(var n=0;n<o.length;n++){var r=o[n].split(' .
+                '"-");if(2===r.length&&r[0]===e)return g[e]=r[1],utils.setCookie(v+e,r[1]),void f("User bucketed fro' .
+                'm query string param:",e,r[1])}}var i=utils.getCookie(v+e);if(i&&("control"===i||i in t))f("User bu' .
+                'cketed from cookie:",e,g[e]=i);else{d[e]=t,g[e]="control";var s,u=[];for(var a in t){s=parseInt(t[a' .
+                ']);for(n=0;n<s;n++)u.push(a)}var c=u.length;if(c<100)for(n=0;n<100-c;n++)u.push("control");f("weigh' .
+                'tedBuckets",u.length,u);var l=u[Math.floor(Math.random()*u.length)];f("user sampled:",s,e,l),g[e]=l' .
+                ',utils.setCookie(v+e,g[e]),f("user bucketed:",e,g[e])}}}function t(){var e=[];for(var t in g){var o' .
+                '=g[t];e.push(t+"-"+o)}return e}var d={},g={},v="bv_test__",h="debug_bv_tests",o="debug_tests"in uti' .
+                'ls.queryString;return{create:e,getValue:function(e){return g[e]},getUserBuckets:function(){return g' .
+                '},getTargetingValue:t}}();</script>';
             ?>
-            <script>var utils={queryString:{},init:function(){var t=this.queryString;location.search.slice(1).split("&").forEach(function(e){e=e.split("="),t[e[0]]=decodeURIComponent(e[1]||"")}),"true"===t.debug_cls&&this.logLayoutShift()},logLayoutShift:function(){function e(e){for(i=0;i<e.getEntries().length;i++){var t=e.getEntries()[i];o+=t.value,console.log("Layout shift: "+t.value+". CLS: "+o+".")}}var o=0;try{new PerformanceObserver(e).observe({type:"layout-shift",buffered:!0})}catch(t){console.log("PerformanceObserver not supported.")}},setCookie:function(e,t,o){var n,r=new Date,i=2147483647;void 0!==o&&(r.setTime(r.getTime()+24*o*60*60*1e3),i=r.toUTCString()),n="expires="+i,document.cookie=e+"="+t+";"+n+";path=/"},getCookie:function(e){var t=document.cookie.match("(^|;) ?"+e+"=([^;]*)(;|$)");return t?t[2]:null},deleteCookie:function(e){utils.setCookie(e,"",-1)},loadScript:function(e,t,o,n,r,i){if(document.querySelector("#"+t))"function"==typeof n&&n();else{var s=e.createElement("script");s.src=o,s.id=t,"function"==typeof n&&(s.onload=n),r&&Object.entries(r).forEach(function(e){s.setAttribute(e[0],e[1])}),(i=i||e.getElementsByTagName("head")[0]).appendChild(s)}}};utils.init(),window.BVTests=function(){function f(){o&&console.log.apply(null,arguments)}function e(e,t){if(!d[e]){var o=utils.queryString[h];if(o){o=o.split(",");for(var n=0;n<o.length;n++){var r=o[n].split("-");if(2===r.length&&r[0]===e)return g[e]=r[1],utils.setCookie(v+e,r[1]),void f("User bucketed from query string param:",e,r[1])}}var i=utils.getCookie(v+e);if(i&&("control"===i||i in t))f("User bucketed from cookie:",e,g[e]=i);else{d[e]=t,g[e]="control";var s,u=[];for(var a in t){s=parseInt(t[a]);for(n=0;n<s;n++)u.push(a)}var c=u.length;if(c<100)for(n=0;n<100-c;n++)u.push("control");f("weightedBuckets",u.length,u);var l=u[Math.floor(Math.random()*u.length)];f("user sampled:",s,e,l),g[e]=l,utils.setCookie(v+e,g[e]),f("user bucketed:",e,g[e])}}}function t(){var e=[];for(var t in g){var o=g[t];e.push(t+"-"+o)}return e}var d={},g={},v="bv_test__",h="debug_bv_tests",o="debug_tests"in utils.queryString;return{create:e,getValue:function(e){return g[e]},getUserBuckets:function(){return g},getTargetingValue:t}}();</script>
             <script>
-                <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
+                <?php if ($this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent()) { ?>
                 window.empireTestKey = "<?php echo $this->empire->getEmpirePixelTestValue(); ?>";
                 BVTests.create('<?php echo $this->empire->getEmpirePixelTestValue(); ?>', {
                     enabled: <?php echo $this->empire->getEmpirePixelTestPercent(); ?>,
@@ -226,8 +265,7 @@ class PageInjection {
                 window.empire.apps = window.empire.apps || {};
                 window.empire.apps.ads = window.empire.apps.ads || {};
                 window.empire.apps.ads.config = window.empire.apps.ads.config || {};
-            <?php if ( $this->empire->useInjectedAdsConfig() ) { ?>
-
+            <?php if ($this->empire->useInjectedAdsConfig()) { ?>
                 window.empire.apps.ads.config.siteDomain = "<?php echo $this->empire->siteDomain ?>";
                 window.empire.apps.ads.config.adConfig = <?php echo json_encode($this->empire->getAdsConfig()->raw) ?>;
             <?php } ?>
@@ -250,23 +288,34 @@ class PageInjection {
                 (function() {
                     function loadAds() {
                         utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/assets/prebid5.13.0.js');
-                        <?php if ( $this->empire->getSiteId() ) { /* This only works if Site ID is set up */ ?>
-                        <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
-                        if ( BVTests.getValue("<?php echo $this->empire->getEmpirePixelTestValue(); ?>") == 'control' ) {
-                            utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
+                        <?php if ($this->empire->getSiteId()) { /* This only works if Site ID is set up */ ?>
+                            <?php
+                            if (
+                                    $this->empire->getEmpirePixelTestValue() &&
+                                    $this->empire->getEmpirePixelTestPercent()
+                            ) {
+                                ?>
+                        if (
+                          BVTests.getValue("<?php echo $this->empire->getEmpirePixelTestValue(); ?>") == 'control'
+                        ) {
+                            utils.loadScript(document, 'track-adm-adx-pixel',
+                              "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
                         } else {
-                            utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
+                            utils.loadScript(document, 'empire-sdk',
+                              "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
                         }
-                        <?php } else { ?>
-                        utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
-                        <?php
-                        }
+                            <?php } else { ?>
+                        utils.loadScript(document, 'empire-sdk',
+                          "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
+                                <?php
+                            }
                         } else {
-                        ?>
-                        utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
+                            ?>
+                        utils.loadScript(document, 'track-adm-adx-pixel',
+                          "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
                         <?php } ?>
                     }
-              <?php if ( $this->empire->useAdsSlotsPrefill() ) { ?>
+              <?php if ($this->empire->useAdsSlotsPrefill()) { ?>
                     loadAds();
               <?php } else { ?>
                     setTimeout(loadAds, loadDelay);

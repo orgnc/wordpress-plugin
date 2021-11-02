@@ -2,7 +2,8 @@
 
 namespace Empire;
 
-class Environment {
+class Environment
+{
 
     public const LOCAL = 'LOCAL';
     public const DEVELOPMENT = 'DEVELOPMENT';

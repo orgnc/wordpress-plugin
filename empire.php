@@ -1,4 +1,8 @@
 <?php
+/** Entry for Empire WordPress Plugin
+ *
+ *  @package Empire
+ */
 
 /**
  * Plugin Name: Empire
@@ -13,9 +17,9 @@ require __DIR__ . '/Empire/helpers.php';
 
 use Empire\Empire;
 
-$environment = getenv('EMPIRE_ENVIRONMENT');
-if ( !$environment ) {
-    $environment = 'PRODUCTION';
+$environment = getenv( 'EMPIRE_ENVIRONMENT' );
+if ( ! $environment ) {
+	$environment = 'PRODUCTION';
 }
 
-$empire = new Empire($environment);
+$empire = new Empire( $environment );

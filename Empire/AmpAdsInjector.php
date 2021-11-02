@@ -2,13 +2,15 @@
 
 namespace Empire;
 
-class AmpAdsInjector extends \AMP_Base_Sanitizer {
-    public function sanitize() {
+class AmpAdsInjector extends \AMP_Base_Sanitizer
+{
+    public function sanitize()
+    {
         $ampConfig = $this->args['ampConfig'];
         $adsConfig = $this->args['adsConfig'];
         $targeting = $this->args['getTargeting']();
 
-        $adsInjector = new AdsInjector($this->dom, function($html) {
+        $adsInjector = new AdsInjector($this->dom, function ($html) {
             $document = $this->dom::fromHtmlFragment($html);
             return $document->getElementsByTagName('body')->item(0);
         });
@@ -31,7 +33,8 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         }
     }
 
-    public function applyTargeting($html, $values) {
+    public function applyTargeting($html, $values)
+    {
         $targeting = [
             'amp' => 1,
             'site' => $values['siteDomain'],
@@ -52,7 +55,6 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         }
 
         $json = json_encode(['targeting' => $targeting]);
-        return str_replace('json="{}"', 'json='. $json, $html);
+        return str_replace('json="{}"', 'json=' . $json, $html);
     }
 }
-
