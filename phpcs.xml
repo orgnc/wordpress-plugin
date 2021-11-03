@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
-<ruleset name="Empire Plugin">
-    <description>Empire Wordpress Plugin Coding Standards</description>
+<ruleset name="Solutions Wordpress">
+    <description>Solutions Wordpress Coding Standards</description>
 
     <file>./empire.php</file>
     <file>./Empire</file>
+
+    <exclude-pattern>*/autoload.php</exclude-pattern>
 
     <!-- Exclude any Composer Vendor directories -->
     <exclude-pattern>/vendor/*</exclude-pattern>

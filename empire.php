@@ -1,8 +1,4 @@
 <?php
-/** Entry for Empire WordPress Plugin
- *
- *  @package Empire
- */
 
 /**
  * Plugin Name: Empire
@@ -19,7 +15,8 @@ use Empire\Empire;
 
 $environment = getenv( 'EMPIRE_ENVIRONMENT' );
 if ( ! $environment ) {
-	$environment = 'PRODUCTION';
+    $environment = 'PRODUCTION';
 }
 
 $empire = new Empire( $environment );
+$empire->init();
