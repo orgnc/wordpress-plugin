@@ -4,17 +4,19 @@ namespace Empire;
 
 use DOMXPath;
 
-
-class AdsInjector {
+class AdsInjector
+{
     private $fragmentBuilder;
 
-    public function __construct( $dom, $fragmentBuilder ) {
+    public function __construct($dom, $fragmentBuilder)
+    {
         $this->dom = $dom;
         // AMP and FluentDOM are using different methods to build fragments
         $this->fragmentBuilder = $fragmentBuilder;
     }
 
-    public function injectAds($adHtml, $relative, $selectors, $limit) {
+    public function injectAds($adHtml, $relative, $selectors, $limit)
+    {
         $count = 0;
         $transformer = \FluentDOM::getXPathTransformer();
         foreach ($selectors as $selector) {
@@ -23,7 +25,7 @@ class AdsInjector {
             foreach ((new DOMXPath($this->dom))->query($path) as $elem) {
                 $ad = $this->nodeFromHtml($adHtml);
                 $injected = $this->injectAd($ad, $relative, $elem);
-                if ( $injected ) {
+                if ($injected) {
                     $count++;
                 }
 
@@ -36,7 +38,8 @@ class AdsInjector {
         return $count;
     }
 
-    public function injectAd($ad, $relative, $elem) {
+    public function injectAd($ad, $relative, $elem)
+    {
         switch ($relative) {
             case 'inside_start':
                 return $elem->insertBefore($ad, $elem->firstChild);
@@ -53,7 +56,8 @@ class AdsInjector {
         }
     }
 
-    public function nodeFromHtml($html) {
+    public function nodeFromHtml($html)
+    {
         // ($this->clbk)() - that's how you call closure stored as attr on object
         // https://wiki.php.net/rfc/uniform_variable_syntax#incomplete_dereferencing_support
         $fragment = ($this->fragmentBuilder)($html);
@@ -67,7 +71,8 @@ class AdsInjector {
         return $importFragment;
     }
 
-    public function checkAdsBlocked($adRules, $targeting) {
+    public function checkAdsBlocked($adRules, $targeting)
+    {
         foreach ($adRules as $rule) {
             if (!$rule['enabled']) {
                 continue;
@@ -90,7 +95,7 @@ class AdsInjector {
                     break;
             }
 
-            $blocked = array_reduce(array_map(function ($component) use ( $rule ) {
+            $blocked = array_reduce(array_map(function ($component) use ($rule) {
                 switch ($rule['comparator']) {
                     case 'CONTAINS':
                         return (strpos($component, $rule['value']) !== false);
@@ -113,4 +118,3 @@ class AdsInjector {
         return false;
     }
 }
-

@@ -2,26 +2,32 @@
 
 namespace Empire;
 
-
-class PrefillAdsInjector {
+class PrefillAdsInjector
+{
     private AdsConfig $adsConfig;
     private PrefillConfig $prefillConfig;
     private $targeting;
 
-    public function __construct( AdsConfig $adsConfig, PrefillConfig $prefillConfig, $targeting ) {
+    public function __construct(AdsConfig $adsConfig, PrefillConfig $prefillConfig, $targeting)
+    {
         $this->adsConfig = $adsConfig;
         $this->prefillConfig = $prefillConfig;
         $this->targeting = $targeting;
     }
 
-    public function prefill( $content ) {
+    public function prefill($content)
+    {
         $contentDom = \FluentDOM::load(
-            $content, 'html5', [\FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true],
+            $content,
+            'html5',
+            [\FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true],
         );
 
-        $adsInjector = new AdsInjector($contentDom, function($html) {
+        $adsInjector = new AdsInjector($contentDom, function ($html) {
             $document = \FluentDOM::load(
-                $html, 'html5', [\FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true],
+                $html,
+                'html5',
+                [\FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true],
             );
             return $document->getElementsByTagName('html')->item(0);
         });
@@ -39,10 +45,10 @@ class PrefillAdsInjector {
                 'limit' => $limit,
                 'relative' => $relative,
             ] = $placement;
- 
+
             $adContainer = $prefill['html'];
             $count = $adsInjector->injectAds($adContainer, $relative, $selectors, $limit);
-            if ( $count > 0) {
+            if ($count > 0) {
                 $styles = $styles . $prefill['css'] . "\n";
             }
         }
@@ -54,10 +60,12 @@ class PrefillAdsInjector {
         return $contentDom->saveHTML();
     }
 
-    public function injectStyles(\FluentDOM\DOM\Document $dom, string $styles) {
+    public function injectStyles(\FluentDOM\DOM\Document $dom, string $styles)
+    {
         $dom->getElementsByTagName('head')->item(0)->appendElement(
-          'style', $styles, ['type' => 'text/css', 'id' => 'empire-prefill-css']
+            'style',
+            $styles,
+            ['type' => 'text/css', 'id' => 'empire-prefill-css']
         );
     }
 }
-

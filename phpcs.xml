@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ruleset name="Empire Plugin">
+    <description>Empire Wordpress Plugin Coding Standards</description>
+
+    <file>./empire.php</file>
+    <file>./Empire</file>
+
+    <!-- Exclude any Composer Vendor directories -->
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <!-- Scan only PHP files -->
+    <arg name="extensions" value="php"/>
+
+    <!-- Show colors in console -->
+    <arg value="-colors"/>
+
+    <!-- Show sniff codes in all reports -->
+    <arg value="ns"/>
+
+    <rule ref="WordPress-Core">
+        <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
+    </rule>
+    <rule ref="WordPress-Extra">
+        <exclude name="WordPress.PHP.DisallowShortTernary"/>
+        <exclude name="WordPress.WP.EnqueuedResourceParameters.MissingVersion"/>
+        <exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+        <!-- many false-positives -->
+        <exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
+        <exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
+        <!-- TODO: fix/enable -->
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase"/>
+        <!-- TODO: fix security issues -->
+        <exclude name="WordPress.Security.NonceVerification.Missing"/>
+        <exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
+        <exclude name="WordPress.Security.EscapeOutput.UnsafePrintingFunction"/>
+    </rule>
+
+    <rule ref="Generic.WhiteSpace.ScopeIndent">
+        <properties>
+            <property name="indent" value="4"/>
+            <property name="tabIndent" value="false"/>
+        </properties>
+    </rule>
+    <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+
+    <config name="minimum_supported_wp_version" value="5.5"/>
+</ruleset>
