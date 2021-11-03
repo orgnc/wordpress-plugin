@@ -50,6 +50,7 @@ jobs:
           cp -r vendor build/empire/
           cd build
           zip -r empire-${{ env.BUILD_NUMBER }}.zip empire
+          cp empire-${{ env.BUILD_NUMBER }}.zip empire.zip
 
       # Set up our S3 Connection
       - name: Set up S3cmd cli tool
@@ -66,7 +67,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: 'build/empire-*.zip'
+          args: 'build/empire.zip'
 
       # Push zip to S3 for easy integration with Empire Platform
       - name: Deploy
