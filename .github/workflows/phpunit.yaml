@@ -1,4 +1,4 @@
-name: SonarQube
+name: PHPUnit
 on:
   pull_request:
     branches:
@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: php-actions/composer@v5 # or alternative dependency management
-      - uses: php-actions/phpunit@v3
-        with:
-          configuration: phpunit.xml
+      - uses: php-actions/composer@v5
+      - name: Run PHPUnit
+        run: composer run phpunit

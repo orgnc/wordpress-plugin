@@ -4,26 +4,8 @@ on: [push]
 jobs:
   lint:
     runs-on: ubuntu-latest
-    env:
-      PHPCS_DIR: /tmp/phpcs
-      SNIFFS_DIR: /tmp/sniffs
     steps:
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-
-      # Make sure our PHP files are well formatted
-      - name: Install PHPCS
-        run: |
-          git clone -b master --depth 1 https://github.com/squizlabs/PHP_CodeSniffer.git $PHPCS_DIR && \
-          git clone -b master --depth 1 https://github.com/WordPress/WordPress-Coding-Standards.git $SNIFFS_DIR && \
-          $PHPCS_DIR/bin/phpcs --config-set installed_paths $SNIFFS_DIR
-
       - uses: actions/checkout@v2
-
-      - name: Run PHPCS - Wordpress Plugin
-        run: $PHPCS_DIR/bin/phpcs --standard=WordPress empire.php
-
-      - name: Run PHPCS - PHP SDK
-        run: $PHPCS_DIR/bin/phpcs --standard=PSR12 Empire
+      - uses: php-actions/composer@v5
+      - name: Run PHPCS
+        run: composer run lint
