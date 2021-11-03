@@ -5,7 +5,7 @@
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '79c08eb0a02783b796834ad5f121915cebd6b395',
+        'reference' => 'b8892503783ec16651d0512219df93634b3b42b1',
         'name' => 'empireio/wordpress-plugin',
         'dev' => true,
     ),
@@ -43,7 +43,7 @@
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '79c08eb0a02783b796834ad5f121915cebd6b395',
+            'reference' => 'b8892503783ec16651d0512219df93634b3b42b1',
             'dev_requirement' => false,
         ),
         'fluentdom/css-selector' => array(
