@@ -2,8 +2,8 @@
 
 namespace Empire;
 
-class AdsConfig extends BaseConfig
-{
+class AdsConfig extends BaseConfig {
+
 
     /**
      * List of AdRules returned from Empire Platform API
@@ -24,10 +24,9 @@ class AdsConfig extends BaseConfig
      */
     public array $forPlacement;
 
-    public function __construct(array $raw)
-    {
-        parent::__construct($raw);
-        if (empty($raw)) {
+    public function __construct( array $raw ) {
+        parent::__construct( $raw );
+        if ( empty( $raw ) ) {
             $this->adRules = [];
             return;
         }

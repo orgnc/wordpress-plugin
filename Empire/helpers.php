@@ -9,8 +9,7 @@ namespace Empire;
  *
  * @return bool Is AMP endpoint (and AMP plugin is active).
  */
-function empire_is_amp()
-{
-    // naive implementation due to we're in mu-plugin
-    return isset($_GET['amp']);
+function empire_is_amp() {
+     // naive implementation due to we're in mu-plugin
+    return isset( $_GET['amp'] );
 }

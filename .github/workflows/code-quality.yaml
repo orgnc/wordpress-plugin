@@ -1,0 +1,22 @@
+name: Code Quality Checks
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+jobs:
+  build:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v5
+
+      - name: Run PHPCS
+        run: composer run lint
+
+      - name: Run PHPUnit
+        run: composer run phpunit

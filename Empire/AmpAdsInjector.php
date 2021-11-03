@@ -2,25 +2,26 @@
 
 namespace Empire;
 
-class AmpAdsInjector extends \AMP_Base_Sanitizer
-{
-    public function sanitize()
-    {
+class AmpAdsInjector extends \AMP_Base_Sanitizer {
+    public function sanitize() {
         $ampConfig = $this->args['ampConfig'];
         $adsConfig = $this->args['adsConfig'];
         $targeting = $this->args['getTargeting']();
 
-        $adsInjector = new AdsInjector($this->dom, function ($html) {
-            $document = $this->dom::fromHtmlFragment($html);
-            return $document->getElementsByTagName('body')->item(0);
-        });
+        $adsInjector = new AdsInjector(
+            $this->dom,
+            function( $html ) {
+                $document = $this->dom::fromHtmlFragment( $html );
+                return $document->getElementsByTagName( 'body' )->item( 0 );
+            }
+        );
 
-        if ($adsInjector->checkAdsBlocked($adsConfig->adRules, $targeting)) {
+        if ( $adsInjector->checkAdsBlocked( $adsConfig->adRules, $targeting ) ) {
             return;
         }
 
-        foreach ($ampConfig->forPlacement as $key => $amp) {
-            $placement = $adsConfig->forPlacement[$key];
+        foreach ( $ampConfig->forPlacement as $key => $amp ) {
+            $placement = $adsConfig->forPlacement[ $key ];
 
             [
                 'selectors' => $selectors,
@@ -28,13 +29,12 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer
                 'relative' => $relative,
             ] = $placement;
 
-            $adHtml = $this->applyTargeting($amp['html'], $targeting);
-            $adsInjector->injectAds($adHtml, $relative, $selectors, $limit);
+            $adHtml = $this->applyTargeting( $amp['html'], $targeting );
+            $adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
         }
     }
 
-    public function applyTargeting($html, $values)
-    {
+    public function applyTargeting( $html, $values ) {
         $targeting = [
             'amp' => 1,
             'site' => $values['siteDomain'],
@@ -43,18 +43,19 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer
         ];
 
         $keywords = $values['keywords'];
-        if (!empty($keywords)) {
+        if ( ! empty( $keywords ) ) {
             $targeting['content_keyword'] = $keywords;
             $targeting['targeting_keyword'] = $keywords;
         }
 
         $category = $values['category'];
-        if (!is_null($category)) {
+        if ( ! is_null( $category ) ) {
             $targeting['site_section'] = $category->slug;
             $targeting['targeting_section'] = $category->slug;
         }
 
-        $json = json_encode(['targeting' => $targeting]);
-        return str_replace('json="{}"', 'json=' . $json, $html);
+        $json = json_encode( [ 'targeting' => $targeting ] );
+        return str_replace( 'json="{}"', 'json=' . $json, $html );
     }
 }
+

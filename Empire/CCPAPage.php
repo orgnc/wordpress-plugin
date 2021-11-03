@@ -9,33 +9,31 @@ use stdClass;
  *
  * @package Empire
  */
-class CCPAPage
-{
+class CCPAPage {
+
 
     /**
      * @var Empire
      */
     private $empire;
 
-    public function __construct(Empire $empire)
-    {
+    public function __construct( Empire $empire ) {
         $this->empire = $empire;
 
-        if ($this->empire->getCmp()) {
-            add_action('init', array( $this, 'show' ));
-            add_action('wp_head', array( $this, 'head' ), 100);
-            add_action('wp_footer', array( $this, 'footer' ), 100);
-            add_action('footer_extra_nav', array( $this, 'footerExtraNav' ), 100);
-            add_filter('wp_get_nav_menu_items', array( $this, 'addFooterMenuItem' ), 20, 2);
+        if ( $this->empire->getCmp() ) {
+            add_action( 'init', array( $this, 'show' ) );
+            add_action( 'wp_head', array( $this, 'head' ), 100 );
+            add_action( 'wp_footer', array( $this, 'footer' ), 100 );
+            add_action( 'footer_extra_nav', array( $this, 'footerExtraNav' ), 100 );
+            add_filter( 'wp_get_nav_menu_items', array( $this, 'addFooterMenuItem' ), 20, 2 );
         }
     }
 
     /**
      * Hook for injecting One Trust button in footer navigation
      */
-    public function footerExtraNav()
-    {
-        if ($this->empire->useCmpOneTrust()) {
+    public function footerExtraNav() {
+        if ( $this->empire->useCmpOneTrust() ) {
             echo '<button id="ot-sdk-btn" class="ot-sdk-show-settings">Cookie Settings</button>';
         }
     }
@@ -45,9 +43,8 @@ class CCPAPage
      *
      * @return string new Menu item
      */
-    public function footer()
-    {
-        if ($this->empire->useCmpBuiltIn()) {
+    public function footer() {
+        if ( $this->empire->useCmpBuiltIn() ) {
             echo '<a href="/do-not-collect">Do Not Sell My Personal Information</a>';
         }
     }
@@ -57,14 +54,13 @@ class CCPAPage
      *
      * @return string
      */
-    public function head()
-    {
-        if ($this->empire->useCmpOneTrust()) {
+    public function head() {
+        if ( $this->empire->useCmpOneTrust() ) {
             // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
             echo '<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"'
-                . ' type="text/javascript" charset="UTF-8" data-domain-script="'
-                . $this->empire->getOneTrustId()
-                . '" ></script><script type="text/javascript">function OptanonWrapper(){}</script>';
+               . ' type="text/javascript" charset="UTF-8" data-domain-script="'
+               . $this->empire->getOneTrustId()
+               . '" ></script><script type="text/javascript">function OptanonWrapper(){}</script>';
         }
     }
 
@@ -74,10 +70,9 @@ class CCPAPage
      * @param $menu
      * @return mixed
      */
-    public function addFooterMenuItem($items, $menu)
-    {
-        if ($menu->slug === 'footer-menu') {
-            if ($this->empire->useCmpBuiltIn()) {
+    public function addFooterMenuItem( $items, $menu ) {
+        if ( $menu->slug === 'footer-menu' ) {
+            if ( $this->empire->useCmpBuiltIn() ) {
                 $items[] = $this->customNavMenuItem(
                     'Do Not Sell My Personal Information',
                     '/do-not-collect',
@@ -98,8 +93,7 @@ class CCPAPage
      * @param int $parent - the item's parent item
      * @return \stdClass
      */
-    public function customNavMenuItem($title, $url, $order, $parent = 0)
-    {
+    public function customNavMenuItem( $title, $url, $order, $parent = 0 ) {
         $item = new stdClass();
         $item->ID = 1000000 + $order + $parent;
         $item->db_id = $item->ID;
@@ -119,14 +113,13 @@ class CCPAPage
         return $item;
     }
 
-    public function show()
-    {
-        if (isset($_SERVER) && $_SERVER['REQUEST_URI'] === '/do-not-collect') {
-            $enabled = get_option('empire::enabled');
+    public function show() {
+        if ( isset( $_SERVER ) && $_SERVER['REQUEST_URI'] === '/do-not-collect' ) {
+            $enabled = get_option( 'empire::enabled' );
 
-            if ($this->empire->useCmpBuiltIn() && $enabled) {
-                header('content-type: text/html; charset=UTF-8');
-                header('cache-control: public, max-age=86400');
+            if ( $this->empire->useCmpBuiltIn() && $enabled ) {
+                header( 'content-type: text/html; charset=UTF-8' );
+                header( 'cache-control: public, max-age=86400' );
                 $contents = <<<EOF
 
 <!DOCTYPE html>
