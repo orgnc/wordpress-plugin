@@ -403,7 +403,7 @@ class Empire {
             return false;
         }
 
-        if ( $content ) {
+        if ( is_string( $content ) ) {
             // Additional check that this is HTML if content blob was provided
             return preg_match( '/<\/html>/i', $content );
         }

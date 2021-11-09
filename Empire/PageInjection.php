@@ -85,6 +85,10 @@ class PageInjection {
             function() {
                 ob_start(
                     function ( $content ) {
+                        if ( ! $content ) {
+                            return $content;
+                        }
+
                         if ( ! $this->empire->eligibleForAds( $content ) ) {
                             return $content;
                         }
