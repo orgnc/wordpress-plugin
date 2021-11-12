@@ -42,18 +42,18 @@ class ContentSyncCommand {
     public function __invoke( $args ) {
         // Only both trying if the API key is set
         if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
-            $this->empire->log( 'Cannot sync articles without Empire SDK API Key and Site ID' );
+            $this->empire->warning( 'Cannot sync articles without Empire SDK API Key and Site ID' );
         } else {
             if ( ! count( $args ) ) {
                 $updated = $this->empire->syncContent();
-                $this->empire->log( 'Empire Sync: total_posts=' . $updated );
+                $this->empire->info( 'Empire Sync status', [ 'updated' => $updated ] );
                 return;
             }
 
             foreach ( $args as $post_id ) {
                 $post = \WP_Post::get_instance( $post_id );
                 if ( ! $post ) {
-                    $this->empire->log( 'Post ' . $post_id . ' not found. Skipping...' );
+                    $this->empire->info( 'Post ' . $post_id . ' not found. Skipping...' );
                     continue;
                 }
                 $this->empire->syncPost( $post );
