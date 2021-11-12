@@ -48,13 +48,18 @@ class EmpireSdk {
     public function __construct(
         string $siteGuid,
         ?string $token = null,
-        string $url = 'https://api.empireio.com/graphql'
+        ?string $url = null
     ) {
-         $params = array();
+        if ( ! $url ) {
+            $url = 'https://api.empireio.com/graphql';
+        }
+        $this->apiUrl = $url;
+
+        $params = array();
         if ( $token ) {
             $params['x-api-key'] = $token;
         }
-        $this->apiUrl = $url;
+
         $this->client = new Client(
             $url,
             $params

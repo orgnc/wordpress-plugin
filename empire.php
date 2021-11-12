@@ -19,4 +19,4 @@ if ( ! $environment ) {
 }
 
 $empire = new Empire( $environment );
-$empire->init();
+$empire->init( getenv( 'EMPIRE_API_URL' ) );
