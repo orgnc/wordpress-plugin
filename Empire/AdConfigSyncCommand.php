@@ -51,11 +51,11 @@ class AdConfigSyncCommand {
     public function __invoke( $args ) {
         // Only both trying if the API key is set
         if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
-            $this->empire->log( 'Cannot sync AdConfig without Empire SDK API Key and Site ID' );
+            $this->empire->warning( 'Cannot sync AdConfig without Empire SDK API Key and Site ID' );
             return;
         }
 
         $stats = $this->empire->syncAdConfig();
-        $this->empire->log( 'Empire AdConfig Sync: ' . json_encode( $stats ) );
+        $this->empire->info( 'Empire AdConfig Sync stats', $stats );
     }
 }
