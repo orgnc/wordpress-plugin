@@ -98,6 +98,13 @@ class PrefillConfig extends BaseConfig {
 }
 
 
+class LogLevel {
+    const WARNING   = 'warning';
+    const INFO      = 'info';
+    const DEBUG     = 'debug';
+}
+
+
 /**
  * Client Plugin for TrackADM.com ads, analytics and affiliate management platform
  */
@@ -896,13 +903,13 @@ class Empire {
         $this->debug( 'Got site domain: ' . $config['domain'] );
         update_option( 'empire::site_domain', $config['domain'], false );
 
-        $this->debug( 'Got Ad Settings: ' . json_encode( $config['settings'] ) );
+        $this->debug( 'Got Ad Settings: ', $config['settings'] );
         update_option( 'empire::ad_settings', $config['settings'], false );
 
-        $this->debug( 'Got Amp Config: ' . json_encode( $config['ampConfig'] ) );
+        $this->debug( 'Got Amp Config: ', $config['ampConfig'] );
         update_option( 'empire::ad_amp_config', $config['ampConfig'], false );
 
-        $this->debug( 'Got Prefill Config: ' . json_encode( $config['prefillConfig'] ) );
+        $this->debug( 'Got Prefill Config: ', $config['prefillConfig'] );
         update_option( 'empire::ad_prefill_config', $config['prefillConfig'], false );
 
         return array(
@@ -1038,15 +1045,38 @@ class Empire {
         return $this->empirePixelTestPercent;
     }
 
-    public function log( $message ) {
-        if ( class_exists( '\WP_CLI' ) ) {
-            \WP_CLI::log( $message );
+    public function log( string $level, string $message, array $context = [] ) {
+        if ( ! class_exists( '\WP_CLI' ) ) {
+            return;
+        }
+
+        if ( $context ) {
+            $message = $message . ' | ' . json_encode( $context );
+        }
+
+        switch ( $level ) {
+            case LogLevel::WARNING:
+                return \WP_CLI::warning( $message );
+            case LogLevel::INFO:
+                return \WP_CLI::log( $message );
+            case LogLevel::DEBUG:
+                return \WP_CLI::debug( $message, 'empire' );
+            default:
+                $this->warning( 'Unknown log-level', [ 'level' => $level ] );
+                $this->info( $message, $context );
+                return;
         }
     }
 
-    public function debug( $message ) {
-        if ( class_exists( '\WP_CLI' ) ) {
-            \WP_CLI::debug( $message, 'empire' );
-        }
+    public function warning( string $message, array $context = [] ) {
+        $this->log( LogLevel::WARNING, $message, $context );
+    }
+
+    public function info( string $message, array $context = [] ) {
+        $this->log( LogLevel::INFO, $message, $context );
+    }
+
+    public function debug( string $message, array $context = [] ) {
+        $this->log( LogLevel::DEBUG, $message, $context );
     }
 }
