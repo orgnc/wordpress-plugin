@@ -469,21 +469,6 @@ class Empire {
         return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     }
 
-    public function getCanonicalUrlFor( $postId ) {
-        $canonical = get_permalink( $postId );
-
-        // Cleanup canonicals - hack for initial migrations from dev
-        $canonical = str_replace( 'lcl.taskandpurpose', 'taskandpurpose', $canonical );
-        $canonical = str_replace( 'dev.taskandpurpose', 'taskandpurpose', $canonical );
-        $canonical = str_replace( 'stg.taskandpurpose', 'taskandpurpose', $canonical );
-        $canonical = str_replace( 'lcl.', 'www.', $canonical );
-        $canonical = str_replace( 'dev.', 'www.', $canonical );
-        $canonical = str_replace( 'stg.', 'www.', $canonical );
-        $canonical = str_replace( 'http://', 'https://', $canonical );
-
-        return $canonical;
-    }
-
     public function getKeywordsFor( $postId ) {
         $keywords = get_the_tags( $postId );
 
@@ -607,7 +592,7 @@ class Empire {
      * @param $post
      */
     public function syncPost( $post ) {
-        $canonical = $this->getCanonicalUrlFor( $post->ID );
+        $canonical = get_permalink( $post->ID );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
         $external_id = \apply_filters( 'empire_post_id', $post->ID );
