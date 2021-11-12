@@ -6,7 +6,6 @@ use DateTime;
 use Empire\SDK\EmpireSdk;
 use Exception;
 use WP_Query;
-use function App\get_article_author;
 use function \get_user_by;
 use function Sentry\captureException;
 
@@ -605,8 +604,7 @@ class Empire {
 
         $authors = array();
 
-        // Assume the default Wordpress author structure. Need to override this for our
-        // taxonomy-driven author data
+        // Assume the default Wordpress author structure
         if ( $post->post_author ) {
             $user = get_user_by( 'id', $post->post_author );
             if ( $user ) {
@@ -616,33 +614,7 @@ class Empire {
                 );
             }
         }
-
-        // If we are using our advanced author taxonomy support, then override with that
-        // (requires Advanced Custom Fields plugin)
-        $author_support_enabled = false;
-        if ( function_exists( 'get_field' ) ) {
-            $author_support_data = get_field( 'opt_author_support', 'option' );
-            $author_support_enabled = true;
-            if (
-                ! isset( $author_support_data['enabled'] ) ||
-                empty( $author_support_data['enabled'] )
-            ) {
-                $author_support_enabled = false;
-            }
-        }
-        if (
-            $author_support_enabled &&
-            function_exists( 'App\get_article_author' )
-        ) {
-            $authors = array();
-            $author_data = get_article_author( $post->ID );
-            foreach ( $author_data as $author ) {
-                $authors[] = array(
-                    'externalId' => (string) $author['id'],
-                    'name' => $author['name'],
-                );
-            }
-        }
+        $authors = \apply_filters( 'empire_post_authors', $authors, $post->ID );
 
         $categories = array();
         foreach ( wp_get_post_categories( $post->ID ) as $category_id ) {
