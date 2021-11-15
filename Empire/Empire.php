@@ -593,11 +593,48 @@ class Empire {
     }
 
     /**
+    * Checks if post is eligible for sync
+    *
+    * @param $post
+    */
+    public function isPostEligibleForSync( $post ) {
+        // sync only real 'posts' not revisions or attachments
+        if ( ! in_array( $post->post_type, $this->getPostTypes() ) ) {
+            return false;
+        }
+
+        // sync only published posts
+        if ( $post->post_status != 'publish' ) {
+            return false;
+        }
+
+        // post should have at least title
+        if ( ! $post->post_title ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Synchronizes a single Post to Empire
      *
      * @param $post
      */
     public function syncPost( $post ) {
+        if ( ! $this->isPostEligibleForSync( $post ) ) {
+            $this->debug(
+                'Empire Sync: SKIPPED',
+                [
+                    'post_id' => $post->ID,
+                    'post_type' => $post->post_title,
+                    'post_status' => $post->post_status,
+                    'post_title' => $post->post_title,
+                ]
+            );
+            return null;
+        }
+
         $canonical = get_permalink( $post->ID );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
@@ -641,8 +678,6 @@ class Empire {
             );
         }
 
-        $this->debug( 'Empire Sync: external_id=' . $external_id . ', url=' . $canonical );
-
         try {
             $result = $this->sdk->contentCreateOrUpdate(
                 $external_id,
@@ -659,10 +694,24 @@ class Empire {
             // We should manually let Sentry know about this, since theoretically the API
             // shouldn't error out here.
             captureException( $e );
+            $this->warning(
+                'Empire Sync: ERROR',
+                [
+                    'external_id' => $external_id,
+                    'url' => $canonical,
+                ]
+            );
 
             // Either way, don't disrupt the CMS operations about it
             return null;
         }
+        $this->debug(
+            'Empire Sync: SUCCESS',
+            [
+                'external_id' => $external_id,
+                'url' => $canonical,
+            ]
+        );
 
         if ( $result['gamId'] ) {
             update_post_meta( $post->ID, 'empire_gam_id', $result['gamId'] );
@@ -675,25 +724,15 @@ class Empire {
     }
 
     /**
-     * Helper function to actually execute sync calls to Empire for posts that come back from
-     * WP_Query
+     * Helper function to actually execute sync calls to Empire for posts
      *
-     * @param $query
+     * @param $posts
      * @return int # of posts sync-ed
      * @throws Exception
      */
-    private function _syncQueryResults( $query ) {
+    private function _syncPosts( $posts ) {
         $updated = 0;
-
-        // We only look at the first page of results
-        $posts = $query->get_posts();
-
         foreach ( $posts as $post ) {
-            // post should have at least title
-            if ( ! $post->post_title ) {
-                continue;
-            }
-
             $this->syncPost( $post );
             $updated++;
         }
@@ -704,51 +743,60 @@ class Empire {
     /**
      * Build a query that looks at all posts that we want to keep in sync with Empire
      *
-     * @param int $per_page
+     * @param int $batch
+     * @param int $offset
+     * @param array|null $meta
      * @return WP_Query
      */
-    public function buildQueryAllSyncablePosts( $per_page = 1000 ) {
+    public function buildQuerySyncablePosts( $batch = 1000, $offset = 0, $meta = null ) {
         $args = array(
             'post_type' => $this->getPostTypes(),
             'post_status' => 'publish',
-            'posts_per_page' => $per_page,
+            'posts_per_page' => $batch,
+            'offset' => $offset,
+            'orderby' => 'ID',
+            'order' => 'ASC',
         );
+
+        if ( ! empty( $meta ) ) {
+            $args['meta_query'] = $meta;
+        }
+
         return new WP_Query( $args );
     }
 
     /**
      * Build a query that can find the posts that have never been synced to Empire
      *
-     * @param int $per_page # of posts per page
+     * @param int $batch # of posts per page
+     * @param int $offset
      * @return WP_Query
      */
-    public function buildQueryNeverSyncedPosts( $per_page = 1000 ) {
-        $args = array(
-            'post_type' => $this->getPostTypes(),
-            'post_status' => 'publish',
-            'posts_per_page' => $per_page,
-            'meta_query' => array(
+    public function buildQueryNeverSyncedPosts( $batch = 1000, $offset = 0 ) {
+        return $this->buildQuerySyncablePosts(
+            $batch,
+            $offset,
+            array(
                 array(
                     'key' => 'empire_sync',
                     'compare' => 'NOT EXISTS',
                 ),
             ),
         );
-        return new WP_Query( $args );
     }
 
     /**
      * Build a query that can find the posts that have been synced before but have changed
      *
-     * @param int $per_page # of posts per page
+     * @param int $batch # of posts per page
+     * @param int $offset
      * @return WP_Query
      */
-    public function buildQueryNewlyUnsyncedPosts( $per_page = 1000 ) {
-        $args = array(
-            'post_type' => $this->getPostTypes(),
-            'post_status' => 'publish',
-            'posts_per_page' => $per_page,
-            'meta_query' => array(
+    public function buildQueryNewlyUnsyncedPosts( $batch = 1000, $offset = 0 ) {
+        return $this->buildQuerySyncablePosts(
+            $batch,
+            $offset,
+            array(
                 array(
                     'key' => 'empire_sync',
                     'value' => 'synced',
@@ -756,7 +804,6 @@ class Empire {
                 ),
             ),
         );
-        return new WP_Query( $args );
     }
 
     /**
@@ -771,8 +818,8 @@ class Empire {
         $max_to_sync = 1000;
 
         // First go through ones that have never been sync-ed
-        $post_query = $this->buildQueryNeverSyncedPosts( $max_to_sync );
-        $updated = $this->_syncQueryResults( $post_query );
+        $query = $this->buildQueryNeverSyncedPosts( $max_to_sync );
+        $updated = $this->_syncPosts( $query->posts );
 
         // Cap our calls
         if ( $updated >= $max_to_sync ) {
@@ -780,8 +827,48 @@ class Empire {
         }
 
         // If we are under the limit, find posts that have been recently updated
-        $post_query = $this->buildQueryNewlyUnsyncedPosts( $max_to_sync - $updated );
-        $this->_syncQueryResults( $post_query );
+        $query = $this->buildQueryNewlyUnsyncedPosts( $max_to_sync - $updated );
+        $this->_syncPosts( $query->posts );
+
+        return $updated;
+    }
+
+    /**
+     * Re-syncs all eligible posts
+     *
+     * @param int $batch
+     * @param int $sleep_between
+     * @return int Number of posts synchronized
+     * @throws Exception if posts have invalid published or modified dates
+     */
+    public function fullResyncContent( $batch = 50, $offset = 0, $sleep_between = 0 ) : int {
+        $updated = 0;
+
+        while ( true ) {
+            $query = $this->buildQuerySyncablePosts( $batch, $offset );
+            $updated += $this->_syncPosts( $query->posts );
+            $this->debug(
+                'Empire Sync: SYNCING',
+                [
+                    'updated' => $updated,
+                    'offset' => $offset,
+                    'found_posts' => $query->found_posts,
+                    'max_num_pages' => $query->max_num_pages,
+                    'post_count' => $query->post_count,
+                    'request' => $query->request,
+                ]
+            );
+
+            if ( $query->post_count < $batch ) {
+                break;
+            }
+
+            if ( $sleep_between > 0 ) {
+                sleep( $sleep_between );
+            }
+
+            $offset += $batch;
+        }
 
         return $updated;
     }
