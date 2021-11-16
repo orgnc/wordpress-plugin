@@ -693,7 +693,7 @@ class Empire {
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API
             // shouldn't error out here.
-            captureException( $e );
+            $this::captureException( $e );
             $this->warning(
                 'Empire Sync: ERROR',
                 [
@@ -1130,6 +1130,15 @@ class Empire {
      */
     public function getEmpirePixelTestPercent(): int {
         return $this->empirePixelTestPercent;
+    }
+
+    public static function captureException( \Exception $e ) {
+        if ( function_exists( '\Sentry\captureException' ) ) {
+            \Sentry\captureException( $e );
+            return;
+        }
+
+        error_log( $e->getMessage() );
     }
 
     public function log( string $level, string $message, array $context = [] ) {

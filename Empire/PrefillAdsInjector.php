@@ -47,7 +47,14 @@ class PrefillAdsInjector {
             ] = $placement;
 
             $adContainer = $prefill['html'];
-            $count = $adsInjector->injectAds( $adContainer, $relative, $selectors, $limit );
+
+            $count = 0;
+            try {
+                $count = $adsInjector->injectAds( $adContainer, $relative, $selectors, $limit );
+            } catch ( \Exception $e ) {
+                \Empire\Empire::captureException( $e );
+            }
+
             if ( $count > 0 ) {
                 $styles = $styles . $prefill['css'] . "\n";
             }
