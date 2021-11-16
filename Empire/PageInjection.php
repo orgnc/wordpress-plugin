@@ -103,7 +103,11 @@ class PageInjection {
                             $targeting,
                         );
 
-                        $content = $prefillInjector->prefill( $content );
+                        try {
+                            $content = $prefillInjector->prefill( $content );
+                        } catch ( \Exception $e ) {
+                            \Empire\Empire::captureException( $e );
+                        }
 
                         return $content;
                     }

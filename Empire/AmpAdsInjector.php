@@ -4,6 +4,14 @@ namespace Empire;
 
 class AmpAdsInjector extends \AMP_Base_Sanitizer {
     public function sanitize() {
+        try {
+            $this->handle();
+        } catch ( \Exception $e ) {
+            \Empire\Empire::captureException( $e );
+        }
+    }
+
+    public function handle() {
         $ampConfig = $this->args['ampConfig'];
         $adsConfig = $this->args['adsConfig'];
         $targeting = $this->args['getTargeting']();
@@ -30,7 +38,11 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             ] = $placement;
 
             $adHtml = $this->applyTargeting( $amp['html'], $targeting );
-            $adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
+            try {
+                $adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
+            } catch ( \Exception $e ) {
+                \Empire\Empire::captureException( $e );
+            }
         }
     }
 
