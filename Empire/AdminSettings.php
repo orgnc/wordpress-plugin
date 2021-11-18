@@ -73,7 +73,7 @@ class AdminSettings {
         $inject_ads_config = get_option( 'empire::inject_ads_config' );
         $ad_slots_prefill_enabled = get_option( 'empire::ad_slots_prefill_enabled' );
 
-        $total_published_posts = $this->empire->buildQueryAllSyncablePosts( 1 )->found_posts;
+        $total_published_posts = $this->empire->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
         ?>
         <style>
