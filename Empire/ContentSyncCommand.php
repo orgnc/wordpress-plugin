@@ -28,7 +28,7 @@ class ContentSyncCommand {
      * Wrapper for __invoke with no args to make it cron friendly
      */
     public function run() {
-         $this->__invoke( array() );
+         $this->__invoke( array(), array() );
     }
 
     /**

@@ -1010,7 +1010,10 @@ class Empire {
 
         // Make sure there was actually a change
         if ( $old_ads_txt == $ads_txt_content ) {
-            return;
+            return [
+                'updated' => false,
+                'cache_purged' => false,
+            ];
         }
 
         // If there was a change then trigger the update
@@ -1021,7 +1024,10 @@ class Empire {
             ! is_plugin_active( 'fastly/purgely.php' ) ||
             ! class_exists( 'Purgely_Purge' )
         ) {
-            return;
+            return [
+                'updated' => true,
+                'cache_purged' => false,
+            ];
         }
 
         // This fails silently for now since we don't have much control over the user's config
@@ -1030,6 +1036,11 @@ class Empire {
 
         // Add in a hook that can be used to purge more complex caches
         do_action( 'empire_ads_txt_changed' );
+
+        return [
+            'updated' => true,
+            'cache_purged' => true,
+        ];
     }
 
     public function substituteTags( string $content ) : string {
