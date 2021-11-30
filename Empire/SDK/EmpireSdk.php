@@ -257,6 +257,7 @@ class EmpireSdk {
                                                 'lineitemIds',
                                             )
                                         ),
+                                        'pixelSettings',
                                     )
                                 ),
                                 ( new Query( 'adRules' ) )->setSelectionSet(
