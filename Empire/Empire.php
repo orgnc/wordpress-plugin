@@ -122,6 +122,8 @@ class Empire {
      */
     private $api;
 
+    private $campaigns;
+
     /**
      * @var string Which CMP are we using, '', 'built-in' or 'one-trust'
      */
@@ -217,6 +219,11 @@ class Empire {
      */
     private $postTypes;
 
+    /**
+     * @var bool If Empire App is enabled in the Platform
+     */
+    private $campaignsEnabled = false;
+
     private static $instance = null;
 
     /**
@@ -279,6 +286,7 @@ class Empire {
         $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey, $apiUrl );
 
         $this->adsTxt = new AdsTxt( $this );
+        $this->campaigns = new Campaigns( $this );
 
         $this->isEnabled = get_option( 'empire::enabled' );
         $this->ampAdsEnabled = get_option( 'empire::amp_ads_enabled' );
@@ -297,6 +305,8 @@ class Empire {
         $this->pixelTestingUrl = get_option( 'empire::pixel_testing_url' );
 
         $this->postTypes = get_option( 'empire::post_types', [ 'post', 'page' ] );
+
+        $this->campaignsEnabled = get_option( 'empire::campaigns_enabled' );
 
         /* Load up our sub-page configs */
         new AdminSettings( $this );
@@ -389,6 +399,15 @@ class Empire {
      */
     public function getOneTrustId() {
         return $this->oneTrustId;
+    }
+
+    /**
+     * Returns if Campaigns app is enabled
+     *
+     * @return bool
+    */
+    public function isCampaignEnabled() {
+        return $this->isEnabled() && $this->campaignsEnabled;
     }
 
     /**
@@ -1150,6 +1169,13 @@ class Empire {
         }
 
         error_log( $e->getMessage() );
+    }
+
+    public function loadCampaignsAssets() {
+        if ( $this->isCampaignEnabled() ) {
+            return $this->sdk->queryAssets();
+        }
+        return [];
     }
 
     public function log( string $level, string $message, array $context = [] ) {
