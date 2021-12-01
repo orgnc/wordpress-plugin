@@ -122,8 +122,6 @@ class Empire {
      */
     private $api;
 
-    private $campaigns;
-
     /**
      * @var string Which CMP are we using, '', 'built-in' or 'one-trust'
      */
@@ -248,7 +246,6 @@ class Empire {
      */
     public function __construct( $environment ) {
         $this->environment = $environment;
-
         static::$instance = $this;
     }
 
@@ -286,7 +283,6 @@ class Empire {
         $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey, $apiUrl );
 
         $this->adsTxt = new AdsTxt( $this );
-        $this->campaigns = new Campaigns( $this );
 
         $this->isEnabled = get_option( 'empire::enabled' );
         $this->ampAdsEnabled = get_option( 'empire::amp_ads_enabled' );
