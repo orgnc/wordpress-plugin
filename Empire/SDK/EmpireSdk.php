@@ -147,6 +147,7 @@ class EmpireSdk {
      * @param array $authors
      * @param array $categories
      * @param array $tags
+     * @param string $campaign_asset_guid
      * @return array|object
      */
     public function contentCreateOrUpdate(
@@ -158,7 +159,8 @@ class EmpireSdk {
         string $content,
         array $authors = array(),
         array $categories = array(),
-        array $tags = array()
+        array $tags = array(),
+        string $campaign_asset_guid = null
     ) {
          // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
@@ -182,6 +184,7 @@ class EmpireSdk {
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
+                'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
         $result = $this->runQuery( $mutation, $variables );

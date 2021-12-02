@@ -6,8 +6,11 @@ use DateTime;
 use Empire\SDK\EmpireSdk;
 use Exception;
 use WP_Query;
+
 use function \get_user_by;
 use function Sentry\captureException;
+
+const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 
 class BaseConfig {
 
@@ -660,6 +663,13 @@ class Empire {
         $content = \apply_filters( 'empire_post_content', $post->post_content, $post->ID );
         $published_date = \apply_filters( 'empire_post_publish_date', $post->post_date, $post->ID );
         $modified_date = \apply_filters( 'empire_post_modified_date', $post->post_modified, $post->ID );
+        $campaign_asset_guid = null;
+        if ( $this->isCampaignEnabled() ) {
+            $campaign_asset_guid = get_post_meta( $post->ID, CAMPAIGN_ASSET_META_KEY, true );
+            if ( $campaign_asset_guid == '' ) {
+                $campaign_asset_guid = null;
+            }
+        }
 
         $authors = array();
 
@@ -703,7 +713,8 @@ class Empire {
                 $content,
                 $authors,
                 $categories,
-                $tags
+                $tags,
+                $campaign_asset_guid,
             );
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API
@@ -1169,9 +1180,23 @@ class Empire {
 
     public function loadCampaignsAssets() {
         if ( $this->isCampaignEnabled() ) {
-            return $this->sdk->queryAssets();
+            try {
+                return $this->sdk->queryAssets();
+            } catch ( \Exception $e ) {
+                $this::captureException( $e );
+            }
         }
         return [];
+    }
+
+    public function assignContentCampaignAsset( $post_id, $campaign_asset_id ) {
+        if ( $this->isCampaignEnabled() ) {
+            if ( $campaign_asset_id ) {
+                update_post_meta( $post_id, CAMPAIGN_ASSET_META_KEY, $campaign_asset_id );
+            } else {
+                delete_post_meta( $post_id, CAMPAIGN_ASSET_META_KEY );
+            }
+        }
     }
 
     public function log( string $level, string $message, array $context = [] ) {

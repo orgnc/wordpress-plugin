@@ -2,17 +2,17 @@
 
 namespace Empire;
 
-class CampaignAsset {
+class Campaign {
     private $guid;
     private $name;
+    private $status;
     private $externalId;
-    private $campaign;
 
-    public function __construct( $guid, $name, $externalId, Campaign $campaign ) {
+    public function __construct( $guid, $name, $status, $externalId ) {
         $this->guid = $guid;
         $this->name = $name;
+        $this->status = $status;
         $this->externalId = $externalId;
-        $this->campaign = $campaign;
     }
 
     public function getGUID() {
@@ -23,11 +23,11 @@ class CampaignAsset {
         return $this->name;
     }
 
-    public function getExternalID() {
-        return $this->externalId;
+    public function getStatus() {
+        return $this->status;
     }
 
-    public function getCampaign() {
-        return $this->campaign;
+    public function getExternalID() {
+        return $this->externalId;
     }
 }
