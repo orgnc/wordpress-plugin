@@ -268,7 +268,7 @@ class AdminSettings {
             return;
         }
 
-        update_post_meta( $post_ID, 'empire_sync', 'unsynced' );
+        update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
         // Only run the sync if we are actually configured
         if ( $this->empire->getSiteId() && $this->empire->getSdkKey() ) {
             $this->empire->syncPost( $post );

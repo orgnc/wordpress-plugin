@@ -11,6 +11,8 @@ use function \get_user_by;
 use function Sentry\captureException;
 
 const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
+const GAM_ID_META_KEY = 'empire_gam_id';
+const SYNC_META_KEY = 'empire_sync';
 
 class BaseConfig {
 
@@ -534,7 +536,7 @@ class Empire {
         $gamId = '';
         if ( is_single() ) {
             $id = esc_html( get_the_ID() );
-            $gamId = get_post_meta( $id, 'empire_gam_id', true );
+            $gamId = get_post_meta( $id, GAM_ID_META_KEY, true );
         } else if ( is_category() ) {
             $id = 'channel-' . $category->slug;
         } else if ( is_page() ) {
@@ -740,13 +742,13 @@ class Empire {
         );
 
         if ( $result['gamId'] ) {
-            update_post_meta( $post->ID, 'empire_gam_id', $result['gamId'] );
+            update_post_meta( $post->ID, GAM_ID_META_KEY, $result['gamId'] );
         } else {
-            delete_post_meta( $post->ID, 'empire_gam_id' );
+            delete_post_meta( $post->ID, GAM_ID_META_KEY );
         }
 
         // Mark the post as synchronized to exclude from the next batch
-        update_post_meta( $post->ID, 'empire_sync', 'synced' );
+        update_post_meta( $post->ID, SYNC_META_KEY, 'synced' );
     }
 
     /**
@@ -804,7 +806,7 @@ class Empire {
             $offset,
             array(
                 array(
-                    'key' => 'empire_sync',
+                    'key' => SYNC_META_KEY,
                     'compare' => 'NOT EXISTS',
                 ),
             ),
@@ -824,7 +826,7 @@ class Empire {
             $offset,
             array(
                 array(
-                    'key' => 'empire_sync',
+                    'key' => SYNC_META_KEY,
                     'value' => 'synced',
                     'compare' => '!=',
                 ),
@@ -957,9 +959,12 @@ class Empire {
 
         // delete and reassign current gamIds
         $metas = $wpdb->get_results(
-            "SELECT pm.meta_id AS id, pm.post_id, pm.meta_value AS gam_id
-             FROM {$wpdb->postmeta} pm
-             WHERE pm.meta_key = 'empire_gam_id'"
+            $wpdb->prepare(
+                "SELECT pm.meta_id AS id, pm.post_id, pm.meta_value AS gam_id
+                FROM {$wpdb->postmeta} pm
+                WHERE pm.meta_key = %s",
+                GAM_ID_META_KEY,
+            ),
         );
         $this->debug( 'Found mapped gamIds in DB: ' . count( $metas ) );
         foreach ( $metas as $meta ) {
@@ -989,7 +994,7 @@ class Empire {
             // gamId was re-assgined to different post
             $this->debug( 'Re-assigning gamId(' . $meta->gam_id . ') from ' . $meta->post_id . ' to ' . $external_id );
             delete_meta( $meta->id );
-            update_post_meta( $external_id, 'empire_gam_id', $meta->gam_id );
+            update_post_meta( $external_id, GAM_ID_META_KEY, $meta->gam_id );
             $stats['reassigned']++;
         }
 
@@ -1001,7 +1006,7 @@ class Empire {
             }
 
             $this->debug( 'Setting gamId(' . $gam_id . ') for ' . $external_id );
-            update_post_meta( $external_id, 'empire_gam_id', $gam_id );
+            update_post_meta( $external_id, GAM_ID_META_KEY, $gam_id );
             $stats['created']++;
         }
 
@@ -1189,10 +1194,10 @@ class Empire {
         return [];
     }
 
-    public function assignContentCampaignAsset( $post_id, $campaign_asset_id ) {
+    public function assignContentCampaignAsset( $post_id, $campaign_asset_guid ) {
         if ( $this->isCampaignEnabled() ) {
-            if ( $campaign_asset_id ) {
-                update_post_meta( $post_id, CAMPAIGN_ASSET_META_KEY, $campaign_asset_id );
+            if ( $campaign_asset_guid ) {
+                update_post_meta( $post_id, CAMPAIGN_ASSET_META_KEY, $campaign_asset_guid );
             } else {
                 delete_post_meta( $post_id, CAMPAIGN_ASSET_META_KEY );
             }
