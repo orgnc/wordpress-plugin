@@ -447,6 +447,8 @@ class EmpireSdk {
                                             'guid',
                                             'name',
                                             'externalId',
+                                            'startDate',
+                                            'endDate',
                                             ( new Query( 'campaign' ) )->setSelectionSet(
                                                 array(
                                                     'id',

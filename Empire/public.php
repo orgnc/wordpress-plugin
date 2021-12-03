@@ -8,10 +8,14 @@ function empire_get_all_campaign_assets(): array {
 
     foreach ( $assets as $assetData ) {
         $campaignData = $assetData['campaign'];
+        $startDate = date_create( $assetData['startDate'] );
+        $endDate = date_create( $assetData['endDate'] );
         $asset = new CampaignAsset(
             $assetData['guid'],
             $assetData['name'],
             $assetData['externalId'],
+            $startDate,
+            $endDate,
             new Campaign(
                 $campaignData['guid'],
                 $campaignData['name'],
