@@ -33,5 +33,5 @@ function empire_content_assign_campaign_asset( int $post_id, string $campaign_as
 }
 
 function empire_campaigns_enabled(): bool {
-    return Empire::getInstance()->isCampaignEnabled();
+    return Empire::getInstance()->isCampaignsAppEnabled();
 }

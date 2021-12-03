@@ -240,7 +240,7 @@ class Empire {
      *       +"adSlotsPrefillEnabled": "1",
      *     }
      */
-    public static function getInstance() {
+    public static function getInstance(): Empire {
         return static::$instance;
     }
 
@@ -407,7 +407,7 @@ class Empire {
      *
      * @return bool
     */
-    public function isCampaignEnabled() {
+    public function isCampaignsAppEnabled() {
         return $this->isEnabled() && $this->campaignsEnabled;
     }
 
@@ -666,7 +666,7 @@ class Empire {
         $published_date = \apply_filters( 'empire_post_publish_date', $post->post_date, $post->ID );
         $modified_date = \apply_filters( 'empire_post_modified_date', $post->post_modified, $post->ID );
         $campaign_asset_guid = null;
-        if ( $this->isCampaignEnabled() ) {
+        if ( $this->isCampaignsAppEnabled() ) {
             $campaign_asset_guid = get_post_meta( $post->ID, CAMPAIGN_ASSET_META_KEY, true );
             if ( $campaign_asset_guid == '' ) {
                 $campaign_asset_guid = null;
@@ -1184,7 +1184,7 @@ class Empire {
     }
 
     public function loadCampaignsAssets() {
-        if ( $this->isCampaignEnabled() ) {
+        if ( $this->isCampaignsAppEnabled() ) {
             try {
                 return $this->sdk->queryAssets();
             } catch ( \Exception $e ) {
@@ -1195,7 +1195,7 @@ class Empire {
     }
 
     public function assignContentCampaignAsset( $post_id, $campaign_asset_guid ) {
-        if ( $this->isCampaignEnabled() ) {
+        if ( $this->isCampaignsAppEnabled() ) {
             if ( $campaign_asset_guid ) {
                 update_post_meta( $post_id, CAMPAIGN_ASSET_META_KEY, $campaign_asset_guid );
             } else {
