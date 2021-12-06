@@ -49,6 +49,7 @@ class AdminSettings {
                 update_option( 'empire::amp_ads_enabled', isset( $_POST['empire_amp_ads_enabled'] ) ? true : false, false );
                 update_option( 'empire::inject_ads_config', isset( $_POST['empire_inject_ads_config'] ) ? true : false, false );
                 update_option( 'empire::ad_slots_prefill_enabled', isset( $_POST['empire_ad_slots_prefill_enabled'] ) ? true : false, false );
+                update_option( 'empire::campaigns_enabled', isset( $_POST['empire_campaigns_enabled'] ) ? true : false, false );
                 $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
 
                 echo '<h3>Updates Saved</h3>';
@@ -72,6 +73,7 @@ class AdminSettings {
         $amp_ads_enabled = get_option( 'empire::amp_ads_enabled' );
         $inject_ads_config = get_option( 'empire::inject_ads_config' );
         $ad_slots_prefill_enabled = get_option( 'empire::ad_slots_prefill_enabled' );
+        $campaigns_enabled = get_option( 'empire::campaigns_enabled' );
 
         $total_published_posts = $this->empire->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -170,6 +172,17 @@ class AdminSettings {
                         Prefill ad containers to prevent Content Layout Shift (CLS) issues
                     </label>
                 </p>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="empire_campaigns_enabled"
+                                id="empire_campaigns_enabled"
+                            <?php echo $campaigns_enabled ? 'checked' : ''; ?>
+                        />
+                        Campaigns Application is enabled on the Platform
+                    </label>
+                </p>
                 <p><input type="submit" value="Update"/></p>
             </form>
             <h2>Ads.txt</h2>
@@ -255,7 +268,7 @@ class AdminSettings {
             return;
         }
 
-        update_post_meta( $post_ID, 'empire_sync', 'unsynced' );
+        update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
         // Only run the sync if we are actually configured
         if ( $this->empire->getSiteId() && $this->empire->getSdkKey() ) {
             $this->empire->syncPost( $post );

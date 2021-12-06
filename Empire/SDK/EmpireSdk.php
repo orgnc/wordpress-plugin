@@ -147,6 +147,7 @@ class EmpireSdk {
      * @param array $authors
      * @param array $categories
      * @param array $tags
+     * @param string $campaign_asset_guid
      * @return array|object
      */
     public function contentCreateOrUpdate(
@@ -158,7 +159,8 @@ class EmpireSdk {
         string $content,
         array $authors = array(),
         array $categories = array(),
-        array $tags = array()
+        array $tags = array(),
+        string $campaign_asset_guid = null
     ) {
          // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
@@ -182,6 +184,7 @@ class EmpireSdk {
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
+                'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
         $result = $this->runQuery( $mutation, $variables );
@@ -221,7 +224,7 @@ class EmpireSdk {
     }
 
     public function queryAdConfig() {
-         $gql = ( new Query( 'appAds' ) );
+        $gql = ( new Query( 'appAds' ) );
         $gql->setArguments(
             array(
                 'siteGuids' => array( $this->siteGuid ),
@@ -419,5 +422,66 @@ class EmpireSdk {
         }
 
         return $objects;
+    }
+
+    public function queryAssets() {
+        $assets = array();
+        $first = 50;
+        $skip = 0;
+        do {
+            $gql = ( new Query( 'appCampaigns' ) );
+            $gql->setSelectionSet(
+                array(
+                    ( new Query( 'assets' ) )->setArguments(
+                        array(
+                            'channel' => ( new RawObject( 'CONTENT' ) ),
+                            'first' => $first,
+                            'skip' => $skip,
+                            'siteGuid' => $this->siteGuid,
+                        )
+                    )->setSelectionSet(
+                        array(
+                            ( new Query( 'edges' ) )->setSelectionSet(
+                                array(
+                                    ( new Query( 'node' ) )->setSelectionSet(
+                                        array(
+                                            'guid',
+                                            'name',
+                                            'externalId',
+                                            'startDate',
+                                            'endDate',
+                                            ( new Query( 'campaign' ) )->setSelectionSet(
+                                                array(
+                                                    'id',
+                                                    'guid',
+                                                    'status',
+                                                    'name',
+                                                )
+                                            ),
+                                        )
+                                    ),
+                                )
+                            ),
+                            ( new Query( 'pageInfo' ) )->setSelectionSet(
+                                array(
+                                    'totalObjects',
+                                )
+                            ),
+                        )
+                    ),
+                )
+            );
+            $result = $this->runQuery( $gql );
+            $page_data = $result['data']['appCampaigns']['assets'];
+            $total_objects = $page_data['pageInfo']['totalObjects'];
+            $skip += $first;
+
+            foreach ( $page_data['edges'] as $node ) {
+                $assets[] = $node['node'];
+            }
+            $loaded = count( $assets );
+        } while ( $loaded < $total_objects );
+
+        return $assets;
     }
 }

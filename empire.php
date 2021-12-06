@@ -9,7 +9,6 @@
  * Author URI: https://empireio.com
  */
 require __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/Empire/helpers.php';
 
 use Empire\Empire;
 
