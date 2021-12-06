@@ -20,7 +20,11 @@
         "psr-4": {
             "Empire\\": "Empire/",
             "Empire\\SDK\\": "Empire/SDK/"
-        }
+        },
+        "files": [
+            "Empire/public.php",
+            "Empire/helpers.php"
+        ]
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
