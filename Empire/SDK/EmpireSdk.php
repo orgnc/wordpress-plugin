@@ -437,7 +437,7 @@ class EmpireSdk {
                             'channel' => ( new RawObject( 'CONTENT' ) ),
                             'first' => $first,
                             'skip' => $skip,
-                            'siteGuid' => $this->siteGuid,
+                            'siteGuids' => array( $this->siteGuid ),
                         )
                     )->setSelectionSet(
                         array(
