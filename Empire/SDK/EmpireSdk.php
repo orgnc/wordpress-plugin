@@ -248,6 +248,13 @@ class EmpireSdk {
                                                 'pubId',
                                             )
                                         ),
+                                        ( new Query( 'audigent' ) )->setSelectionSet(
+                                            array(
+                                                'partnerId',
+                                                'tagEnabled',
+                                                'gamEnabled',
+                                            )
+                                        ),
                                         ( new Query( 'indexServer' ) )->setSelectionSet(
                                             array(
                                                 'enabled',
