@@ -50,6 +50,7 @@ class AdminSettings {
                 update_option( 'empire::inject_ads_config', isset( $_POST['empire_inject_ads_config'] ) ? true : false, false );
                 update_option( 'empire::ad_slots_prefill_enabled', isset( $_POST['empire_ad_slots_prefill_enabled'] ) ? true : false, false );
                 update_option( 'empire::campaigns_enabled', isset( $_POST['empire_campaigns_enabled'] ) ? true : false, false );
+                update_option( 'empire::sync_schedule', $_POST['empire_sync_schedule'] ?? 1, false );
                 $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
 
                 echo '<h3>Updates Saved</h3>';
@@ -74,6 +75,7 @@ class AdminSettings {
         $inject_ads_config = get_option( 'empire::inject_ads_config' );
         $ad_slots_prefill_enabled = get_option( 'empire::ad_slots_prefill_enabled' );
         $campaigns_enabled = get_option( 'empire::campaigns_enabled' );
+        $sync_schedule = get_option( 'empire::sync_schedule', 1 );
 
         $total_published_posts = $this->empire->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -137,7 +139,23 @@ class AdminSettings {
                 </script>
                 <p><label>% of ads on Empire: <input type="text" name="empire_percent" id="empire_percent" value="<?php echo $empire_test; ?>" /></label></p>
                 <p><label>Key-Value for Split Test: <input type="text" name="empire_value" id="empire_value" value="<?php echo $empire_value; ?>" /></label></p>
-
+                <p>
+                    <label>Synchronization Schedule: 
+                        <select name="empire_sync_schedule">
+                        <?php 
+                        for($i=1; $i<=24; $i++){
+                            printf(
+                                '<option value="%d" %s>%d%s</option>',
+                                $i,
+                                $i==$sync_schedule ? 'selected' : '',
+                                $i>12 ? ($i - 12) : $i,
+                                $i>12 ? 'PM' : 'AM'
+                            );
+                        } 
+                        ?>
+                        </select>
+                    </label>
+                </p>
                 <p>
                     <label>
                         <input
