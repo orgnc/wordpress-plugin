@@ -92,7 +92,7 @@ class AdminSettings {
 
                 <hr />
                 <h3>Empire Settings</h3>
-                <p><label>Empire API Key: <input type="text" name="empire_sdk_key" style="width: 355px;" value="<?php echo $sdk_key; ?>" /></label></p>
+                <p><label>Empire API Key: <input type="password" name="empire_sdk_key" style="width: 355px;" value="<?php echo $sdk_key; ?>" /></label></p>
                 <p><label>Empire Site ID: <input type="text" name="empire_site_id" style="width: 355px;" value="<?php echo $site_id; ?>" /></label></p>
 
                 <p><label>Consent Management:
