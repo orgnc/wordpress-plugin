@@ -267,6 +267,12 @@ class EmpireSdk {
                                                 'lineitemIds',
                                             )
                                         ),
+                                        ( new Query( 'lazyload' ) )->setSelectionSet(
+                                            array(
+                                                'marginMobile',
+                                                'marginDesktop',
+                                            )
+                                        ),
                                         'pixelSettings',
                                     )
                                 ),
@@ -299,6 +305,7 @@ class EmpireSdk {
                                         'desktopEnabled',
                                         'tabletEnabled',
                                         'mobileEnabled',
+                                        'lazyloadEnabled',
                                         'refreshEnabled',
                                         'refreshStrategy',
                                         'disablePrebid',
