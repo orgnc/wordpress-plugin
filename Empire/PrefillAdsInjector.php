@@ -20,6 +20,11 @@ class PrefillAdsInjector {
             [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ],
         );
 
+        $implementation = new DOMImplementation();
+        $contentDom->appendChild(
+            $implementation->createDocumentType( 'html' )
+        );
+
         $adsInjector = new AdsInjector(
             $contentDom,
             function( $html ) {
@@ -64,9 +69,7 @@ class PrefillAdsInjector {
             $this->injectStyles( $contentDom, $styles );
         }
 
-        $document = '<!DOCTYPE html>' . PHP_EOL . $contentDom->saveHTML();
-
-        return $document;
+        return $contentDom->saveHTML();
     }
 
     public function injectStyles( \FluentDOM\DOM\Document $dom, string $styles ) {
