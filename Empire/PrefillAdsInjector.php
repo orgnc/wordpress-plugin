@@ -21,9 +21,8 @@ class PrefillAdsInjector {
         );
 
         $implementation = new \DOMImplementation();
-        $contentDom->appendChild(
-            $implementation->createDocumentType( 'html' )
-        );
+        $doctype = $implementation->createDocumentType( 'html' );
+        $contentDom->insertBefore( $doctype, $contentDom->firstChild );
 
         $adsInjector = new AdsInjector(
             $contentDom,
