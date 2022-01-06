@@ -20,7 +20,7 @@ class PrefillAdsInjector {
             [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ],
         );
 
-        $implementation = new DOMImplementation();
+        $implementation = new \DOMImplementation();
         $contentDom->appendChild(
             $implementation->createDocumentType( 'html' )
         );
