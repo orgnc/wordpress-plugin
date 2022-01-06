@@ -64,7 +64,9 @@ class PrefillAdsInjector {
             $this->injectStyles( $contentDom, $styles );
         }
 
-        return $contentDom->saveHTML();
+        $document = '<!DOCTYPE html>' . PHP_EOL . $contentDom->saveHTML();
+
+        return $document;
     }
 
     public function injectStyles( \FluentDOM\DOM\Document $dom, string $styles ) {
