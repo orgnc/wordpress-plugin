@@ -283,6 +283,7 @@ class EmpireSdk {
                                         'comparator',
                                         'value',
                                         'enabled',
+                                        'placementKeys',
                                     )
                                 ),
                                 ( new Query( 'placements' ) )->setSelectionSet(
