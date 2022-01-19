@@ -67,7 +67,7 @@ class AdsInjector {
         return $importFragment;
     }
 
-    public function checkAdsBlocked( $adRules, $targeting ) {
+    public function getBlockRule( $adRules, $targeting ) {
         foreach ( $adRules as $rule ) {
             if ( ! $rule['enabled'] ) {
                 continue;
@@ -113,11 +113,11 @@ class AdsInjector {
             );
 
             if ( $blocked ) {
-                return true;
+                return $rule;
             }
         }
 
-        return false;
+        return null;
     }
 }
 

@@ -12,6 +12,7 @@ class AdsConfig extends BaseConfig {
      *  string component
      *  string comparator
      *  string value
+     *  (optional) array placementKeys
      */
     public array $adRules;
 
