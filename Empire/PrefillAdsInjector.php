@@ -36,12 +36,21 @@ class PrefillAdsInjector {
             }
         );
 
-        if ( $adsInjector->checkAdsBlocked( $this->adsConfig->adRules, $this->targeting ) ) {
+        $rule = $adsInjector->getBlockRule( $this->adsConfig->adRules, $this->targeting );
+        $blockedKeys = ( $rule ? $rule['placementKeys'] : [] ) ?? [];
+
+        // all placements are blocked by rule
+        if ( $rule && ! $blockedKeys ) {
             return $content;
         }
 
         $styles = '';
         foreach ( $this->prefillConfig->forPlacement as $key => $prefill ) {
+            // certain placement is blocked
+            if ( $rule && in_array( $key, $blockedKeys ) ) {
+                continue;
+            }
+
             $placement = $this->adsConfig->forPlacement[ $key ];
 
             [
