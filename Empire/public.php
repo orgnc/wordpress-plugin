@@ -28,7 +28,7 @@ function empire_get_all_campaign_assets(): array {
     return $result;
 }
 
-function empire_content_assign_campaign_asset( int $post_id, ?string $campaign_asset_guid ): void {
+function empire_content_assign_campaign_asset( $post_id, ?string $campaign_asset_guid ): void {
     Empire::getInstance()->assignContentCampaignAsset( $post_id, $campaign_asset_guid );
 }
 

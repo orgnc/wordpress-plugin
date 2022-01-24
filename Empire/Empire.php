@@ -1189,6 +1189,7 @@ class Empire {
                 return $this->sdk->queryAssets();
             } catch ( \Exception $e ) {
                 $this::captureException( $e );
+                return [];
             }
         }
         return [];
@@ -1196,6 +1197,10 @@ class Empire {
 
     public function assignContentCampaignAsset( $post_id, $campaign_asset_guid ) {
         if ( $this->isCampaignsAppEnabled() ) {
+            $post = get_post( $post_id );
+            if ( $post == null || $post->post_type != 'post' ) {
+                return;
+            }
             if ( $campaign_asset_guid ) {
                 update_post_meta( $post_id, CAMPAIGN_ASSET_META_KEY, $campaign_asset_guid );
             } else {
