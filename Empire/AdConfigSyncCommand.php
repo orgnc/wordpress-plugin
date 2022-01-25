@@ -43,7 +43,7 @@ class AdConfigSyncCommand {
     }
 
     /**
-     * Execute the command to synchronize content from the current site into Empire
+     * Execute the command to pull latest AdConfig for the current site
      *
      * @param array $args The attributes.
      * @return void

@@ -56,6 +56,11 @@ class ContentSyncCommand {
      * @since 0.1.0
      */
     public function __invoke( $args, $opts ) {
+        if ( ! $this->empire->isEnabled() ) {
+            $this->empire->warning( 'Cannot sync. Empire Integration is disabled' );
+            return;
+        }
+
         // Only both trying if the API key is set
         if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
             $this->empire->warning( 'Cannot sync articles without Empire SDK API Key and Site ID' );
