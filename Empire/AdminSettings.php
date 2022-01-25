@@ -8,6 +8,7 @@ class AdminSettings {
      * @var Empire
      */
     private $empire;
+    private $update_results = [];
 
     public function __construct( Empire $empire ) {
         $this->empire = $empire;
@@ -51,8 +52,15 @@ class AdminSettings {
                 update_option( 'empire::ad_slots_prefill_enabled', isset( $_POST['empire_ad_slots_prefill_enabled'] ) ? true : false, false );
                 update_option( 'empire::campaigns_enabled', isset( $_POST['empire_campaigns_enabled'] ) ? true : false, false );
                 $this->empire->sdk->updateToken( $_POST['empire_sdk_key'] );
-
+                $this->update_results[] = 'updated';
                 echo '<h3>Updates Saved</h3>';
+
+                if ( $_POST['empire_update'] === 'Update and sync' ) {
+                    $result = $this->empire->syncAdConfig();
+                    if ( isset( $result['updated'] ) ) {
+                        $this->update_results[] = 'synced';
+                    }
+                }
             }
         }
 
@@ -77,10 +85,18 @@ class AdminSettings {
 
         $total_published_posts = $this->empire->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->empire->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
+        if ( $this->update_results ) {
+            $update_status = '<span class="update_success">' . join( ', ', $this->update_results ) . ' successfully </span>';
+        } else {
+            $update_status = '';
+        }
         ?>
         <style>
             #empire_host {
                 width: 400px;
+            }
+            .update_success {
+                color: darkgreen;
             }
         </style>
         <div class="wrap">
@@ -183,7 +199,12 @@ class AdminSettings {
                         Campaigns Application is enabled on the Platform
                     </label>
                 </p>
-                <p><input type="submit" value="Update"/></p>
+                <p>
+                    <input id="update-submit" type="submit" name="empire_update" value="Update" />
+                    &nbsp;
+                    <input id="update-and-sync-submit" type="submit" name="empire_update" value="Update and sync" />
+                    <?php echo $update_status; ?>
+                </p>
             </form>
             <h2>Ads.txt</h2>
             <form method="post">
