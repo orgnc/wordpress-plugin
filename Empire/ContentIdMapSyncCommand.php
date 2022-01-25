@@ -38,6 +38,11 @@ class ContentIdMapSyncCommand {
      * @return void
      */
     public function __invoke( $args ) {
+        if ( ! $this->empire->isEnabled() ) {
+            $this->empire->warning( 'Cannot sync. Empire Integration is disabled' );
+            return;
+        }
+
         // Only both trying if the API key is set
         if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
             $this->empire->warning( 'Cannot sync Content Id Map without Empire SDK API Key and Site ID' );

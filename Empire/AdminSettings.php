@@ -285,6 +285,10 @@ class AdminSettings {
      * @param $update
      */
     public function handleSavePostHook( $post_ID, $post, $update ) {
+        if ( ! $this->empire->isEnabled() ) {
+            return;
+        }
+
         if ( ! $this->empire->isPostEligibleForSync( $post ) ) {
             return;
         }
