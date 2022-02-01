@@ -311,6 +311,17 @@ class EmpireSdk {
                                         'refreshStrategy',
                                         'disablePrebid',
                                         'disableAmazon',
+                                        'indicatorEnabled',
+                                        ( new Query( 'indicatorSettings' ) )->setSelectionSet(
+                                            [
+                                                'topCaption',
+                                                'bottomCaption',
+                                                'topDivider',
+                                                'bottomDivider',
+                                                'captionColor',
+                                                'dividerColor',
+                                            ]
+                                        ),
                                     )
                                 ),
                                 ( new Query( 'prebid' ) )->setSelectionSet(
