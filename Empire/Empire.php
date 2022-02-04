@@ -279,13 +279,13 @@ class Empire {
      * Sets up config options for our operational context
      * @param $apiUrl string|null
      */
-    public function init( ?string $apiUrl = null ) {
+    public function init( ?string $apiUrl = null, ?string $cdnUrl = null ) {
         $apiKey = get_option( 'empire::api_key' );
         $this->sdkKey = get_option( 'empire::sdk_key' );
         $this->siteId = get_option( 'empire::site_id' );
         $this->siteDomain = get_option( 'empire::site_domain' );
         $this->api = new Api( $this->environment, $apiKey );
-        $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey, $apiUrl );
+        $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
 
         $this->adsTxt = new AdsTxt( $this );
 

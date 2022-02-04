@@ -268,22 +268,21 @@ class PageInjection {
                 (function() {
                     function loadAds() {
                         utils.loadScript(document, 'prebid-library', 'https://empirecdn.io/assets/prebid5.13.0.js');
-                        <?php if ( $this->empire->getSiteId() ) { /* This only works if Site ID is set up */ ?>
-                            <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
+                <?php if ( $this->empire->getSiteId() ) { /* This only works if Site ID is set up */ ?>
+                    <?php if ( $this->empire->getEmpirePixelTestValue() && $this->empire->getEmpirePixelTestPercent() ) { ?>
                         if ( BVTests.getValue("<?php echo $this->empire->getEmpirePixelTestValue(); ?>") == 'control' ) {
                             utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
                         } else {
-                            utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
+                            utils.loadScript(document, 'empire-sdk', "<?php echo $this->empire->sdk->getSdkUrl(); ?>");
                         }
-                        <?php } else { ?>
-                        utils.loadScript(document, 'empire-sdk', "https://empirecdn.io/assets/sdk/unit-sdk.js?<?php echo $this->empire->getSiteId(); ?>");
-                                <?php
-                        }
-                        } else {
-                            ?>
+                    <?php } else { ?>
+                        utils.loadScript(document, 'empire-sdk', "<?php echo $this->empire->sdk->getSdkUrl(); ?>");
+                    <?php } ?>
+                <?php } else { ?>
                         utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->empire->getPixelPublishedUrl(); ?>");
-                        <?php } ?>
+                <?php } ?>
                     }
+
               <?php if ( $this->empire->useAdsSlotsPrefill() ) { ?>
                     loadAds();
               <?php } else { ?>
