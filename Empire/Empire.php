@@ -295,7 +295,7 @@ class Empire {
         $this->adSlotsPrefillEnabled = get_option( 'empire::ad_slots_prefill_enabled' );
         $this->cmp = get_option( 'empire::cmp' );
         $this->oneTrustId = get_option( 'empire::one_trust_id' );
-        $this->empirePixelTestPercent = get_option( 'empire::percent_test' );
+        $this->empirePixelTestPercent = intval( get_option( 'empire::percent_test' ) );
         $this->empirePixelTestValue = get_option( 'empire::test_value' );
 
         $this->connatixEnabled = get_option( 'empire::connatix_enabled' );
