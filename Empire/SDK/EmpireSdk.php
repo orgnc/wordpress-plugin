@@ -29,6 +29,11 @@ class EmpireSdk {
     private $apiUrl;
 
     /**
+     * @var string
+     */
+    private $cdnUrl;
+
+    /**
      * @var Client GraphQL Client
      */
     private $client;
@@ -48,12 +53,18 @@ class EmpireSdk {
     public function __construct(
         string $siteGuid,
         ?string $token = null,
-        ?string $url = null
+        ?string $apiUrl = null,
+        ?string $cdnUrl = null
     ) {
-        if ( ! $url ) {
-            $url = 'https://api.empireio.com/graphql';
+        if ( ! $apiUrl ) {
+            $apiUrl = 'https://api.empireio.com/graphql';
         }
-        $this->apiUrl = $url;
+        $this->apiUrl = $apiUrl;
+
+        if ( ! $cdnUrl ) {
+            $cdnUrl = 'https://empirecdn.io/assets/';
+        }
+        $this->cdnUrl = $cdnUrl;
 
         $params = array();
         if ( $token ) {
@@ -61,7 +72,7 @@ class EmpireSdk {
         }
 
         $this->client = new Client(
-            $url,
+            $apiUrl,
             $params
         );
         $this->siteGuid = $siteGuid;
@@ -95,7 +106,7 @@ class EmpireSdk {
      * @return string
      */
     public function getSdkUrl() {
-          return 'https://empireio.com/sdk/unit-sdk.js?' . $this->siteGuid;
+          return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
     }
 
     /**
