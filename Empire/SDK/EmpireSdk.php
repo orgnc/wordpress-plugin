@@ -339,6 +339,8 @@ class EmpireSdk {
                                     array(
                                         'enabled',
                                         'timeout',
+                                        'loadBySdk',
+                                        'useBuild',
                                         ( new Query( 'bidders' ) )->setSelectionSet(
                                             array(
                                                 'key',
