@@ -284,6 +284,11 @@ class EmpireSdk {
                                                 'marginDesktop',
                                             )
                                         ),
+                                        ( new Query( 'adpulse' ) )->setSelectionSet(
+                                            array(
+                                                'enabled',
+                                            )
+                                        ),
                                         'pixelSettings',
                                     )
                                 ),
