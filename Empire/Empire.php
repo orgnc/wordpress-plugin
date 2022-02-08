@@ -77,6 +77,11 @@ class AdsConfig extends BaseConfig {
 
         $this->adRules = $raw['adRules'];
     }
+
+    public function getPrebidBuildUrl() : string {
+        $prebid = $this->raw['prebid'] ?? [];
+        return $prebid['useBuild'] ?? 'https://empirecdn.io/assets/prebid5.13.0.js';
+    }
 }
 
 
