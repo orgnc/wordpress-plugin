@@ -16,7 +16,7 @@ const SYNC_META_KEY = 'empire_sync';
 
 
 /**
- * Client Plugin for TrackADM.com ads, analytics and affiliate management platform
+ * Client Plugin for the Organic Platform
  */
 class Organic {
 
@@ -43,7 +43,7 @@ class Organic {
     private $connatixPlayspaceId;
 
     /**
-     * @var int % of traffic to send to Organic SDK instead of TrackADM Pixel
+     * @var int % of traffic to send to Organic SDK instead of Organic Pixel
      */
     private $organicPixelTestPercent = 0;
 
