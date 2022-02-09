@@ -11,8 +11,8 @@ use function \get_user_by;
 use function Sentry\captureException;
 
 const CAMPAIGN_ASSET_META_KEY = 'organic_campaign_asset_guid';
-const GAM_ID_META_KEY = 'organic_gam_id';
-const SYNC_META_KEY = 'organic_sync';
+const GAM_ID_META_KEY = 'empire_gam_id';
+const SYNC_META_KEY = 'empire_sync';
 
 
 /**
@@ -26,11 +26,6 @@ class Organic {
      * @var AdsTxt
      */
     private $adsTxt;
-
-    /**
-     * @var API
-     */
-    private $api;
 
     /**
      * @var string Which CMP are we using, '', 'built-in' or 'one-trust'
@@ -229,11 +224,9 @@ class Organic {
      * @param string|null $cdnUrl
      */
     public function init( ?string $apiUrl = null, ?string $cdnUrl = null ) {
-        $apiKey = $this->getOption( 'organic::api_key' );
         $this->sdkKey = $this->getOption( 'organic::sdk_key' );
         $this->siteId = $this->getOption( 'organic::site_id' );
         $this->siteDomain = $this->getOption( 'organic::site_domain' );
-        $this->api = new Api( $this->environment, $apiKey );
         $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
 
         $this->adsTxt = new AdsTxt( $this );
@@ -969,16 +962,16 @@ class Organic {
         $config = $this->sdk->queryAdConfig();
 
         $this->debug( 'Got site domain: ' . $config['domain'] );
-        update_option( 'organic::site_domain', $config['domain'], false );
+        $this->updateOption( 'organic::site_domain', $config['domain'], false );
 
         $this->debug( 'Got Ad Settings: ', $config['settings'] );
-        update_option( 'organic::ad_settings', $config['settings'], false );
+        $this->updateOption( 'organic::ad_settings', $config['settings'], false );
 
         $this->debug( 'Got Amp Config: ', $config['ampConfig'] );
-        update_option( 'organic::ad_amp_config', $config['ampConfig'], false );
+        $this->updateOption( 'organic::ad_amp_config', $config['ampConfig'], false );
 
         $this->debug( 'Got Prefill Config: ', $config['prefillConfig'] );
-        update_option( 'organic::ad_prefill_config', $config['prefillConfig'], false );
+        $this->updateOption( 'organic::ad_prefill_config', $config['prefillConfig'], false );
 
         return array(
             'updated' => true,
@@ -1044,10 +1037,6 @@ class Organic {
         }
 
         return $content;
-    }
-
-    public function getApi() : Api {
-        return $this->api;
     }
 
     public function getAdsTxtManager() : AdsTxt {
