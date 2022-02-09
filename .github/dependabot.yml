@@ -1,6 +1,6 @@
 version: 2
 updates:
   - package-ecosystem: composer
-    directory: /src/empire
+    directory: /src/organic
     schedule:
       interval: daily

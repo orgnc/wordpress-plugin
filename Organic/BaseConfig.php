@@ -1,9 +1,8 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class BaseConfig {
-
 
     /**
      * Map (key -> config-for-placement) of configs for Placements
@@ -11,7 +10,7 @@ class BaseConfig {
     public array $forPlacement;
 
     /**
-     * Raw Config returned from Empire Platform API
+     * Raw Config returned from Organic Platform API
      */
     public array $raw;
 

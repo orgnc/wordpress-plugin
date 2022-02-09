@@ -1,10 +1,8 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class Environment {
-
-
     public const LOCAL = 'LOCAL';
     public const DEVELOPMENT = 'DEVELOPMENT';
     public const STAGING = 'STAGING';

@@ -1,31 +1,31 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 use PHPUnit\Framework\TestCase;
 
 class GraphQLTest extends TestCase
 {
     /**
-     * @var Empire Clean instance of Empire wrapper for each test
+     * @var Organic Clean instance of Organic wrapper for each test
      */
-    private $empire;
+    private $organic;
 
     /**
-     * Set up a new, clean copy of the Empire wrapper for each test
+     * Set up a new, clean copy of the Organic wrapper for each test
      */
     public function setUp() : void {
-        $this->empire = new Empire('TEST');
+        $this->organic = new Organic('TEST');
     }
 
     public function testNoErrorWhenNoGraphQL()
     {
-        $graphQL = new GraphQL($this->empire);
+        $graphQL = new GraphQL($this->organic);
         $this->assertNotEmpty($graphQL);
     }
 
     public function testGraphQLSpecValidStructure() {
-        $graphQL = new GraphQL($this->empire);
+        $graphQL = new GraphQL($this->organic);
         $spec = $graphQL->getGraphQLSpec();
 
         $this->assertNotEmpty($spec);

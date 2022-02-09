@@ -1,36 +1,36 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 /**
  * Manages the ads.txt data and presentation
  *
- * @package Empire
+ * @package Organic
  */
 class AdsTxt {
 
 
     /**
-     * @var Empire
+     * @var Organic
      */
-    private $empire;
+    private $organic;
 
-    public function __construct( Empire $empire ) {
-        $this->empire = $empire;
+    public function __construct( Organic $organic ) {
+        $this->organic = $organic;
 
         add_action( 'init', array( $this, 'show' ) );
     }
 
     public function get() {
-         return get_option( 'empire::ads_txt' );
+         return $this->organic->getOption( 'organic::ads_txt' );
     }
 
     public function show() {
         if ( isset( $_SERVER ) && $_SERVER['REQUEST_URI'] === '/ads.txt' ) {
-            $enabled = get_option( 'empire::enabled' );
+            $enabled = $this->organic->getOption( 'organic::enabled' );
 
             if ( $enabled ) {
-                $adsTxt = get_option( 'empire::ads_txt' );
+                $adsTxt = $this->organic->getOption( 'organic::ads_txt' );
                 header( 'content-type: text/plain; charset=UTF-8' );
                 header( 'cache-control: public, max-age=86400' );
                 echo $adsTxt;
@@ -40,6 +40,6 @@ class AdsTxt {
     }
 
     public function update( string $content ) {
-        update_option( 'empire::ads_txt', $content );
+        $this->organic->updateOption( 'organic::ads_txt', $content );
     }
 }

@@ -1,26 +1,26 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class ContentSyncCommand {
 
 
     /**
-     * @var Empire
+     * @var Organic
      */
-    private $empire;
+    private Organic $organic;
 
-    public function __construct( Empire $empire ) {
-        $this->empire = $empire;
+    public function __construct( Organic $organic ) {
+        $this->organic = $organic;
         if ( class_exists( '\WP_CLI' ) ) {
             // Expose this command to the WP-CLI command list
-            \WP_CLI::add_command( 'empire-sync-content', $this );
+            \WP_CLI::add_command( 'organic-sync-content', $this );
         }
 
         // Include this command in cron schedule every minute
-        add_action( 'empire_cron_sync_content', array( $this, 'run' ) );
-        if ( ! wp_next_scheduled( 'empire_cron_sync_content' ) ) {
-            wp_schedule_event( time(), 'hourly', 'empire_cron_sync_content' );
+        add_action( 'organic_cron_sync_content', array( $this, 'run' ) );
+        if ( ! wp_next_scheduled( 'organic_cron_sync_content' ) ) {
+            wp_schedule_event( time(), 'hourly', 'organic_cron_sync_content' );
         }
     }
 
@@ -32,7 +32,7 @@ class ContentSyncCommand {
     }
 
     /**
-     * Execute the command to synchronize content from the current site into Empire
+     * Execute the command to synchronize content from the current site into Organic
      *
      * [--full]
      * : Enforce full re-sync
@@ -56,24 +56,24 @@ class ContentSyncCommand {
      * @since 0.1.0
      */
     public function __invoke( $args, $opts ) {
-        if ( ! $this->empire->isEnabled() ) {
-            $this->empire->warning( 'Cannot sync. Empire Integration is disabled' );
+        if ( ! $this->organic->isEnabled() ) {
+            $this->organic->warning( 'Cannot sync. Organic Integration is disabled' );
             return;
         }
 
         // Only both trying if the API key is set
-        if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
-            $this->empire->warning( 'Cannot sync articles without Empire SDK API Key and Site ID' );
+        if ( ! $this->organic->getSdkKey() || ! $this->organic->getSiteId() ) {
+            $this->organic->warning( 'Cannot sync articles without Organic SDK API Key and Site ID' );
             return;
         }
 
         if ( $opts['full'] ?? false ) {
-            $updated = $this->empire->fullResyncContent(
+            $updated = $this->organic->fullResyncContent(
                 (int) ( $opts['batch-size'] ?? 100 ),
                 (int) ( $opts['start-from'] ?? 0 ),
                 (int) ( $opts['sleep-between'] ?? 1 ),
             );
-            $this->empire->info( 'Empire Sync stats', [ 'updated' => $updated ] );
+            $this->organic->info( 'Organic Sync stats', [ 'updated' => $updated ] );
             return;
         }
 
@@ -82,15 +82,15 @@ class ContentSyncCommand {
             foreach ( $post_ids as $post_id ) {
                 $post = \WP_Post::get_instance( $post_id );
                 if ( ! $post ) {
-                    $this->empire->info( 'Post ' . $post_id . ' not found. Skipping...' );
+                    $this->organic->info( 'Post ' . $post_id . ' not found. Skipping...' );
                     continue;
                 }
-                $this->empire->syncPost( $post );
+                $this->organic->syncPost( $post );
             }
             return;
         }
 
-        $updated = $this->empire->syncContent();
-        $this->empire->info( 'Empire Sync stats', [ 'updated' => $updated ] );
+        $updated = $this->organic->syncContent();
+        $this->organic->info( 'Organic Sync stats', [ 'updated' => $updated ] );
     }
 }

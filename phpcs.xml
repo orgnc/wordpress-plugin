@@ -2,8 +2,8 @@
 <ruleset name="Solutions Wordpress">
     <description>Solutions Wordpress Coding Standards</description>
 
-    <file>./empire.php</file>
-    <file>./Empire</file>
+    <file>./organic.php</file>
+    <file>./Organic</file>
 
     <exclude-pattern>*/autoload.php</exclude-pattern>
 

@@ -1,6 +1,6 @@
 {
-    "name": "empireio/wordpress-plugin",
-    "description": "Wordpress Plugin for Empire Platform",
+    "name": "orgnc/wordpress-plugin",
+    "description": "Wordpress Plugin for Organic Platform",
     "type": "wordpress-plugin",
     "require": {
         "gmostafa/php-graphql-client": "^1.10",
@@ -12,18 +12,18 @@
     },
     "authors": [
         {
-            "name": "Empire Engineering",
-            "email": "tech@empireio.com"
+            "name": "Organic Engineering",
+            "email": "tech@organic.ly"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Empire\\": "Empire/",
-            "Empire\\SDK\\": "Empire/SDK/"
+            "Organic\\": "Organic/",
+            "Organic\\SDK\\": "Organic/SDK/"
         },
         "files": [
-            "Empire/public.php",
-            "Empire/helpers.php"
+          "Organic/public.php",
+          "Organic/helpers.php"
         ]
     },
     "require-dev": {

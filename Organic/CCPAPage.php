@@ -1,26 +1,26 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 use stdClass;
 
 /**
  * Manages the ads.txt data and presentation
  *
- * @package Empire
+ * @package Organic
  */
 class CCPAPage {
 
 
     /**
-     * @var Empire
+     * @var Organic
      */
-    private $empire;
+    private Organic $organic;
 
-    public function __construct( Empire $empire ) {
-        $this->empire = $empire;
+    public function __construct( Organic $organic ) {
+        $this->organic = $organic;
 
-        if ( $this->empire->getCmp() ) {
+        if ( $this->organic->getCmp() ) {
             add_action( 'init', array( $this, 'show' ) );
             add_action( 'wp_head', array( $this, 'head' ), 100 );
             add_action( 'wp_footer', array( $this, 'footer' ), 100 );
@@ -33,7 +33,7 @@ class CCPAPage {
      * Hook for injecting One Trust button in footer navigation
      */
     public function footerExtraNav() {
-        if ( $this->empire->useCmpOneTrust() ) {
+        if ( $this->organic->useCmpOneTrust() ) {
             echo '<button id="ot-sdk-btn" class="ot-sdk-show-settings">Cookie Settings</button>';
         }
     }
@@ -44,7 +44,7 @@ class CCPAPage {
      * @return string new Menu item
      */
     public function footer() {
-        if ( $this->empire->useCmpBuiltIn() ) {
+        if ( $this->organic->useCmpBuiltIn() ) {
             echo '<a href="/do-not-collect">Do Not Sell My Personal Information</a>';
         }
     }
@@ -55,11 +55,11 @@ class CCPAPage {
      * @return string
      */
     public function head() {
-        if ( $this->empire->useCmpOneTrust() ) {
+        if ( $this->organic->useCmpOneTrust() ) {
             // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
             echo '<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"'
                . ' type="text/javascript" charset="UTF-8" data-domain-script="'
-               . $this->empire->getOneTrustId()
+               . $this->organic->getOneTrustId()
                . '" ></script><script type="text/javascript">function OptanonWrapper(){}</script>';
         }
     }
@@ -72,7 +72,7 @@ class CCPAPage {
      */
     public function addFooterMenuItem( $items, $menu ) {
         if ( $menu->slug === 'footer-menu' ) {
-            if ( $this->empire->useCmpBuiltIn() ) {
+            if ( $this->organic->useCmpBuiltIn() ) {
                 $items[] = $this->customNavMenuItem(
                     'Do Not Sell My Personal Information',
                     '/do-not-collect',
@@ -115,9 +115,9 @@ class CCPAPage {
 
     public function show() {
         if ( isset( $_SERVER ) && $_SERVER['REQUEST_URI'] === '/do-not-collect' ) {
-            $enabled = get_option( 'empire::enabled' );
+            $enabled = $this->organic->getOption( 'organic::enabled' );
 
-            if ( $this->empire->useCmpBuiltIn() && $enabled ) {
+            if ( $this->organic->useCmpBuiltIn() && $enabled ) {
                 header( 'content-type: text/html; charset=UTF-8' );
                 header( 'cache-control: public, max-age=86400' );
                 $contents = <<<EOF

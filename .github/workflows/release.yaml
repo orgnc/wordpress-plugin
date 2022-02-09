@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    name: Empire Wordpress Plugin - Build & Publish Package
+    name: Organic Wordpress Plugin - Build & Publish Package
     runs-on: ubuntu-latest
 
     env:
@@ -39,18 +39,18 @@ jobs:
       - name: Set Version Number & Build Zip
         id: build-zip
         run: |
-          sed -i 's/VERSION/${{ env.BUILD_NUMBER }}/' empire.php
-          mkdir -p build/empire
+          sed -i 's/VERSION/${{ env.BUILD_NUMBER }}/' organic.php
+          mkdir -p build/organic
           ls -alh
           sudo chown -R runner:docker .
-          cp -r Empire build/empire/
-          cp empire.php build/empire/
-          cp composer.json build/empire/
-          cp composer.lock build/empire/
-          cp -r vendor build/empire/
+          cp -r Organic build/organic/
+          cp organic.php build/organic/
+          cp composer.json build/organic/
+          cp composer.lock build/organic/
+          cp -r vendor build/organic/
           cd build
-          zip -r empire-${{ env.BUILD_NUMBER }}.zip empire
-          cp empire-${{ env.BUILD_NUMBER }}.zip empire.zip
+          zip -r organic-${{ env.BUILD_NUMBER }}.zip organic
+          cp organic-${{ env.BUILD_NUMBER }}.zip organic.zip
 
       # Set up our S3 Connection
       - name: Set up S3cmd cli tool
@@ -67,13 +67,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: 'build/empire.zip'
+          args: 'build/organic.zip'
 
-      # Push zip to S3 for easy integration with Empire Platform
+      # Push zip to S3 for easy integration with Organic Platform
       - name: Deploy
         run: |
-          s3cmd put build/empire-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/empire-latest.zip
-          s3cmd setacl s3://${{ env.AWS_BUCKET }}/empire-latest.zip --acl-public
+          s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
+          s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
 
       # Pre-configured step to send notification on build success
       - name: Notify slack success

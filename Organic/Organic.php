@@ -1,9 +1,9 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 use DateTime;
-use Empire\SDK\EmpireSdk;
+use Organic\SDK\OrganicSdk;
 use Exception;
 use WP_Query;
 
@@ -14,111 +14,11 @@ const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
 const SYNC_META_KEY = 'empire_sync';
 
-class BaseConfig {
-
-    /**
-     * Map (key -> config-for-placement) of configs for Placements
-     */
-    public array $forPlacement;
-
-    /**
-     * Raw Config returned from Empire Platform API
-     */
-    public array $raw;
-
-    public function __construct( array $raw ) {
-        if ( empty( $raw ) ) {
-            $this->forPlacement = [];
-            $this->raw = [];
-            return;
-        }
-
-        $forPlacement = array_reduce(
-            $raw['placements'],
-            function( $byKey, $config ) {
-                $byKey[ $config['key'] ] = $config;
-                return $byKey;
-            },
-            []
-        );
-
-        $this->forPlacement = $forPlacement;
-        $this->raw = $raw;
-    }
-}
-
-class AdsConfig extends BaseConfig {
-
-    /**
-     * List of AdRules returned from Empire Platform API
-     * Each AdRule must contain at least:
-     *  bool enabled
-     *  string component
-     *  string comparator
-     *  string value
-     */
-    public array $adRules;
-
-    /**
-     * Map (key -> Placement) of Placements returned from Empire Platform API
-     * Each Placement must contain at least:
-     *  array[string] selectors
-     *  int limit
-     *  string relative
-     */
-    public array $forPlacement;
-
-    public function __construct( array $raw ) {
-        parent::__construct( $raw );
-        if ( empty( $raw ) ) {
-            $this->adRules = [];
-            return;
-        }
-
-        $this->adRules = $raw['adRules'];
-    }
-
-    public function getPrebidBuildUrl() : string {
-        $prebid = $this->raw['prebid'] ?? [];
-        return $prebid['useBuild'] ?? 'https://empirecdn.io/assets/prebid5.13.0.js';
-    }
-}
-
-
-class AmpConfig extends BaseConfig {
-
-    /**
-     * Map (key -> amp) of amps for placements returned from Empire Platform API
-     * Each amp must contain at least:
-     *  string html
-     */
-    public array $forPlacement;
-}
-
-
-class PrefillConfig extends BaseConfig {
-
-    /**
-     * Map (key -> prefill) of prefills for placements returned from Empire Platform API
-     * Each prefill must contain at least:
-     *  string html
-     *  string css
-     */
-    public array $forPlacement;
-}
-
-
-class LogLevel {
-    const WARNING   = 'warning';
-    const INFO      = 'info';
-    const DEBUG     = 'debug';
-}
-
 
 /**
- * Client Plugin for TrackADM.com ads, analytics and affiliate management platform
+ * Client Plugin for the Organic Platform
  */
-class Empire {
+class Organic {
 
     private $isEnabled = false;
 
@@ -126,11 +26,6 @@ class Empire {
      * @var AdsTxt
      */
     private $adsTxt;
-
-    /**
-     * @var API
-     */
-    private $api;
 
     /**
      * @var string Which CMP are we using, '', 'built-in' or 'one-trust'
@@ -148,17 +43,17 @@ class Empire {
     private $connatixPlayspaceId;
 
     /**
-     * @var int % of traffic to send to Empire SDK instead of TrackADM Pixel
+     * @var int % of traffic to send to Organic SDK instead of Organic Pixel
      */
-    private $empirePixelTestPercent = 0;
+    private $organicPixelTestPercent = 0;
 
     /**
      * @var string|null Name of the split test to use (must be tied to GAM value in 'tests' key)
      */
-    private $empirePixelTestValue = null;
+    private $organicPixelTestValue = null;
 
     /**
-     * @var string Empire environment
+     * @var string Organic environment
      */
     private $environment = 'PRODUCTION';
 
@@ -189,19 +84,19 @@ class Empire {
     private $pixelTestingUrl;
 
     /**
-     * New Empire SDK
+     * New Organic SDK
      *
-     * @var EmpireSdk
+     * @var OrganicSdk
      */
     public $sdk;
 
     /**
-     * @var string|null API key for Empire
+     * @var string|null API key for Organic
      */
     private $sdkKey;
 
     /**
-     * @var string Site ID from Empire
+     * @var string Site ID from Organic
      */
     private $siteId;
 
@@ -221,14 +116,14 @@ class Empire {
     private ?AdsConfig $adsConfig = null;
 
     /**
-     * List of Post Types that we are synchronizing with Empire Platform
+     * List of Post Types that we are synchronizing with Organic Platform
      *
      * @var string[]
      */
     private $postTypes;
 
     /**
-     * @var bool If Empire App is enabled in the Platform
+     * @var bool If Organic App is enabled in the Platform
      */
     private $campaignsEnabled = false;
 
@@ -236,25 +131,25 @@ class Empire {
 
     /**
      * Main purpose is to allow access to the plugin instance from the `wp shell`:
-     *  >>> $empire = Empire\Empire::getInstance()
-     *  => Empire\Empire {#1829
-     *       +sdk: Empire\SDK\EmpireSdk {#1830},
+     *  >>> $organic = Organic\Organic::getInstance()
+     *  => Organic\Organic {#1829
+     *       +sdk: Organic\SDK\OrganicSdk {#1830},
      *       +"siteDomain": "domino.com",
      *       +"ampAdsEnabled": "1",
      *       +"injectAdsConfig": "1",
      *       +"adSlotsPrefillEnabled": "1",
      *     }
      */
-    public static function getInstance(): Empire {
+    public static function getInstance(): Organic {
         return static::$instance;
     }
 
     /**
-     * Create the Empire plugin ecosystem
+     * Create the Organic plugin ecosystem
      *
      * @param $environment string PRODUCTION or DEVELOPMENT
      */
-    public function __construct( $environment ) {
+    public function __construct( string $environment ) {
         $this->environment = $environment;
         static::$instance = $this;
     }
@@ -272,7 +167,7 @@ class Empire {
         if ( $this->getEnvironment() == 'TEST' ) {
             return $text;
         } else {
-            return __( $text, 'empireio' );
+            return __( $text, 'organic' );
         }
     }
 
@@ -281,38 +176,80 @@ class Empire {
     }
 
     /**
+     * Safe wrapper for Wordpress $this->getOption call
+     *
+     * Supports transitional backward compatibility with the name change to Organic.
+     *
+     * @param $name
+     * @return void
+     */
+    public function getOption( $name ) {
+        if ( function_exists( 'get_option' ) ) {
+            $result = get_option( $name );
+
+            // Fallback to old version if it exists instead
+            if ( ! $result ) {
+                $result = get_option( str_replace( 'organic::', 'empire::', $name ) );
+            }
+            return $result;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Safe wrapper for Wordpress update_option call.
+     *
+     * Supports transitional backward compatibility with the name change to Organic.
+     *
+     * @param $name
+     * @param $value
+     * @param bool $autoload
+     * @return void
+     */
+    public function updateOption( $name, $value, $autoload = false ) {
+        if ( function_exists( 'update_option' ) ) {
+            // Update old value as well for backward compatibility
+            update_option( str_replace( 'organic::', 'empire::', $name ) );
+
+            return update_option( $name, $value, $autoload );
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Sets up config options for our operational context
      * @param $apiUrl string|null
+     * @param string|null $cdnUrl
      */
     public function init( ?string $apiUrl = null, ?string $cdnUrl = null ) {
-        $apiKey = get_option( 'empire::api_key' );
-        $this->sdkKey = get_option( 'empire::sdk_key' );
-        $this->siteId = get_option( 'empire::site_id' );
-        $this->siteDomain = get_option( 'empire::site_domain' );
-        $this->api = new Api( $this->environment, $apiKey );
-        $this->sdk = new EmpireSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
+        $this->sdkKey = $this->getOption( 'organic::sdk_key' );
+        $this->siteId = $this->getOption( 'organic::site_id' );
+        $this->siteDomain = $this->getOption( 'organic::site_domain' );
+        $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
 
         $this->adsTxt = new AdsTxt( $this );
 
-        $this->isEnabled = get_option( 'empire::enabled' );
-        $this->ampAdsEnabled = get_option( 'empire::amp_ads_enabled' );
-        $this->injectAdsConfig = get_option( 'empire::inject_ads_config' );
-        $this->adSlotsPrefillEnabled = get_option( 'empire::ad_slots_prefill_enabled' );
-        $this->cmp = get_option( 'empire::cmp' );
-        $this->oneTrustId = get_option( 'empire::one_trust_id' );
-        $this->empirePixelTestPercent = intval( get_option( 'empire::percent_test' ) );
-        $this->empirePixelTestValue = get_option( 'empire::test_value' );
+        $this->isEnabled = $this->getOption( 'organic::enabled' );
+        $this->ampAdsEnabled = $this->getOption( 'organic::amp_ads_enabled' );
+        $this->injectAdsConfig = $this->getOption( 'organic::inject_ads_config' );
+        $this->adSlotsPrefillEnabled = $this->getOption( 'organic::ad_slots_prefill_enabled' );
+        $this->cmp = $this->getOption( 'organic::cmp' );
+        $this->oneTrustId = $this->getOption( 'organic::one_trust_id' );
+        $this->organicPixelTestPercent = intval( $this->getOption( 'organic::percent_test' ) );
+        $this->organicPixelTestValue = $this->getOption( 'organic::test_value' );
 
-        $this->connatixEnabled = get_option( 'empire::connatix_enabled' );
-        $this->connatixPlayspaceId = get_option( 'empire::connatix_playspace_id' );
+        $this->connatixEnabled = $this->getOption( 'organic::connatix_enabled' );
+        $this->connatixPlayspaceId = $this->getOption( 'organic::connatix_playspace_id' );
 
-        $this->pixelId = get_option( 'empire::pixel_id' );
-        $this->pixelPublishedUrl = get_option( 'empire::pixel_published_url' );
-        $this->pixelTestingUrl = get_option( 'empire::pixel_testing_url' );
+        $this->pixelId = $this->getOption( 'organic::pixel_id' );
+        $this->pixelPublishedUrl = $this->getOption( 'organic::pixel_published_url' );
+        $this->pixelTestingUrl = $this->getOption( 'organic::pixel_testing_url' );
 
-        $this->postTypes = get_option( 'empire::post_types', [ 'post', 'page' ] );
+        $this->postTypes = $this->getOption( 'organic::post_types', [ 'post', 'page' ] );
 
-        $this->campaignsEnabled = get_option( 'empire::campaigns_enabled' );
+        $this->campaignsEnabled = $this->getOption( 'organic::campaigns_enabled' );
 
         /* Load up our sub-page configs */
         new AdminSettings( $this );
@@ -330,7 +267,7 @@ class Empire {
     }
 
     /**
-     * Returns true if Empire localization and tagging is enabled
+     * Returns true if Organic integration is Enabled
      *
      * @return bool
      */
@@ -349,7 +286,7 @@ class Empire {
     }
 
     /**
-     * Post types that we synchronize with Empire Platform
+     * Post types that we synchronize with Organic Platform
      *
      * @return string[]
      */
@@ -467,7 +404,7 @@ class Empire {
             return $this->ampConfig;
         }
 
-        $rawAmpConfig = get_option( 'empire::ad_amp_config', [] );
+        $rawAmpConfig = $this->getOption( 'organic::ad_amp_config', [] );
         $this->ampConfig = new AmpConfig( $rawAmpConfig );
 
         return $this->ampConfig;
@@ -478,7 +415,7 @@ class Empire {
             return $this->prefillConfig;
         }
 
-        $rawPrefillConfig = get_option( 'empire::ad_prefill_config', [] );
+        $rawPrefillConfig = $this->getOption( 'organic::ad_prefill_config', [] );
         $this->prefillConfig = new PrefillConfig( $rawPrefillConfig );
 
         return $this->prefillConfig;
@@ -489,7 +426,7 @@ class Empire {
             return $this->adsConfig;
         }
 
-        $rawAdsConfig = get_option( 'empire::ad_settings', [] );
+        $rawAdsConfig = $this->getOption( 'organic::ad_settings', [] );
         $this->adsConfig = new AdsConfig( $rawAdsConfig );
 
         return $this->adsConfig;
@@ -642,14 +579,15 @@ class Empire {
     }
 
     /**
-     * Synchronizes a single Post to Empire
+     * Synchronizes a single Post to Organic
      *
      * @param $post
+     * @return void|null
      */
     public function syncPost( $post ) {
         if ( ! $this->isPostEligibleForSync( $post ) ) {
             $this->debug(
-                'Empire Sync: SKIPPED',
+                'Organic Sync: SKIPPED',
                 [
                     'post_id' => $post->ID,
                     'post_type' => $post->post_title,
@@ -663,13 +601,13 @@ class Empire {
         $canonical = get_permalink( $post->ID );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
-        $external_id = \apply_filters( 'empire_post_id', $post->ID );
-        $canonical = \apply_filters( 'empire_post_url', $canonical, $post->ID );
+        $external_id = \apply_filters( 'organic_post_id', $post->ID );
+        $canonical = \apply_filters( 'organic_post_url', $canonical, $post->ID );
         $title = \htmlspecialchars_decode( $post->post_title );
-        $title = \apply_filters( 'empire_post_title', $title, $post->ID );
-        $content = \apply_filters( 'empire_post_content', $post->post_content, $post->ID );
-        $published_date = \apply_filters( 'empire_post_publish_date', $post->post_date, $post->ID );
-        $modified_date = \apply_filters( 'empire_post_modified_date', $post->post_modified, $post->ID );
+        $title = \apply_filters( 'organic_post_title', $title, $post->ID );
+        $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
+        $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
+        $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
         $campaign_asset_guid = null;
         if ( $this->isCampaignsAppEnabled() ) {
             $campaign_asset_guid = get_post_meta( $post->ID, CAMPAIGN_ASSET_META_KEY, true );
@@ -690,7 +628,7 @@ class Empire {
                 );
             }
         }
-        $authors = \apply_filters( 'empire_post_authors', $authors, $post->ID );
+        $authors = \apply_filters( 'organic_post_authors', $authors, $post->ID );
 
         $categories = array();
         foreach ( wp_get_post_categories( $post->ID ) as $category_id ) {
@@ -728,7 +666,7 @@ class Empire {
             // shouldn't error out here.
             $this::captureException( $e );
             $this->warning(
-                'Empire Sync: ERROR',
+                'Organic Sync: ERROR',
                 [
                     'external_id' => $external_id,
                     'url' => $canonical,
@@ -739,7 +677,7 @@ class Empire {
             return null;
         }
         $this->debug(
-            'Empire Sync: SUCCESS',
+            'Organic Sync: SUCCESS',
             [
                 'external_id' => $external_id,
                 'url' => $canonical,
@@ -757,7 +695,7 @@ class Empire {
     }
 
     /**
-     * Helper function to actually execute sync calls to Empire for posts
+     * Helper function to actually execute sync calls to Organic Platform for posts
      *
      * @param $posts
      * @return int # of posts sync-ed
@@ -774,7 +712,7 @@ class Empire {
     }
 
     /**
-     * Build a query that looks at all posts that we want to keep in sync with Empire
+     * Build a query that looks at all posts that we want to keep in sync with Organic
      *
      * @param int $batch
      * @param int $offset
@@ -799,7 +737,7 @@ class Empire {
     }
 
     /**
-     * Build a query that can find the posts that have never been synced to Empire
+     * Build a query that can find the posts that have never been synced to Organic
      *
      * @param int $batch # of posts per page
      * @param int $offset
@@ -840,7 +778,7 @@ class Empire {
     }
 
     /**
-     * Finds a batch of posts that have not been synchronized with Empire yet and publish their info
+     * Finds a batch of posts that have not been synchronized with Organic yet and publish their info
      *
      * Works in batches of 1000 to minimize load issues
      *
@@ -881,7 +819,7 @@ class Empire {
             $query = $this->buildQuerySyncablePosts( $batch, $offset );
             $updated += $this->_syncPosts( $query->posts );
             $this->debug(
-                'Empire Sync: SYNCING',
+                'Organic Sync: SYNCING',
                 [
                     'updated' => $updated,
                     'offset' => $offset,
@@ -1024,16 +962,16 @@ class Empire {
         $config = $this->sdk->queryAdConfig();
 
         $this->debug( 'Got site domain: ' . $config['domain'] );
-        update_option( 'empire::site_domain', $config['domain'], false );
+        $this->updateOption( 'organic::site_domain', $config['domain'], false );
 
         $this->debug( 'Got Ad Settings: ', $config['settings'] );
-        update_option( 'empire::ad_settings', $config['settings'], false );
+        $this->updateOption( 'organic::ad_settings', $config['settings'], false );
 
         $this->debug( 'Got Amp Config: ', $config['ampConfig'] );
-        update_option( 'empire::ad_amp_config', $config['ampConfig'], false );
+        $this->updateOption( 'organic::ad_amp_config', $config['ampConfig'], false );
 
         $this->debug( 'Got Prefill Config: ', $config['prefillConfig'] );
-        update_option( 'empire::ad_prefill_config', $config['prefillConfig'], false );
+        $this->updateOption( 'organic::ad_prefill_config', $config['prefillConfig'], false );
 
         return array(
             'updated' => true,
@@ -1071,7 +1009,7 @@ class Empire {
         $purgely->purge( \Purgely_Purge::URL, get_home_url( null, '/ads.txt' ) );
 
         // Add in a hook that can be used to purge more complex caches
-        do_action( 'empire_ads_txt_changed' );
+        do_action( 'organic_ads_txt_changed' );
 
         return [
             'updated' => true,
@@ -1083,7 +1021,7 @@ class Empire {
         global $post;
 
         // Check to see if the plugin is even turned on
-        $enabled = get_option( 'empire::enabled' );
+        $enabled = $this->getOption( 'organic::enabled' );
         if ( ! $enabled ) {
             return $content;
         }
@@ -1093,16 +1031,12 @@ class Empire {
         }
 
         // check if we have a tracking tag for this post
-        $tag = get_post_meta( $post->ID, 'empire_tag', true );
+        $tag = get_post_meta( $post->ID, 'organic_tag', true );
         if ( ! $tag ) {
             return $content;
         }
 
         return $content;
-    }
-
-    public function getApi() : Api {
-        return $this->api;
     }
 
     public function getAdsTxtManager() : AdsTxt {
@@ -1168,15 +1102,15 @@ class Empire {
     /**
      * @return string|null
      */
-    public function getEmpirePixelTestValue(): ?string {
-        return $this->empirePixelTestValue;
+    public function getOrganicPixelTestValue(): ?string {
+        return $this->organicPixelTestValue;
     }
 
     /**
      * @return int
      */
-    public function getEmpirePixelTestPercent(): int {
-        return $this->empirePixelTestPercent;
+    public function getOrganicPixelTestPercent(): int {
+        return $this->organicPixelTestPercent;
     }
 
     public static function captureException( \Exception $e ) {
@@ -1229,7 +1163,7 @@ class Empire {
             case LogLevel::INFO:
                 return \WP_CLI::log( $message );
             case LogLevel::DEBUG:
-                return \WP_CLI::debug( $message, 'empire' );
+                return \WP_CLI::debug( $message, 'organic' );
             default:
                 $this->warning( 'Unknown log-level', [ 'level' => $level ] );
                 $this->info( $message, $context );
