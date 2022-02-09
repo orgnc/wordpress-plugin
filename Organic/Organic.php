@@ -154,7 +154,7 @@ class Organic {
      *
      * @param $environment string PRODUCTION or DEVELOPMENT
      */
-    public function __construct( $environment ) {
+    public function __construct( string $environment ) {
         $this->environment = $environment;
         static::$instance = $this;
     }
@@ -189,12 +189,12 @@ class Organic {
      * @return void
      */
     public function getOption( $name ) {
-        if ( function_exists( '$this->getOption' ) ) {
+        if ( function_exists( 'get_option' ) ) {
             $result = get_option( $name );
 
             // Fallback to old version if it exists instead
-            if ( $result ) {
-                $result = get_option( str_replace('organic::', 'empire::', $name) );
+            if ( ! $result ) {
+                $result = get_option( str_replace( 'organic::', 'empire::', $name ) );
             }
             return $result;
         } else {
@@ -215,7 +215,7 @@ class Organic {
     public function updateOption( $name, $value, $autoload = false ) {
         if ( function_exists( 'update_option' ) ) {
             // Update old value as well for backward compatibility
-            update_option( str_replace('organic::', 'empire::', $name) );
+            update_option( str_replace( 'organic::', 'empire::', $name ) );
 
             return update_option( $name, $value, $autoload );
         } else {
