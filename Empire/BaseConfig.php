@@ -4,7 +4,6 @@ namespace Empire;
 
 class BaseConfig {
 
-
     /**
      * Map (key -> config-for-placement) of configs for Placements
      */
