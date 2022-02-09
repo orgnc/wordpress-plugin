@@ -15,9 +15,9 @@ class CCPAPage {
     /**
      * @var Organic
      */
-    private $organic;
+    private Organic $organic;
 
-    public function __construct(Organic $organic ) {
+    public function __construct( Organic $organic ) {
         $this->organic = $organic;
 
         if ( $this->organic->getCmp() ) {

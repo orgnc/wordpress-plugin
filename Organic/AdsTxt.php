@@ -15,7 +15,7 @@ class AdsTxt {
      */
     private $organic;
 
-    public function __construct(Organic $organic ) {
+    public function __construct( Organic $organic ) {
         $this->organic = $organic;
 
         add_action( 'init', array( $this, 'show' ) );

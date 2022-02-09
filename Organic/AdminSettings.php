@@ -10,7 +10,7 @@ class AdminSettings {
     private $organic;
     private $update_results = [];
 
-    public function __construct(Organic $organic ) {
+    public function __construct( Organic $organic ) {
         $this->organic = $organic;
 
         add_filter( 'plugin_action_links_organic/organic.php', array( $this, 'pluginSettingsLink' ) );

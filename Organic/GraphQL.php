@@ -10,9 +10,9 @@ class GraphQL {
     /**
      * @var Organic
      */
-    protected $organic;
+    protected Organic $organic;
 
-    public function __construct(Organic $organic ) {
+    public function __construct( Organic $organic ) {
         $this->organic = $organic;
     }
 

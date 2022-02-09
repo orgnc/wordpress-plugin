@@ -26,7 +26,7 @@ class PageInjection {
     private $connatixInjected = false;
     private $ampAdsInjected = false;
 
-    public function __construct(Organic $organic ) {
+    public function __construct( Organic $organic ) {
         $this->organic = $organic;
         $is_amp = organic_is_amp();
 

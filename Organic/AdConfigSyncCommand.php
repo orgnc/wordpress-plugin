@@ -8,9 +8,9 @@ class AdConfigSyncCommand {
     /**
      * @var Organic
      */
-    private $organic;
+    private Organic $organic;
 
-    public function __construct(Organic $organic ) {
+    public function __construct( Organic $organic ) {
         $this->organic = $organic;
         if ( class_exists( '\WP_CLI' ) ) {
             // Expose this command to the WP-CLI command list
