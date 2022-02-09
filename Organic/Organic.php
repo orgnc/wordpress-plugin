@@ -210,7 +210,7 @@ class Organic {
     public function updateOption( $name, $value, $autoload = false ) {
         if ( function_exists( 'update_option' ) ) {
             // Update old value as well for backward compatibility
-            update_option( str_replace( 'organic::', 'empire::', $name ) );
+            update_option( str_replace( 'organic::', 'empire::', $name ), $value, $autoload );
 
             return update_option( $name, $value, $autoload );
         } else {
