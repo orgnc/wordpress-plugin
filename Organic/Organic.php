@@ -10,7 +10,7 @@ use WP_Query;
 use function \get_user_by;
 use function Sentry\captureException;
 
-const CAMPAIGN_ASSET_META_KEY = 'organic_campaign_asset_guid';
+const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
 const SYNC_META_KEY = 'empire_sync';
 
