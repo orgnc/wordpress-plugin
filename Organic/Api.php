@@ -1,38 +1,14 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class Api {
-
-
     /**
-     * @var string API key for communicating with TrackADM
+     * @var string API key for communicating with Organic Platform
      */
     private $apiKey;
 
-    /**
-     * @var string Root path for API requests for TrackADM
-     */
-    private $apiRoot;
-
     public function __construct( $environment, $apiKey ) {
-        /* Set up our API root first in case any of the other classes need to make
-         * API calls during initialization.
-         */
-        switch ( $environment ) {
-            case Environment::LOCAL:
-                $this->apiRoot = 'http://lcl.trackadm.com/api';
-                break;
-            case Environment::DEVELOPMENT:
-                $this->apiRoot = 'https://dev.trackadm.com/api';
-                break;
-            case Environment::STAGING:
-            case Environment::PRODUCTION:
-            default:
-                $this->apiRoot = 'https://trackadm.com/api';
-                break;
-        }
-
         $this->apiKey = $apiKey;
     }
 

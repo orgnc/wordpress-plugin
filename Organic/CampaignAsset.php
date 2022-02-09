@@ -1,6 +1,6 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class CampaignAsset {
     private $guid;

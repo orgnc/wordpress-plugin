@@ -1,12 +1,12 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class AmpConfig extends BaseConfig {
 
 
     /**
-     * Map (key -> amp) of amps for placements returned from Empire Platform API
+     * Map (key -> amp) of amps for placements returned from Organic Platform API
      * Each amp must contain at least:
      *  string html
      */

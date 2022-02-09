@@ -1,6 +1,6 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class PrefillAdsInjector {
     private AdsConfig $adsConfig;
@@ -65,7 +65,7 @@ class PrefillAdsInjector {
             try {
                 $count = $adsInjector->injectAds( $adContainer, $relative, $selectors, $limit );
             } catch ( \Exception $e ) {
-                \Empire\Empire::captureException( $e );
+                \Organic\Organic::captureException( $e );
             }
 
             if ( $count > 0 ) {
@@ -86,7 +86,7 @@ class PrefillAdsInjector {
             $styles,
             [
                 'type' => 'text/css',
-                'id' => 'empire-prefill-css',
+                'id' => 'organic-prefill-css',
             ]
         );
     }

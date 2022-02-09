@@ -1,13 +1,13 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class AmpAdsInjector extends \AMP_Base_Sanitizer {
     public function sanitize() {
         try {
             $this->handle();
         } catch ( \Exception $e ) {
-            \Empire\Empire::captureException( $e );
+            \Organic\Organic::captureException( $e );
         }
     }
 
@@ -50,7 +50,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             try {
                 $adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
             } catch ( \Exception $e ) {
-                \Empire\Empire::captureException( $e );
+                \Organic\Organic::captureException( $e );
             }
         }
     }

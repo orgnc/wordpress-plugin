@@ -1,10 +1,10 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
-function empire_get_all_campaign_assets(): array {
+function organic_get_all_campaign_assets(): array {
     $result = [];
-    $assets = Empire::getInstance()->loadCampaignsAssets();
+    $assets = Organic::getInstance()->loadCampaignsAssets();
 
     foreach ( $assets as $assetData ) {
         $campaignData = $assetData['campaign'];
@@ -28,10 +28,10 @@ function empire_get_all_campaign_assets(): array {
     return $result;
 }
 
-function empire_content_assign_campaign_asset( $post_id, ?string $campaign_asset_guid ): void {
-    Empire::getInstance()->assignContentCampaignAsset( $post_id, $campaign_asset_guid );
+function organic_content_assign_campaign_asset( $post_id, ?string $campaign_asset_guid ): void {
+    Organic::getInstance()->assignContentCampaignAsset( $post_id, $campaign_asset_guid );
 }
 
-function empire_campaigns_enabled(): bool {
-    return Empire::getInstance()->isCampaignsAppEnabled();
+function organic_campaigns_enabled(): bool {
+    return Organic::getInstance()->isCampaignsAppEnabled();
 }

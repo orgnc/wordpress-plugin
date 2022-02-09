@@ -1,26 +1,26 @@
 <?php
 
 
-namespace Empire;
+namespace Organic;
 
 class AdConfigSyncCommand {
 
     /**
-     * @var Empire
+     * @var Organic
      */
-    private $empire;
+    private $organic;
 
-    public function __construct( Empire $empire ) {
-        $this->empire = $empire;
+    public function __construct(Organic $organic ) {
+        $this->organic = $organic;
         if ( class_exists( '\WP_CLI' ) ) {
             // Expose this command to the WP-CLI command list
-            \WP_CLI::add_command( 'empire-sync-ad-config', $this );
+            \WP_CLI::add_command( 'organic-sync-ad-config', $this );
         }
 
         add_filter(
             'cron_schedules',
             function ( $schedules ) {
-                $schedules['empire_every10minutes'] = array(
+                $schedules['organic_every10minutes'] = array(
                     'interval' => 600,
                     'display' => __( 'Every 10 minutes' ),
                 );
@@ -29,9 +29,9 @@ class AdConfigSyncCommand {
         );
 
         // Include this command in cron schedule every hour
-        add_action( 'empire_cron_sync_ad_config', array( $this, 'run' ) );
-        if ( ! wp_next_scheduled( 'empire_cron_sync_ad_config' ) ) {
-            wp_schedule_event( time(), 'empire_every10minutes', 'empire_cron_sync_ad_config' );
+        add_action( 'organic_cron_sync_ad_config', array( $this, 'run' ) );
+        if ( ! wp_next_scheduled( 'organic_cron_sync_ad_config' ) ) {
+            wp_schedule_event( time(), 'organic_every10minutes', 'organic_cron_sync_ad_config' );
         }
     }
 
@@ -50,12 +50,12 @@ class AdConfigSyncCommand {
      */
     public function __invoke( $args ) {
         // Only both trying if the API key is set
-        if ( ! $this->empire->getSdkKey() || ! $this->empire->getSiteId() ) {
-            $this->empire->warning( 'Cannot sync AdConfig without Empire SDK API Key and Site ID' );
+        if ( ! $this->organic->getSdkKey() || ! $this->organic->getSiteId() ) {
+            $this->organic->warning( 'Cannot sync AdConfig without Organic SDK API Key and Site ID' );
             return;
         }
 
-        $stats = $this->empire->syncAdConfig();
-        $this->empire->info( 'Empire AdConfig Sync stats', $stats );
+        $stats = $this->organic->syncAdConfig();
+        $this->organic->info( 'Organic AdConfig Sync stats', $stats );
     }
 }

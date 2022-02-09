@@ -1,26 +1,24 @@
 <?php
 
-namespace Empire\SDK;
+namespace Organic\SDK;
 
 use DateTime;
 use DateTimeInterface;
-use Exception;
 use GraphQL\Client;
 use GraphQL\Exception\QueryError;
 use GraphQL\Mutation;
 use GraphQL\Variable;
 use GraphQL\Query;
 use GraphQL\RawObject;
-use GraphQL\Tests\RawObjectTest;
 use InvalidArgumentException;
 use RuntimeException;
 
 /**
- * Communicate with the Empire APIs (GraphQL and REST)
+ * Communicate with the Organic Platform APIs (GraphQL)
  *
- * @package Empire\Internals
+ * @package Organic\SDK
  */
-class EmpireSdk {
+class OrganicSdk {
 
 
     /**
@@ -44,11 +42,12 @@ class EmpireSdk {
     private $siteGuid;
 
     /**
-     * Set up everything we need to work with the Empire API in the context of a single site.
+     * Set up everything we need to work with the Organic API in the context of a single site.
      *
-     * @param $siteGuid
+     * @param string $siteGuid
      * @param string|null $token
-     * @param string $url
+     * @param string|null $apiUrl
+     * @param string|null $cdnUrl
      */
     public function __construct(
         string $siteGuid,
@@ -419,12 +418,12 @@ class EmpireSdk {
             $result = $this->client->runQuery( $query, true, $variables );
             $responseCode = $result->getResponseObject()->getStatusCode();
             if ( $responseCode > 201 ) {
-                throw new RuntimeException( 'Empire API Failed with Error Code ' . $responseCode );
+                throw new RuntimeException( 'Organic API Failed with Error Code ' . $responseCode );
             }
 
             return $result->getResults();
         } catch ( QueryError $e ) {
-            throw new RuntimeException( 'Empire API Failed', -1, $e );
+            throw new RuntimeException( 'Organic API Failed', -1, $e );
         }
     }
 

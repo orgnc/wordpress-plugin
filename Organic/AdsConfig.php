@@ -1,12 +1,12 @@
 <?php
 
-namespace Empire;
+namespace Organic;
 
 class AdsConfig extends BaseConfig {
 
 
     /**
-     * List of AdRules returned from Empire Platform API
+     * List of AdRules returned from Organic Platform API
      * Each AdRule must contain at least:
      *  bool enabled
      *  string component
@@ -17,7 +17,7 @@ class AdsConfig extends BaseConfig {
     public array $adRules;
 
     /**
-     * Map (key -> Placement) of Placements returned from Empire Platform API
+     * Map (key -> Placement) of Placements returned from Organic Platform API
      * Each Placement must contain at least:
      *  array[string] selectors
      *  int limit
