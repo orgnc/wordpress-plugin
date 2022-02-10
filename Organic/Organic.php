@@ -183,17 +183,17 @@ class Organic {
      * @param $name
      * @return void
      */
-    public function getOption( $name ) {
+    public function getOption( $name, $default = false ) {
         if ( function_exists( 'get_option' ) ) {
             $result = get_option( $name );
 
             // Fallback to old version if it exists instead
             if ( ! $result ) {
-                $result = get_option( str_replace( 'organic::', 'empire::', $name ) );
+                $result = get_option( str_replace( 'organic::', 'empire::', $name ), $default );
             }
             return $result;
         } else {
-            return null;
+            return $default;
         }
     }
 
