@@ -89,7 +89,7 @@ class PageInjection {
                             return $content;
                         }
 
-                        if ( ! $this->organic->eligibleForAds( $content ) ) {
+                        if ( ! apply_filters('organic::eligible-for-ads', $this->organic->eligibleForAds( $content ) ) ) {
                             return $content;
                         }
 
@@ -190,6 +190,11 @@ class PageInjection {
     public function injectPixel() {
         // If Organic isn't enabled, then don't bother injecting anything
         if ( ! $this->organic->isEnabled() ) {
+            return;
+        }
+
+        // Checks if this is a page using a template without ads.
+        if( ! apply_filters( 'organic::eligible-for-ads', true ) ) {
             return;
         }
 
