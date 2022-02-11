@@ -89,7 +89,7 @@ class PageInjection {
                             return $content;
                         }
 
-                        if ( ! apply_filters( 'organic::eligible-for-ads', $this->organic->eligibleForAds( $content ) ) ) {
+                        if ( ! apply_filters( 'organic_eligible_for_ads', $this->organic->eligibleForAds( $content ) ) ) {
                             return $content;
                         }
 
@@ -194,7 +194,7 @@ class PageInjection {
         }
 
         // Checks if this is a page using a template without ads.
-        if ( ! apply_filters( 'organic::eligible-for-ads', true ) ) {
+        if ( ! apply_filters( 'organic_eligible_for_ads', true ) ) {
             return;
         }
 
