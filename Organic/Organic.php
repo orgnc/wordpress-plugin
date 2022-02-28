@@ -607,7 +607,8 @@ class Organic {
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
         $subtitle = \htmlspecialchars_decode( $post->post_subtitle );
         $subtitle = \apply_filters( 'organic_post_subtitle', $subtitle, $post->ID );
-        $featured_image_url = \apply_filters( 'organic_post_featured_image_url', $featured_image_url, $post->ID );
+        $featured_image_url = \apply_filters( 'organic_post_featured_image_url', $post->post_featured_image_url, $post->ID );
+        $template_name = \apply_filters( 'organic_post_template_name', $post->post_template_name, $post->ID );
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
         $is_published = \apply_filters( 'organic_post_is_published', $post->post_is_published, $post->ID );
         $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
@@ -659,6 +660,7 @@ class Organic {
                 $title,
                 $subtitle,
                 $featured_image_url,
+                $template_name,
                 $is_published,
                 new DateTime( $published_date ),
                 new DateTime( $modified_date ),
