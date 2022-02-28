@@ -152,6 +152,7 @@ class OrganicSdk {
      * @param string $canonicalUrl
      * @param string $title
      * @param string $subtitle
+     * @param string $is_published
      * @param DateTime $publishedDate
      * @param DateTime $modifiedDate
      * @param string $content
@@ -166,6 +167,7 @@ class OrganicSdk {
         string $canonicalUrl,
         string $title,
         string $subtitle,
+        string $is_published,
         DateTime $publishedDate,
         DateTime $modifiedDate,
         string $content,
@@ -191,6 +193,7 @@ class OrganicSdk {
                 'categories' => $categories,
                 'content' => $content,
                 'externalId' => $externalId,
+                'is_published' => $is_published,
                 'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
                 'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
                 'siteGuid' => $this->siteGuid,

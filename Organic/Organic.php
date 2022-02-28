@@ -608,6 +608,7 @@ class Organic {
         $subtitle = \htmlspecialchars_decode( $post->post_subtitle );
         $subtitle = \apply_filters( 'organic_post_subtitle', $subtitle, $post->ID );
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
+        $is_published = \apply_filters( 'organic_post_is_published', $post->post_is_published, $post->ID );
         $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
         $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
         $campaign_asset_guid = null;
@@ -656,6 +657,7 @@ class Organic {
                 $canonical,
                 $title,
                 $subtitle,
+                $is_published,
                 new DateTime( $published_date ),
                 new DateTime( $modified_date ),
                 $content,
