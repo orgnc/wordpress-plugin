@@ -151,6 +151,7 @@ class OrganicSdk {
      * @param string $externalId Unique ID for this content on this site
      * @param string $canonicalUrl
      * @param string $title
+     * @param string $subtitle
      * @param DateTime $publishedDate
      * @param DateTime $modifiedDate
      * @param string $content
@@ -164,6 +165,7 @@ class OrganicSdk {
         string $externalId,
         string $canonicalUrl,
         string $title,
+        string $subtitle,
         DateTime $publishedDate,
         DateTime $modifiedDate,
         string $content,
@@ -194,6 +196,7 @@ class OrganicSdk {
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
+                'subtitle' => $subtitle,
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );

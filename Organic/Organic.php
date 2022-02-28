@@ -605,6 +605,8 @@ class Organic {
         $canonical = \apply_filters( 'organic_post_url', $canonical, $post->ID );
         $title = \htmlspecialchars_decode( $post->post_title );
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
+        $subtitle = \htmlspecialchars_decode( $post->post_subtitle );
+        $subtitle = \apply_filters( 'organic_post_subtitle', $subtitle, $post->ID );
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
         $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
         $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
@@ -653,6 +655,7 @@ class Organic {
                 $external_id,
                 $canonical,
                 $title,
+                $subtitle,
                 new DateTime( $published_date ),
                 new DateTime( $modified_date ),
                 $content,
