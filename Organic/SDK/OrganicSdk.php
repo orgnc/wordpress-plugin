@@ -154,6 +154,7 @@ class OrganicSdk {
      * @param string $subtitle
      * @param string $featured_image_url
      * @param string $template_name
+     * @param string $sponsorship
      * @param string $is_published
      * @param DateTime $publishedDate
      * @param DateTime $modifiedDate
@@ -171,6 +172,7 @@ class OrganicSdk {
         string $subtitle,
         string $featured_image_url,
         string $template_name,
+        string $sponsorship,
         string $is_published,
         DateTime $publishedDate,
         DateTime $modifiedDate,
@@ -206,6 +208,7 @@ class OrganicSdk {
                 'subtitle' => $subtitle,
                 'featured_image_url' => $featured_image_url,
                 'template_name' => $template_name,
+                'sponsorship' => $sponsorship,
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
