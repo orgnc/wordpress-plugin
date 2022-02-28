@@ -288,6 +288,11 @@ class OrganicSdk {
                                                 'enabled',
                                             )
                                         ),
+                                        ( new Query( 'fbia' ) )->setSelectionSet(
+                                            array(
+                                                'mode',
+                                            )
+                                        ),
                                         'pixelSettings',
                                     )
                                 ),
@@ -376,9 +381,10 @@ class OrganicSdk {
                                     array(
                                         'key',
                                         'html',
-                                        'css',
                                     )
                                 ),
+                                'enabled',
+                                'mode',
                             )
                         ),
                     )
