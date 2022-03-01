@@ -692,7 +692,19 @@ class Organic {
                 'seo_image_url' => (string) $seo_datapoint->seo_image_url,
             );
         }
-        $seo_data = \apply_filters( 'organic_post_seo_schema_tags', $seo_data, $post->ID );
+        $seo_data = \apply_filters( 'organic_post_seo_data', $seo_data, $post->ID );
+
+        $custom_metadata = array();
+        foreach ( wp_get_post_get_custom_metadata( $post->ID ) as $custom_metadatapoint_id ) {
+            $custom_metadatapoint = get_custom_metadatapoint( $custom_metadatapoint_id );
+            $custom_metadata[] = array(
+                'externalId' => (string) $custom_metadatapoint->term_id,
+                'site_guid' => $custom_metadatapoint->site_guid,
+                'twitter_meta' => (string) $custom_metadatapoint->twitter_meta,
+                'opengraph_meta' => (string) $custom_metadatapoint->opengraph_meta,
+            );
+        }
+        $custom_metadata = \apply_filters( 'organic_post_custom_metadata', $custom_metadata, $post->ID );
 
         try {
             $result = $this->sdk->contentCreateOrUpdate(
@@ -713,6 +725,7 @@ class Organic {
                 $third_party_integrations,
                 $seo_schema_tags,
                 $seo_data,
+                $custom_metadata,
                 $campaign_asset_guid,
             );
         } catch ( \Exception $e ) {
