@@ -697,6 +697,8 @@ class Organic {
                 $authors,
                 $categories,
                 $tags,
+                $third_party_integrations,
+                $seo_schema_tags,
                 $campaign_asset_guid,
             );
         } catch ( \Exception $e ) {
