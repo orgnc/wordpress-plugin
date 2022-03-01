@@ -164,6 +164,7 @@ class OrganicSdk {
      * @param array $tags
      * @param array $third_party_integrations
      * @param array $seo_schema_tags
+     * @param array $seo_data
      * @param string $campaign_asset_guid
      * @return array|object
      */
@@ -184,6 +185,7 @@ class OrganicSdk {
         array $tags = array(),
         array $third_party_integrations = array(),
         array $seo_schema_tags = array(),
+        array $seo_data = array(),
         string $campaign_asset_guid = null
     ) {
          // Validate the structure of the referenced metadata
@@ -192,6 +194,7 @@ class OrganicSdk {
         $tags = $this->metaArrayToObjects( $tags, 'tags' );
         $third_party_integrations = $this->metaArrayToObjects( $third_party_integrations, 'third_party_integrations' );
         $seo_schema_tags = $this->metaArrayToObjects( $seo_schema_tags, 'seo_schema_tags' );
+        $seo_data = $this->metaArrayToObjects( $seo_data, 'seo_data' );
 
         $mutation = ( new Mutation( 'contentCreateOrUpdate' ) );
         $mutation->setVariables( array( new Variable( 'input', 'CreateOrUpdateContentInput', true ) ) );
@@ -217,6 +220,7 @@ class OrganicSdk {
                 'sponsorship' => $sponsorship,
                 '$third_party_integrations' => $third_party_integrations,
                 '$seo_schema_tags' => $seo_schema_tags,
+                '$seo_data' => $seo_data,
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );

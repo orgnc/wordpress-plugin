@@ -674,12 +674,25 @@ class Organic {
             $seo_schema_tag = get_seo_schema_tag( $seo_schema_tag_id );
             $seo_schema_tags[] = array(
                 'externalId' => (string) $seo_schema_tag->term_id,
-                'site_guid' => $third_party_integration->site_guid,
+                'site_guid' => $seo_schema_tag->site_guid,
                 'schema_type' => (string) $seo_schema_tag->schema_type,
                 'schema_content' => (string) $seo_schema_tag->schema_content,
             );
         }
         $seo_schema_tags = \apply_filters( 'organic_post_seo_schema_tags', $seo_schema_tags, $post->ID );
+
+        $seo_data = array();
+        foreach ( wp_get_post_get_seo_data( $post->ID ) as $seo_datapoint_id ) {
+            $seo_datapoint = get_seo_datapoint( $seo_datapoint_id );
+            $seo_data[] = array(
+                'externalId' => (string) $seo_datapoint->term_id,
+                'site_guid' => $seo_datapoint->site_guid,
+                'seo_title' => (string) $seo_datapoint->seo_title,
+                'seo_description' => (string) $seo_datapoint->seo_description,
+                'seo_image_url' => (string) $seo_datapoint->seo_image_url,
+            );
+        }
+        $seo_data = \apply_filters( 'organic_post_seo_schema_tags', $seo_data, $post->ID );
 
         try {
             $result = $this->sdk->contentCreateOrUpdate(
@@ -699,6 +712,7 @@ class Organic {
                 $tags,
                 $third_party_integrations,
                 $seo_schema_tags,
+                $seo_data,
                 $campaign_asset_guid,
             );
         } catch ( \Exception $e ) {
