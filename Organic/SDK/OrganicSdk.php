@@ -381,6 +381,17 @@ class OrganicSdk {
                                     array(
                                         'key',
                                         'html',
+                                        'css',
+                                    )
+                                ),
+                            )
+                        ),
+                        ( new Query( 'fbiaConfig' ) )->setSelectionSet(
+                            array(
+                                ( new Query( 'placements' ) )->setSelectionSet(
+                                    array(
+                                        'key',
+                                        'html',
                                     )
                                 ),
                                 'enabled',
