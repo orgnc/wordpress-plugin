@@ -706,6 +706,18 @@ class Organic {
         }
         $custom_metadata = \apply_filters( 'organic_post_custom_metadata', $custom_metadata, $post->ID );
 
+        $meta_tags = array();
+        foreach ( wp_get_post_get_meta_tag( $post->ID ) as $meta_tag_id ) {
+            $meta_tag = get_meta_tag( $meta_tag_id );
+            $meta_tags[] = array(
+                'externalId' => (string) $meta_tag->term_id,
+                'site_guid' => $meta_tag->site_guid,
+                'schema_type' => (string) $meta_tag->schema_type,
+                'schema_content' => (string) $meta_tag->schema_content,
+            );
+        }
+        $meta_tags = \apply_filters( 'organic_post_meta_tags', $meta_tags, $post->ID );
+
         try {
             $result = $this->sdk->contentCreateOrUpdate(
                 $external_id,
@@ -726,6 +738,7 @@ class Organic {
                 $seo_schema_tags,
                 $seo_data,
                 $custom_metadata,
+                $meta_tags,
                 $campaign_asset_guid,
             );
         } catch ( \Exception $e ) {

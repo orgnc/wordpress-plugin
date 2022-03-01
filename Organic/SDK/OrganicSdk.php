@@ -166,6 +166,7 @@ class OrganicSdk {
      * @param array $seo_schema_tags
      * @param array $seo_data
      * @param array $custom_metadata
+     * @param array $meta_tags
      * @param string $campaign_asset_guid
      * @return array|object
      */
@@ -188,6 +189,7 @@ class OrganicSdk {
         array $seo_schema_tags = array(),
         array $seo_data = array(),
         array $custom_metadata = array(),
+        array $meta_tags = array(),
         string $campaign_asset_guid = null
     ) {
          // Validate the structure of the referenced metadata
@@ -198,6 +200,7 @@ class OrganicSdk {
         $seo_schema_tags = $this->metaArrayToObjects( $seo_schema_tags, 'seo_schema_tags' );
         $seo_data = $this->metaArrayToObjects( $seo_data, 'seo_data' );
         $custom_metadata = $this->metaArrayToObjects( $custom_metadata, 'custom_metadata' );
+        $meta_tags = $this->metaArrayToObjects( $meta_tags, 'meta_tags' );
 
         $mutation = ( new Mutation( 'contentCreateOrUpdate' ) );
         $mutation->setVariables( array( new Variable( 'input', 'CreateOrUpdateContentInput', true ) ) );
@@ -225,6 +228,7 @@ class OrganicSdk {
                 '$seo_schema_tags' => $seo_schema_tags,
                 '$seo_data' => $seo_data,
                 '$custom_metadata' => $custom_metadata,
+                '$meta_tags' => $meta_tags,
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
