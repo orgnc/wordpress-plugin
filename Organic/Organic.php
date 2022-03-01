@@ -654,6 +654,21 @@ class Organic {
             );
         }
 
+        $third_party_integrations = array();
+        foreach ( wp_get_post_get_third_party_integrations( $post->ID ) as $third_party_integration_id ) {
+            $third_party_integration = get_third_party_integration( $third_party_integration_id );
+            $third_party_integrations[] = array(
+                'externalId' => (string) $third_party_integration->term_id,
+                'site_guid' => $third_party_integration->site_guid,
+                'has_google_analytics' => $third_party_integration->has_google_analytics,
+                'has_google_tag_manager' => $third_party_integration->has_google_tag_manager,
+                'has_facebook_targeting_pixel' => $third_party_integration->has_facebook_targeting_pixel,
+                'has_google_ads_targeting_pixel' => $third_party_integration->has_google_ads_targeting_pixel,
+                'has_openweb' => $third_party_integration->has_openweb,
+            );
+        }
+        $third_party_integrations = \apply_filters( 'organic_post_third_party_integrations', $third_party_integrations, $post->ID );
+
         try {
             $result = $this->sdk->contentCreateOrUpdate(
                 $external_id,
