@@ -669,6 +669,15 @@ class Organic {
         }
         $third_party_integrations = \apply_filters( 'organic_post_third_party_integrations', $third_party_integrations, $post->ID );
 
+        $seo_schema_tags = array();
+        foreach ( wp_get_post_get_seo_schema_tags( $post->ID ) as $seo_schema_tag_id ) {
+            $seo_schema_tag = get_seo_schema_tag( $seo_schema_tag_id );
+            $seo_schema_tags[] = array(
+                'externalId' => (string) $seo_schema_tag->term_id,
+            );
+        }
+        $seo_schema_tags = \apply_filters( 'organic_post_seo_schema_tags', $seo_schema_tags, $post->ID );
+
         try {
             $result = $this->sdk->contentCreateOrUpdate(
                 $external_id,
