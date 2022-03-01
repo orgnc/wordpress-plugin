@@ -167,6 +167,9 @@ class OrganicSdk {
      * @param array $seo_data
      * @param array $custom_metadata
      * @param array $meta_tags
+     * @param array $rich_content_images
+     * @param array $rich_content_videos
+     * @param array $rich_content_embeds
      * @param string $campaign_asset_guid
      * @return array|object
      */
@@ -190,6 +193,9 @@ class OrganicSdk {
         array $seo_data = array(),
         array $custom_metadata = array(),
         array $meta_tags = array(),
+        array $rich_content_images = array(),
+        array $rich_content_videos = array(),
+        array $rich_content_embeds = array(),
         string $campaign_asset_guid = null
     ) {
          // Validate the structure of the referenced metadata
@@ -201,6 +207,9 @@ class OrganicSdk {
         $seo_data = $this->metaArrayToObjects( $seo_data, 'seo_data' );
         $custom_metadata = $this->metaArrayToObjects( $custom_metadata, 'custom_metadata' );
         $meta_tags = $this->metaArrayToObjects( $meta_tags, 'meta_tags' );
+        $rich_content_images = $this->metaArrayToObjects( $rich_content_images, 'rich_content_images' );
+        $rich_content_videos = $this->metaArrayToObjects( $rich_content_videos, 'rich_content_videos' );
+        $rich_content_embeds = $this->metaArrayToObjects( $rich_content_embeds, 'rich_content_embeds' );
 
         $mutation = ( new Mutation( 'contentCreateOrUpdate' ) );
         $mutation->setVariables( array( new Variable( 'input', 'CreateOrUpdateContentInput', true ) ) );
@@ -224,11 +233,14 @@ class OrganicSdk {
                 'featured_image_url' => $featured_image_url,
                 'template_name' => $template_name,
                 'sponsorship' => $sponsorship,
-                '$third_party_integrations' => $third_party_integrations,
-                '$seo_schema_tags' => $seo_schema_tags,
-                '$seo_data' => $seo_data,
-                '$custom_metadata' => $custom_metadata,
-                '$meta_tags' => $meta_tags,
+                'third_party_integrations' => $third_party_integrations,
+                'seo_schema_tags' => $seo_schema_tags,
+                'seo_data' => $seo_data,
+                'custom_metadata' => $custom_metadata,
+                'meta_tags' => $meta_tags,
+                'rich_content_images' => $rich_content_images,
+                'rich_content_videos' => $rich_content_videos,
+                'rich_content_embeds' => $rich_content_embeds,
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );

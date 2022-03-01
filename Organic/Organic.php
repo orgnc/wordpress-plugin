@@ -718,6 +718,39 @@ class Organic {
         }
         $meta_tags = \apply_filters( 'organic_post_meta_tags', $meta_tags, $post->ID );
 
+        $rich_content_images = array();
+        foreach ( wp_get_post_get_rich_content_image( $post->ID ) as $rich_content_image_id ) {
+            $rich_content_image = get_rich_content_image( $rich_content_image_id );
+            $rich_content_images[] = array(
+                'externalId' => (string) $rich_content_image->term_id,
+                'site_guid' => $rich_content_image->site_guid,
+                'image_url' => (string) $rich_content_image->image_url,
+            );
+        }
+        $rich_content_images = \apply_filters( 'organic_post_rich_content_images', $rich_content_images, $post->ID );
+
+        $rich_content_videos = array();
+        foreach ( wp_get_post_get_rich_content_video( $post->ID ) as $rich_content_video_id ) {
+            $rich_content_video = get_rich_content_video( $rich_content_video_id );
+            $rich_content_videos[] = array(
+                'externalId' => (string) $rich_content_video->term_id,
+                'site_guid' => $rich_content_video->site_guid,
+                'image_url' => (string) $rich_content_video->video_url,
+            );
+        }
+        $rich_content_videos = \apply_filters( 'organic_post_rich_content_videos', $rich_content_videos, $post->ID );
+
+        $rich_content_embeds = array();
+        foreach ( wp_get_post_get_rich_content_embed( $post->ID ) as $rich_content_embed_id ) {
+            $rich_content_embed = get_rich_content_embed( $rich_content_embed_id );
+            $rich_content_embeds[] = array(
+                'externalId' => (string) $rich_content_embed->term_id,
+                'site_guid' => $rich_content_embed->site_guid,
+                'image_url' => (string) $rich_content_embed->embed_url,
+            );
+        }
+        $rich_content_embeds = \apply_filters( 'organic_post_rich_content_embeds', $rich_content_embeds, $post->ID );
+
         try {
             $result = $this->sdk->contentCreateOrUpdate(
                 $external_id,
@@ -739,6 +772,9 @@ class Organic {
                 $seo_data,
                 $custom_metadata,
                 $meta_tags,
+                $rich_content_images,
+                $rich_content_videos,
+                $rich_content_embeds,
                 $campaign_asset_guid,
             );
         } catch ( \Exception $e ) {
