@@ -13,3 +13,7 @@ function organic_is_amp() {
      // naive implementation due to we're in mu-plugin
     return isset( $_GET['amp'] );
 }
+
+function organic_is_fbia() {
+    return isset( $_GET['ia_markup'] ) && $_GET['ia_markup'];
+}

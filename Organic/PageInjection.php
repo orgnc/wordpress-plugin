@@ -29,17 +29,25 @@ class PageInjection {
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
         $is_amp = organic_is_amp();
+        $is_fbia = organic_is_fbia();
 
         if ( $is_amp ) {
             if ( $this->organic->useAmpAds() ) {
                 $this->setupAmpAdsInjector();
             }
-        } else {
-            add_action( 'wp_head', array( $this, 'injectPixel' ) );
-            add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
-            if ( $this->organic->useAdsSlotsPrefill() ) {
-                $this->setupAdsSlotsPrefill();
-            }
+            return;
+        }
+
+        if ( $is_fbia ) {
+            add_action( 'wp', [ $this, 'injectFbiaAds' ], 1 );
+            return;
+        }
+
+        add_action( 'wp_head', array( $this, 'injectPixel' ) );
+        add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
+
+        if ( $this->organic->useAdsSlotsPrefill() ) {
+            $this->setupAdsSlotsPrefill();
         }
     }
 
@@ -72,6 +80,18 @@ class PageInjection {
             10,
             2
         );
+    }
+
+    public function injectFbiaAds() {
+        $fbiaConfig = $this->organic->getFbiaConfig();
+        if ( ! $fbiaConfig->enabled ) {
+            return;
+        }
+        $targeting = $this->organic->getTargeting();
+        $adapter = new \Instant_Articles_Post( get_post() );
+        $article = $adapter->to_instant_article();
+        echo $article->render( null, true );
+        die();
     }
 
     public function setupAdsSlotsPrefill() {
