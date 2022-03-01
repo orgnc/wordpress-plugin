@@ -674,6 +674,9 @@ class Organic {
             $seo_schema_tag = get_seo_schema_tag( $seo_schema_tag_id );
             $seo_schema_tags[] = array(
                 'externalId' => (string) $seo_schema_tag->term_id,
+                'site_guid' => $third_party_integration->site_guid,
+                'schema_type' => (string) $seo_schema_tag->schema_type,
+                'schema_content' => (string) $seo_schema_tag->schema_content,
             );
         }
         $seo_schema_tags = \apply_filters( 'organic_post_seo_schema_tags', $seo_schema_tags, $post->ID );
