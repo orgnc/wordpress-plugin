@@ -83,14 +83,14 @@ class PageInjection {
     }
 
     public function injectFbiaAds() {
-        $fbiaConfig = $this->organic->getFbiaConfig();
-        if ( ! $fbiaConfig->enabled ) {
+        $injector = new FbiaAdsInjector( $this->organic );
+        $html = $injector->handle();
+
+        if ( ! $html ) {
             return;
         }
-        $targeting = $this->organic->getTargeting();
-        $adapter = new \Instant_Articles_Post( get_post() );
-        $article = $adapter->to_instant_article();
-        echo $article->render( null, true );
+
+        echo $html;
         die();
     }
 

@@ -8,10 +8,32 @@ use DOMXPath;
 class AdsInjector {
     private $fragmentBuilder;
 
-    public function __construct( $dom, $fragmentBuilder ) {
+    public static function loadElement( $html, $type = 'html5' ) {
+        $document = \FluentDOM::load(
+            $html,
+            $type,
+            [
+                \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true,
+            ],
+        );
+        return $document->getElementsByTagName( 'html' )->item( 0 );
+    }
+
+    public static function copyFragment( \FluentDOM\DOM\Document $dom, \FluentDOM\DOM\Element $source ) {
+        $target = $dom->createDocumentFragment();
+        foreach ( $source->childNodes as $child ) {
+            $node = $dom->importNode( $child, true );
+            $target->appendChild( $node );
+        }
+        return $target;
+    }
+
+    public function __construct( $dom, $fragmentBuilder = null ) {
         $this->dom = $dom;
         // AMP and FluentDOM are using different methods to build fragments
-        $this->fragmentBuilder = $fragmentBuilder;
+        $this->fragmentBuilder = $fragmentBuilder ?? function ( $html ) {
+            return self::loadElement( $html );
+        };
     }
 
     public function injectAds( $adHtml, $relative, $selectors, $limit ) {
@@ -56,15 +78,8 @@ class AdsInjector {
     public function nodeFromHtml( $html ) {
         // ($this->clbk)() - that's how you call closure stored as attr on object
         // https://wiki.php.net/rfc/uniform_variable_syntax#incomplete_dereferencing_support
-        $fragment = ( $this->fragmentBuilder )( $html );
-
-        $importFragment = $this->dom->createDocumentFragment();
-        while ( $fragment->firstChild ) {
-            $importNode = $fragment->removeChild( $fragment->firstChild );
-            $importNode = $this->dom->importNode( $importNode, true );
-            $importFragment->appendChild( $importNode );
-        }
-        return $importFragment;
+        $node = ( $this->fragmentBuilder )( $html );
+        return self::copyFragment( $this->dom, $node );
     }
 
     public function getBlockRule( $adRules, $targeting ) {
@@ -120,4 +135,3 @@ class AdsInjector {
         return null;
     }
 }
-

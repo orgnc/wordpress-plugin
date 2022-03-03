@@ -7,6 +7,10 @@ class FbiaConfig extends BaseConfig {
     const MODE_AUTOMATIC = 1;
     const MODE_MANUAL = 2;
 
+    const AD_DENSITY_DEFAULT = 'default';
+    const AD_DENSITY_MEDIUM = 'medium';
+    const AD_DENSITY_LOW = 'low';
+
     const FB_AD_SOURCE_NONE = 'none';
 
     /**
@@ -16,8 +20,10 @@ class FbiaConfig extends BaseConfig {
      *  string css
      */
     public array $forPlacement;
+
     public int $mode;
     public bool $enabled;
+    public string $adDensity = self::AD_DENSITY_DEFAULT;
 
     public function __construct( array $raw ) {
         parent::__construct( $raw );
@@ -45,5 +51,9 @@ class FbiaConfig extends BaseConfig {
             return $mode;
         }
         return self::MODE_DISABLED;
+    }
+
+    public function isAutomatic() {
+        return $this->mode === self::MODE_AUTOMATIC;
     }
 }
