@@ -36,7 +36,7 @@ class PrefillAdsInjector {
             }
         );
 
-        $rule = $adsInjector->getBlockRule( $this->adsConfig->adRules, $this->targeting );
+        $rule = $adsInjector::getBlockRule( $this->adsConfig->adRules, $this->targeting );
         $blockedKeys = ( $rule ? $rule['placementKeys'] : [] ) ?? [];
 
         // all placements are blocked by rule

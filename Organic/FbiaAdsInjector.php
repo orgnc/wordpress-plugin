@@ -6,9 +6,12 @@ use FluentDOM\DOM\Document;
 use FluentDOM\DOM\Element;
 
 class FbiaAdsInjector {
+    const ALL_KEYS = 'ALL_KEYS';
+
     private FbiaConfig $config;
     private Organic $organic;
     private $_targeting;
+    private $_blockedKeys;
 
     private function getTargeting() {
         if ( ! $this->_targeting ) {
@@ -83,13 +86,16 @@ class FbiaAdsInjector {
 
 
     private function injectAutomaticPlacements( Document $dom ) {
-        $html = $this->setTargeting(
-            $this->config->raw['placements'][0]['html']
-        );
+        $placement = $this->config->raw['placements'][0];
+        if ( $this->isKeyBlocked( $placement['key'] ) ) {
+            return null;
+        }
 
+        $html = $this->injectTargeting( $placement['html'] );
         if ( ! $html ) {
             return null;
         }
+
         $node = AdsInjector::copyFragment(
             $dom,
             AdsInjector::loadElement( $html ),
@@ -102,7 +108,7 @@ class FbiaAdsInjector {
     private function injectManualPlacements( Document $dom ) {
     }
 
-    private function setTargeting( string $html ) {
+    private function injectTargeting( string $html ) {
         if ( ! $html ) {
             return $html;
         }
@@ -121,6 +127,31 @@ class FbiaAdsInjector {
             "targeting = {$json};",
             $html
         );
+    }
+
+    private function getBlockedKeys() {
+        if ( ! $this->_blockedKeys ) {
+            $adsConfig = $this->organic->getAdsConfig();
+            $targeting = $this->getTargeting();
+            $rule = AdsInjector::getBlockRule( $adsConfig->adRules, $targeting );
+
+            if ( ! $rule ) {
+                return [];
+            }
+
+            $keys = $rule['placementKeys'] ?? [];
+            $this->_blockedKeys = $keys ?: [ self::ALL_KEYS ];
+
+        }
+        return $this->_blockedKeys;
+    }
+
+    private function isKeyBlocked( $key ) {
+        $keys = $this->getBlockedKeys();
+        if ( in_array( $key, $keys ) || in_array( self::ALL_KEYS, $keys ) ) {
+            return true;
+        }
+        return false;
     }
 
 }

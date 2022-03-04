@@ -82,7 +82,7 @@ class AdsInjector {
         return self::copyFragment( $this->dom, $node );
     }
 
-    public function getBlockRule( $adRules, $targeting ) {
+    public static function getBlockRule( $adRules, $targeting ) {
         foreach ( $adRules as $rule ) {
             if ( ! $rule['enabled'] ) {
                 continue;
