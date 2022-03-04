@@ -106,6 +106,34 @@ class FbiaAdsInjector {
     }
 
     private function injectManualPlacements( Document $dom ) {
+        $injector = new AdsInjector( $dom );
+        $adsConfig = $this->organic->getAdsConfig();
+        $count = 0;
+
+        foreach ( $this->config->forPlacement as $key => $fbia ) {
+            if ( $this->isKeyBlocked( $key ) ) {
+                continue;
+            }
+
+            $html = $this->injectTargeting( $fbia['html'] );
+            if ( ! $html ) {
+                continue;
+            }
+
+            $placement = $adsConfig->forPlacement[ $key ];
+            try {
+                $count += $injector->injectAds(
+                    $html,
+                    $placement['relative'],
+                    $placement['selectors'],
+                    $placement['limit'],
+                );
+            } catch ( \Exception $e ) {
+                \Organic\Organic::captureException( $e );
+            }
+        }
+
+        return $count ? $dom : null;
     }
 
     private function injectTargeting( string $html ) {
