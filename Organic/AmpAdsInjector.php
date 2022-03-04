@@ -24,7 +24,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             }
         );
 
-        $rule = $adsInjector->getBlockRule( $adsConfig->adRules, $targeting );
+        $rule = $adsInjector::getBlockRule( $adsConfig->adRules, $targeting );
         $blockedKeys = ( $rule ? $rule['placementKeys'] : [] ) ?? [];
 
         // all placements are blocked by rule
