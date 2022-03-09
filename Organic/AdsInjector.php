@@ -2,6 +2,8 @@
 
 namespace Organic;
 
+use DOMDocument;
+use DOMNode;
 use DOMXPath;
 
 
@@ -19,7 +21,7 @@ class AdsInjector {
         return $document->getElementsByTagName( 'html' )->item( 0 );
     }
 
-    public static function copyFragment( \FluentDOM\DOM\Document $dom, \FluentDOM\DOM\Element $source ) {
+    public static function copyFragment( DOMDocument $dom, DOMNode $source ) {
         $target = $dom->createDocumentFragment();
         foreach ( $source->childNodes as $child ) {
             $node = $dom->importNode( $child, true );
