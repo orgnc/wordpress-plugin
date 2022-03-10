@@ -53,18 +53,61 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
                 $this->update_results[] = 'updated';
-                echo '<h3>Updates Saved</h3>';
-
-                if ( $_POST['organic_update'] === 'Update and sync' ) {
-                    $result = $this->organic->syncAdConfig();
-                    if ( isset( $result['updated'] ) ) {
-                        $this->update_results[] = 'synced';
-                    }
-                }
             }
         }
 
+        $this->syncSettings();
         $this->showSettings();
+        $this->showNotices();
+    }
+
+    protected function syncSettings() {
+        if ( $_SERVER['REQUEST_METHOD'] != 'POST' ) {
+            return;
+        }
+        switch ( $_POST['organic_update'] ) {
+            case 'Update and sync':
+                $result = $this->organic->syncAdConfig();
+                if ( isset( $result['updated'] ) ) {
+                    $this->update_results[] = 'synced';
+                    AdminNotice::success( 'Updated and synced successfully.' );
+                } else {
+                    AdminNotice::warning( 'Updated but not synced.' );
+                }
+                break;
+
+            default:
+                AdminNotice::success( 'Updated successfully.' );
+        }
+    }
+
+    protected function showFbiaNotices() {
+        $fbia = $this->organic->getFbiaConfig();
+        if ( ! $fbia->enabled || $fbia->isEmpty() ) {
+            return;
+        }
+
+        if ( ! $fbia->isFacebookPluginInstalled() ) {
+            AdminNotice::warning( 'Facebook instant articles are enabled for this site, but facebook plugin is not installed.' );
+            return;
+        }
+
+        if ( ! $fbia->isFacebookPluginConfigured() ) {
+            AdminNotice::warning(
+                <<< EOM
+                Facebook instant articles are enabled for this site, but facebook plugin has
+                its own ads configuration.
+                <br/>
+                Turn it off by setting 'Ad type' to 'none' on the plugin settings page.
+                EOM
+            );
+        }
+
+    }
+
+    protected function showNotices() {
+        $this->showFbiaNotices();
+        AdminNotice::showNotices();
     }
 
     public function showSettings() {
@@ -160,7 +203,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_amp_ads_enabled"
                                 id="organic_amp_ads_enabled"
-                            <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
+                        <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
                         AMP Ads Enabled
                     </label>
@@ -171,7 +214,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_inject_ads_config"
                                 id="organic_inject_ads_config"
-                            <?php echo $inject_ads_config ? 'checked' : ''; ?>
+                        <?php echo $inject_ads_config ? 'checked' : ''; ?>
                         />
                         Automatically inject ad configuration into the page
                         to increase page performance by reducing frontend requests
@@ -183,7 +226,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_ad_slots_prefill_enabled"
                                 id="organic_ad_slots_prefill_enabled"
-                            <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
+                        <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
                         />
                         Prefill ad containers to prevent Content Layout Shift (CLS) issues
                     </label>
@@ -194,7 +237,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_campaigns_enabled"
                                 id="organic_campaigns_enabled"
-                            <?php echo $campaigns_enabled ? 'checked' : ''; ?>
+                        <?php echo $campaigns_enabled ? 'checked' : ''; ?>
                         />
                         Campaigns Application is enabled on the Platform
                     </label>
@@ -203,7 +246,7 @@ class AdminSettings {
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
                     <input id="update-and-sync-submit" type="submit" name="organic_update" value="Update and sync" />
-                    <?php echo $update_status; ?>
+                <?php echo $update_status; ?>
                 </p>
             </form>
             <h2>Ads.txt</h2>
@@ -230,32 +273,32 @@ class AdminSettings {
                 the Organic Platform and eligible for Ads to be injected?</p>
             <form method="post">
                 <ul>
-                    <?php
-                    $post_types = get_post_types(
-                        array(
-                            'public'   => true,
-                            '_builtin' => false,
-                        )
-                    );
+                <?php
+                $post_types = get_post_types(
+                    array(
+                        'public'   => true,
+                        '_builtin' => false,
+                    )
+                );
                     $post_types[] = 'post';
                     $post_types[] = 'page';
-                    foreach ( $post_types as $post_type ) {
-                        $checked = '';
-                        if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
-                            $checked = 'checked="checked"';
-                        }
-
-                        echo '<li><label>';
-                        echo "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> ";
-                        echo $post_type;
-                        echo "</label></li>\n";
+                foreach ( $post_types as $post_type ) {
+                    $checked = '';
+                    if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
+                        $checked = 'checked="checked"';
                     }
-                    ?>
+
+                    echo '<li><label>';
+                    echo "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> ";
+                    echo $post_type;
+                    echo "</label></li>\n";
+                }
+                ?>
                 </ul>
                 <p><input type="submit" value="Save" />
             </form>
         </div>
-        <?php
+            <?php
     }
 
     public function pluginSettingsLink( $links ) {
