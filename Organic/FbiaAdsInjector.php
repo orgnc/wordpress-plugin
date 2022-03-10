@@ -33,7 +33,7 @@ class FbiaAdsInjector {
     }
 
     public function handle() {
-        if ( ! $this->config->enabled ) {
+        if ( ! $this->config->isApplicable() ) {
             return null;
         }
 
@@ -52,7 +52,7 @@ class FbiaAdsInjector {
         }
 
         if ( ! $dom ) {
-            return;
+            return null;
         }
 
         return $dom->saveHTML();

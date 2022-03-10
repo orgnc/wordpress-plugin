@@ -27,26 +27,15 @@ class FbiaConfig extends BaseConfig {
 
     public function __construct( array $raw ) {
         parent::__construct( $raw );
-        $this->mode = self::validMode( $raw['mode'] );
+        $this->mode = self::getValidMode( $raw['mode'] );
         $this->enabled = $raw['enabled'] ?? false;
-        if ( ! $this->enabled ) {
-            return;
-        }
-
-        if ( ! class_exists( 'Instant_Articles_Post' ) || empty( $this->forPlacement ) ) {
-            $this->enabled = false;
-            return;
-        }
-
-        $settings_ads = \Instant_Articles_Option_Ads::get_option_decoded() ?? [];
-        $ad_source = isset( $settings_ads['ad_source'] ) ? $settings_ads['ad_source'] : self::FB_AD_SOURCE_NONE;
-
-        if ( $ad_source !== self::FB_AD_SOURCE_NONE ) {
-            $this->enabled = false;
-        }
     }
 
-    public static function validMode( int $mode ) {
+    public static function getValidMode( $mode ) {
+        if ( ! $mode ) {
+            return self::MODE_DISABLED;
+        }
+
         if ( $mode >= self::MODE_DISABLED && $mode <= self::MODE_MANUAL ) {
             return $mode;
         }
@@ -55,5 +44,37 @@ class FbiaConfig extends BaseConfig {
 
     public function isAutomatic() {
         return $this->mode === self::MODE_AUTOMATIC;
+    }
+
+    public function isFacebookPluginInstalled() {
+        return class_exists( 'Instant_Articles_Post' );
+    }
+
+    public function isFacebookPluginConfigured() {
+        if ( ! $this->isFacebookPluginInstalled() ) {
+            return false;
+        }
+        $settings_ads = \Instant_Articles_Option_Ads::get_option_decoded() ?? [];
+        $ad_source = isset( $settings_ads['ad_source'] ) ? $settings_ads['ad_source'] : self::FB_AD_SOURCE_NONE;
+
+        return $ad_source === self::FB_AD_SOURCE_NONE;
+    }
+
+    public function isEmpty() {
+        return empty( $this->forPlacement );
+    }
+
+    public function isApplicable() {
+        if (
+            $this->enabled
+            || $this->mode !== self::MODE_DISABLED
+            || ! $this->isEmpty()
+            || $this->isFacebookPluginInstalled()
+            || $this->isFacebookPluginConfigured()
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }
