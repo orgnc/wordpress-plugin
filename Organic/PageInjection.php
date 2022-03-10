@@ -31,6 +31,10 @@ class PageInjection {
         $is_amp = organic_is_amp();
         $is_fbia = organic_is_fbia();
 
+        if ( ! $this->organic->isEnabled() ) {
+            return;
+        }
+
         if ( $is_amp ) {
             if ( $this->organic->useAmpAds() ) {
                 $this->setupAmpAdsInjector();
