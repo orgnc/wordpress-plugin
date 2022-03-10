@@ -108,9 +108,17 @@ class GraphQL {
                     'type' => 'String',
                     'description' => $this->organic->t( 'JSON of the placement rules', 'organic' ),
                 ],
+                'siteDomain' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( 'Site domain for this site within Organic', 'organic' ),
+                ],
                 'siteId' => [
                     'type' => 'String',
                     'description' => $this->organic->t( 'Site ID for this site within Organic', 'organic' ),
+                ],
+                'adsRawData' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( 'JSON of the raw Ads rules', 'organic' ),
                 ],
             ],
         ];
@@ -146,7 +154,10 @@ class GraphQL {
                         'preloadContainersEnabled' => $this->organic->useAdsSlotsPrefill(),
                         'preloadContainersConfig' => $this->organic->getAdsConfig()->forPlacement ?
                             json_encode( $this->organic->getAdsConfig()->forPlacement ) : '[]',
+                        'siteDomain' => $this->organic->siteDomain,
                         'siteId' => $this->organic->getSiteId(),
+                        'adsRawData' => $this->organic->getAdsConfig()->raw ?
+                            json_encode( $this->organic->getAdsConfig()->raw ) : '[]',
                     ];
                 },
             ]
