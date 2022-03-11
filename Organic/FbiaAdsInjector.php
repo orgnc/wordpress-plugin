@@ -26,18 +26,7 @@ class FbiaAdsInjector {
         $this->config = $organic->getFbiaConfig();
     }
 
-    private function getArticleHtml() {
-        $adapter = new \Instant_Articles_Post( \get_post() );
-        $article = $adapter->to_instant_article();
-        return $article->render( null, true );
-    }
-
-    public function handle() {
-        if ( ! $this->config->isApplicable() ) {
-            return null;
-        }
-
-        $html = $this->getArticleHtml();
+    public function inject( string $html ) {
         $dom = \FluentDOM::load(
             $html,
             'html5',
