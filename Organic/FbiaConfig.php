@@ -13,22 +13,21 @@ class FbiaConfig extends BaseConfig {
 
     const FB_AD_SOURCE_NONE = 'none';
 
-    /**
-     * Map (key -> prefill) of prefills for placements returned from Organic Platform API
-     * Each prefill must contain at least:
-     *  string html
-     *  string css
-     */
-    public array $forPlacement;
+    const DEFAULTS = [
+        'mode' => self::MODE_DISABLED,
+        'enabled' => false,
+        'placements' => [],
+    ];
 
     public int $mode;
     public bool $enabled;
     public string $adDensity = self::AD_DENSITY_DEFAULT;
 
     public function __construct( array $raw ) {
-        parent::__construct( $raw );
-        $this->mode = self::getValidMode( $raw['mode'] );
-        $this->enabled = $raw['enabled'] ?? false;
+        $config = array_merge( self::DEFAULTS, $raw );
+        parent::__construct( $config );
+        $this->mode = self::getValidMode( $config['mode'] );
+        $this->enabled = $config['enabled'];
     }
 
     public static function getValidMode( $mode ) {
