@@ -25,18 +25,27 @@ class AdsConfig extends BaseConfig {
      */
     public array $forPlacement;
 
+    private string $fallbackUrl;
+    private string $prebidUrl;
+
     public function __construct( array $raw ) {
         parent::__construct( $raw );
+
+        $this->fallbackUrl = Organic::getInstance()->sdk->getFallbackPrebidBuildUrl();
+
         if ( empty( $raw ) ) {
             $this->adRules = [];
+            $this->prebidUrl = $this->fallbackUrl;
             return;
         }
 
         $this->adRules = $raw['adRules'];
+
+        $prebid = $this->raw['prebid'] ?? [];
+        $this->prebidUrl = $prebid['useBuild'] ?? $this->fallbackUrl;
     }
 
     public function getPrebidBuildUrl() : string {
-        $prebid = $this->raw['prebid'] ?? [];
-        return $prebid['useBuild'] ?? 'https://empirecdn.io/assets/prebid5.13.0.js';
+        return $this->prebidUrl;
     }
 }

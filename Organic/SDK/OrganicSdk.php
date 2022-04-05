@@ -20,6 +20,10 @@ use RuntimeException;
  */
 class OrganicSdk {
 
+    public const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
+    public const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
+    public const FALLBACK_PREBID_BUILD = 'prebid5.13.0.js';
+
 
     /**
      * @var string
@@ -56,12 +60,12 @@ class OrganicSdk {
         ?string $cdnUrl = null
     ) {
         if ( ! $apiUrl ) {
-            $apiUrl = 'https://api.empireio.com/graphql';
+            $apiUrl = self::DEFAULT_API_URL;
         }
         $this->apiUrl = $apiUrl;
 
         if ( ! $cdnUrl ) {
-            $cdnUrl = 'https://empirecdn.io/assets/';
+            $cdnUrl = self::DEFAULT_ASSETS_URL;
         }
         $this->cdnUrl = $cdnUrl;
 
@@ -106,6 +110,15 @@ class OrganicSdk {
      */
     public function getSdkUrl() {
           return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
+    }
+
+    /**
+     * Builds fallback prebid.js URL
+     *
+     * @return string
+     */
+    public function getFallbackPrebidBuildUrl() {
+        return $this->cdnUrl . self::FALLBACK_PREBID_BUILD;
     }
 
     /**
