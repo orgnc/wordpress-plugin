@@ -327,6 +327,7 @@ class OrganicSdk {
                                         'description',
                                         'adUnitId',
                                         'relative',
+                                        'relativeSettings',
                                         'selectors',
                                         'prefillContainerCssClass',
                                         'limit',
