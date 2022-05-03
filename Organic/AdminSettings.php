@@ -337,9 +337,5 @@ class AdminSettings {
         }
 
         update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
-        // Only run the sync if we are actually configured
-        if ( $this->organic->getSiteId() && $this->organic->getSdkKey() ) {
-            $this->organic->syncPost( $post );
-        }
     }
 }
