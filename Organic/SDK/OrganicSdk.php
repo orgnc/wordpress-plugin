@@ -164,12 +164,25 @@ class OrganicSdk {
      * @param string $externalId Unique ID for this content on this site
      * @param string $canonicalUrl
      * @param string $title
+     * @param string $subtitle
+     * @param string $featured_image_url
+     * @param string $template_name
+     * @param string $sponsorship
+     * @param string $is_published
      * @param DateTime $publishedDate
      * @param DateTime $modifiedDate
      * @param string $content
      * @param array $authors
      * @param array $categories
      * @param array $tags
+     * @param array $third_party_integrations
+     * @param array $seo_schema_tags
+     * @param array $seo_data
+     * @param array $custom_metadata
+     * @param array $meta_tags
+     * @param array $rich_content_images
+     * @param array $rich_content_videos
+     * @param array $rich_content_embeds
      * @param string $campaign_asset_guid
      * @return array|object
      */
@@ -177,18 +190,39 @@ class OrganicSdk {
         string $externalId,
         string $canonicalUrl,
         string $title,
+        string $subtitle,
+        string $featured_image_url,
+        string $template_name,
+        string $sponsorship,
+        string $is_published,
         DateTime $publishedDate,
         DateTime $modifiedDate,
         string $content,
         array $authors = array(),
         array $categories = array(),
         array $tags = array(),
+        array $third_party_integrations = array(),
+        array $seo_schema_tags = array(),
+        array $seo_data = array(),
+        array $custom_metadata = array(),
+        array $meta_tags = array(),
+        array $rich_content_images = array(),
+        array $rich_content_videos = array(),
+        array $rich_content_embeds = array(),
         string $campaign_asset_guid = null
     ) {
          // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
         $categories = $this->metaArrayToObjects( $categories, 'categories' );
         $tags = $this->metaArrayToObjects( $tags, 'tags' );
+        $third_party_integrations = $this->metaArrayToObjects( $third_party_integrations, 'third_party_integrations' );
+        $seo_schema_tags = $this->metaArrayToObjects( $seo_schema_tags, 'seo_schema_tags' );
+        $seo_data = $this->metaArrayToObjects( $seo_data, 'seo_data' );
+        $custom_metadata = $this->metaArrayToObjects( $custom_metadata, 'custom_metadata' );
+        $meta_tags = $this->metaArrayToObjects( $meta_tags, 'meta_tags' );
+        $rich_content_images = $this->metaArrayToObjects( $rich_content_images, 'rich_content_images' );
+        $rich_content_videos = $this->metaArrayToObjects( $rich_content_videos, 'rich_content_videos' );
+        $rich_content_embeds = $this->metaArrayToObjects( $rich_content_embeds, 'rich_content_embeds' );
 
         $mutation = ( new Mutation( 'contentCreateOrUpdate' ) );
         $mutation->setVariables( array( new Variable( 'input', 'CreateOrUpdateContentInput', true ) ) );
@@ -202,11 +236,24 @@ class OrganicSdk {
                 'categories' => $categories,
                 'content' => $content,
                 'externalId' => $externalId,
+                'is_published' => $is_published,
                 'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
                 'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
+                'subtitle' => $subtitle,
+                'featured_image_url' => $featured_image_url,
+                'template_name' => $template_name,
+                'sponsorship' => $sponsorship,
+                'third_party_integrations' => $third_party_integrations,
+                'seo_schema_tags' => $seo_schema_tags,
+                'seo_data' => $seo_data,
+                'custom_metadata' => $custom_metadata,
+                'meta_tags' => $meta_tags,
+                'rich_content_images' => $rich_content_images,
+                'rich_content_videos' => $rich_content_videos,
+                'rich_content_embeds' => $rich_content_embeds,
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
