@@ -2,6 +2,7 @@
 
 
 namespace Organic;
+
 /**
  * Handles adding data into the various pages on the website based on the selected
  * configuration.
@@ -315,11 +316,11 @@ class PageInjection {
                     <?php } ?>
                         }
 
-                <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
+                    <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
                         loadAds();
-                <?php } else { ?>
+                    <?php } else { ?>
                         setTimeout(loadAds, loadDelay);
-                <?php } ?>
+                    <?php } ?>
                     })();
                 }
             </script>
