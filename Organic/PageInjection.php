@@ -2,7 +2,6 @@
 
 
 namespace Organic;
-
 /**
  * Handles adding data into the various pages on the website based on the selected
  * configuration.
@@ -255,63 +254,74 @@ class PageInjection {
                 });
                 <?php } ?></script>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
-            <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
             <script>
-                var googletag = googletag || {};
-                var pbjs = pbjs || {};
+                /* The below condition is a very specific case setup for Ads AB testing on realmenrealstyle.com */
+                if (
+                    window.organicTestKey.indexOf('organic_adthrive') > -1 &&
+                    BVTests.getValue(window.organicTestKey) === 'control'
+                ) {
+                    if ( window.loadAdThrive && typeof window.loadAdThrive === 'function' )
+                        window.loadAdThrive(window, document);
+                } else {
+                    /* Loading GPT script */
+                    utils.loadScript(document, 'gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js', null, {async:true});
 
-                /* TrackADM Config - to be phased out */
-                window.__trackadm_usp_cookie = 'ne-opt-out';
-                window.tadmPageId = '<?php echo $gamPageId; ?>';
-                window.tadmKeywords = '<?php echo $keywordString; ?>';
-                window.tadmSection = '<?php echo $categoryString; ?>';
-                window.trackADMData = {
-                    tests: BVTests.getTargetingValue()
-                };
+                    var googletag = googletag || {};
+                    var pbjs = pbjs || {};
 
-                /* Organic Config - to be phased in */
-                window.__organic_usp_cookie = 'ne-opt-out';
-                window.empire = window.empire || {};
-                window.empire.apps = window.empire.apps || {};
-                window.empire.apps.ads = window.empire.apps.ads || {};
-                window.empire.apps.ads.config = window.empire.apps.ads.config || {};
-            <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
+                    /* TrackADM Config - to be phased out */
+                    window.__trackadm_usp_cookie = 'ne-opt-out';
+                    window.tadmPageId = '<?php echo $gamPageId; ?>';
+                    window.tadmKeywords = '<?php echo $keywordString; ?>';
+                    window.tadmSection = '<?php echo $categoryString; ?>';
+                    window.trackADMData = {
+                        tests: BVTests.getTargetingValue()
+                    };
 
-                window.empire.apps.ads.config.siteDomain = "<?php echo $this->organic->siteDomain; ?>";
-                window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
-            <?php } ?>
+                    /* Organic Config - to be phased in */
+                    window.__organic_usp_cookie = 'ne-opt-out';
+                    window.empire = window.empire || {};
+                    window.empire.apps = window.empire.apps || {};
+                    window.empire.apps.ads = window.empire.apps.ads || {};
+                    window.empire.apps.ads.config = window.empire.apps.ads.config || {};
+                <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
 
-                window.empire.apps.ads.targeting = {
-                    pageId: '<?php echo $gamPageId; ?>',
-                    externalId: '<?php echo $gamExternalId; ?>',
-                    keywords: '<?php echo $keywordString; ?>',
-                    disableKeywordReporting: false,
-                    section: '<?php echo $categoryString; ?>',
-                    disableSectionReporting: false,
-                    tests: BVTests.getTargetingValue(),
-                }
-
-                googletag.cmd = googletag.cmd || [];
-                pbjs.que = pbjs.que || [];
-
-                var loadDelay = 2000;
-
-                (function() {
-                    function loadAds() {
-                        utils.loadScript(document, 'prebid-library', "<?php echo $this->organic->getAdsConfig()->getPrebidBuildUrl(); ?>");
-                <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
-                    utils.loadScript(document, 'organic-sdk', "<?php echo $this->organic->sdk->getSdkUrl(); ?>");
-                <?php } else { ?>
-                        utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->organic->getPixelPublishedUrl(); ?>");
+                    window.empire.apps.ads.config.siteDomain = "<?php echo $this->organic->siteDomain; ?>";
+                    window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
                 <?php } ?>
+
+                    window.empire.apps.ads.targeting = {
+                        pageId: '<?php echo $gamPageId; ?>',
+                        externalId: '<?php echo $gamExternalId; ?>',
+                        keywords: '<?php echo $keywordString; ?>',
+                        disableKeywordReporting: false,
+                        section: '<?php echo $categoryString; ?>',
+                        disableSectionReporting: false,
+                        tests: BVTests.getTargetingValue(),
                     }
 
-              <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
-                    loadAds();
-              <?php } else { ?>
-                    setTimeout(loadAds, loadDelay);
-              <?php } ?>
-                })();
+                    googletag.cmd = googletag.cmd || [];
+                    pbjs.que = pbjs.que || [];
+
+                    var loadDelay = 2000;
+
+                    (function() {
+                        function loadAds() {
+                            utils.loadScript(document, 'prebid-library', "<?php echo $this->organic->getAdsConfig()->getPrebidBuildUrl(); ?>");
+                    <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
+                        utils.loadScript(document, 'organic-sdk', "<?php echo $this->organic->sdk->getSdkUrl(); ?>");
+                    <?php } else { ?>
+                            utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->organic->getPixelPublishedUrl(); ?>");
+                    <?php } ?>
+                        }
+
+                <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
+                        loadAds();
+                <?php } else { ?>
+                        setTimeout(loadAds, loadDelay);
+                <?php } ?>
+                    })();
+                }
             </script>
             <?php
         }
