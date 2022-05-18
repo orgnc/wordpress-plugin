@@ -256,7 +256,7 @@ class PageInjection {
                 <?php } ?></script>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
             <script>
-                /* The below condition is a very specific case setup for Ads AB testing on realmenrealstyle.com */
+                /* The below condition is a very specific case setup for Ads AB testing */
                 if (
                     window.organicTestKey.indexOf('organic_adthrive') > -1 &&
                     BVTests.getValue(window.organicTestKey) === 'control'
