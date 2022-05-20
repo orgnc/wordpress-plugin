@@ -68,6 +68,7 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::content_foreground', isset( $_POST['organic_content_foreground'] ) ? true : false, false );
+                $this->organic->updateOption( 'organic::affiliate_enabled', isset( $_POST['organic_affiliate_enabled'] ) ? true : false, false );
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
                 $this->update_results[] = 'updated';
             }
@@ -143,6 +144,7 @@ class AdminSettings {
         $ad_slots_prefill_enabled = $this->organic->getOption( 'organic::ad_slots_prefill_enabled' );
         $campaigns_enabled = $this->organic->getOption( 'organic::campaigns_enabled' );
         $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
+        $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -278,6 +280,17 @@ class AdminSettings {
                     />
                     Force content updates to happen immediately on save. Only use if CRON is disabled on your site.
                 </label>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_affiliate_enabled"
+                                id="organic_affiliate_enabled"
+                        <?php echo $affiliate_enabled ? 'checked' : ''; ?>
+                        />
+                        Affiliate Application is enabled on the Platform
+                    </label>
+                </p>
                 <p>
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
