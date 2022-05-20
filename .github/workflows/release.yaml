@@ -39,18 +39,7 @@ jobs:
       - name: Set Version Number & Build Zip
         id: build-zip
         run: |
-          sed -i 's/VERSION/${{ env.BUILD_NUMBER }}/' organic.php
-          mkdir -p build/organic
-          ls -alh
-          sudo chown -R runner:docker .
-          cp -r Organic build/organic/
-          cp organic.php build/organic/
-          cp composer.json build/organic/
-          cp composer.lock build/organic/
-          cp -r vendor build/organic/
-          cd build
-          zip -r organic-${{ env.BUILD_NUMBER }}.zip organic
-          cp organic-${{ env.BUILD_NUMBER }}.zip organic.zip
+          ./build-zip.sh ${{ env.BUILD_NUMBER }}
 
       # Set up our S3 Connection
       - name: Set up S3cmd cli tool
