@@ -258,6 +258,7 @@ class PageInjection {
             <script>
                 /* The below condition is a very specific case setup for Ads AB testing */
                 if (
+                    window.organicTestKey &&
                     window.organicTestKey.indexOf('organic_adthrive') > -1 &&
                     BVTests.getValue(window.organicTestKey) === 'control'
                 ) {
