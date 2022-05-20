@@ -20,3 +20,6 @@ jobs:
 
       - name: Run PHPUnit
         run: composer run phpunit
+
+      - name: Run ESLint
+        run: composer run eslint
