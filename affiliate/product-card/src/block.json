@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "organic/affiliate-product-card",
+  "version": "0.1.0",
+  "title": "Affiliate Product Card",
+  "category": "organic-blocks",
+  "description": "Affiliate Product Card Tool",
+  "supports": {
+      "html": false
+  },
+  "textdomain": "affiliate-product-card",
+  "editorScript": "organic-affiliate-product-card",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}
