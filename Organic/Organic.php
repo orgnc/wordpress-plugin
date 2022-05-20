@@ -132,6 +132,11 @@ class Organic {
      */
     private $campaignsEnabled = false;
 
+    /**
+     * @var bool If Organic App is enabled in the Platform
+     */
+    private $affiliateEnabled = false;
+
     private static $instance = null;
 
     /**
@@ -256,6 +261,8 @@ class Organic {
 
         $this->campaignsEnabled = $this->getOption( 'organic::campaigns_enabled' );
 
+        $this->affiliateEnabled = $this->getOption( 'organic::affiliate_enabled' );
+
         /* Load up our sub-page configs */
         new AdminSettings( $this );
         new CCPAPage( $this );
@@ -269,6 +276,11 @@ class Organic {
         // Set up our GraphQL hooks to expose settings
         $graphql = new GraphQL( $this );
         $graphql->init();
+
+        // Set up affiliate app
+        if ( $this->affiliateEnabled ) {
+            new Affiliate( $this );
+        }
     }
 
     /**
@@ -356,6 +368,20 @@ class Organic {
     */
     public function isCampaignsAppEnabled() {
         return $this->isEnabled() && $this->campaignsEnabled;
+    }
+
+    /**
+     * Returns if Affiliate app is enabled
+     *
+     * @return bool
+    */
+    public function isAffiliateAppEnabled() {
+        // TODO rkashapov: eventually enable on production
+        // Temporary disable affiliate features on production
+        if ( getenv( 'WP_ENV' ) == 'production' ) {
+            return false;
+        }
+        return $this->isEnabled() && $this->affiliateEnabled;
     }
 
     /**

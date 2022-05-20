@@ -24,3 +24,17 @@ if ( ! $environment ) {
 
 $organic = new Organic( $environment );
 $organic->init( getenv( 'EMPIRE_API_URL', getenv( 'EMPIRE_CDN_URL' ) ) );
+
+function add_organic_block_category( $categories ) {
+    return array_merge(
+        $categories,
+        [
+            [
+                'slug' => 'organic-blocks',
+                'title' => 'Organic',
+            ],
+        ]
+    );
+}
+
+add_action( 'block_categories', 'add_organic_block_category' );
