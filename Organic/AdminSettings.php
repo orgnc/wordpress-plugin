@@ -58,6 +58,7 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::inject_ads_config', isset( $_POST['organic_inject_ads_config'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
+                $this->organic->updateOption( 'organic::affiliate_enabled', isset( $_POST['organic_affiliate_enabled'] ) ? true : false, false );
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
                 $this->update_results[] = 'updated';
             }
@@ -130,6 +131,7 @@ class AdminSettings {
         $inject_ads_config = $this->organic->getOption( 'organic::inject_ads_config' );
         $ad_slots_prefill_enabled = $this->organic->getOption( 'organic::ad_slots_prefill_enabled' );
         $campaigns_enabled = $this->organic->getOption( 'organic::campaigns_enabled' );
+        $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -245,6 +247,17 @@ class AdminSettings {
                         <?php echo $campaigns_enabled ? 'checked' : ''; ?>
                         />
                         Campaigns Application is enabled on the Platform
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_affiliate_enabled"
+                                id="organic_affiliate_enabled"
+                        <?php echo $affiliate_enabled ? 'checked' : ''; ?>
+                        />
+                        Affiliate Application is enabled on the Platform
                     </label>
                 </p>
                 <p>
