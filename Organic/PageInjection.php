@@ -166,13 +166,20 @@ class PageInjection {
             return $content;
         }
 
-        // Figure out if there is a paragraph to inject after
+        // Figure out if there is a paragraph to inject after. If it doesn't exist (some legacy Wordpress's) then
+        // use a SPAN instead.
         $injectionPoint = strpos( $content, '</p>' );
+        $injectionPointOffset = 4;
         if ( $injectionPoint === false ) {
-            return $content;
+            $injectionPoint = strpos( $content, '</span>' );
+            $injectionPointOffset = 7;
+            if ( $injectionPoint === false ) {
+                return $content;
+            }
         }
+
         // Adjust for the length of </p>
-        $injectionPoint += 4;
+        $injectionPoint += $injectionPointOffset;
 
         $this->connatixInjected = true;
 
