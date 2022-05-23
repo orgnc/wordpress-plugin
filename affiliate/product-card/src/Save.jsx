@@ -1,7 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
-import { AttributesType } from '../propTypes';
 import ProductCard from './ProductCard';
+import { AttributesType } from './propTypes';
 
 const Save = ({ attributes }) => {
   return (
@@ -11,6 +11,8 @@ const Save = ({ attributes }) => {
         && (
         <ProductCard
           backgroundColor={attributes.backgroundColor}
+          cardRadius={attributes.cardRadius}
+          cardShadow={attributes.cardShadow}
           displayDescription={attributes.displayDescription}
           displayImage={attributes.displayImage}
           linkColor={attributes.linkColor}
