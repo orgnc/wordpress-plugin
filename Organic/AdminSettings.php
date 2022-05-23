@@ -63,12 +63,15 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::one_trust_id', $_POST['organic_one_trust_id'] ?: '', false );
                 $this->organic->updateOption( 'organic::sdk_key', $_POST['organic_sdk_key'] ?: '', false );
                 $this->organic->updateOption( 'organic::site_id', $_POST['organic_site_id'] ?: '', false );
+                $this->organic->updateOption( 'organic::public_domain', $_POST['organic_public_domain'] ?: '', false );
+                $this->organic->updateOption( 'organic::organic_domain', $_POST['organic_organic_domain'] ?: '', false );
                 $this->organic->updateOption( 'organic::amp_ads_enabled', isset( $_POST['organic_amp_ads_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::inject_ads_config', isset( $_POST['organic_inject_ads_config'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::content_foreground', isset( $_POST['organic_content_foreground'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::affiliate_enabled', isset( $_POST['organic_affiliate_enabled'] ) ? true : false, false );
+
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
                 $this->update_results[] = 'updated';
             }
@@ -145,6 +148,8 @@ class AdminSettings {
         $campaigns_enabled = $this->organic->getOption( 'organic::campaigns_enabled' );
         $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
         $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
+        $site_public_domain = $this->organic->getOption( 'organic::public_domain' );
+        $site_organic_domain = $this->organic->getOption( 'organic::organic_domain' );
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -179,6 +184,30 @@ class AdminSettings {
                 </label></p>
                 <p><label>Organic API Key: <input type="text" name="organic_sdk_key" style="width: 355px;" value="<?php echo $sdk_key; ?>" /></label></p>
                 <p><label>Organic Site ID: <input type="text" name="organic_site_id" style="width: 355px;" value="<?php echo $site_id; ?>" /></label></p>
+                <p>
+                    <label>Site Public Domain:
+                        <input
+                            type="text"
+                            name="organic_public_domain"
+                            style="width: 355px;"
+                            id="organic_public_domain"
+                            placeholder="organic.example.com"
+                            value="<?php echo $site_public_domain; ?>"
+                        />
+                    </label>
+                </p>
+                <p>
+                    <label> Site Organic Domain:
+                        <input
+                            type="text"
+                            name="organic_organic_domain"
+                            style="width: 355px;"
+                            id="organic_organic_domain"
+                            placeholder="example-com.organicly.io"
+                            value="<?php echo $site_organic_domain; ?>"
+                        />
+                    </label>
+                </p>
 
                 <p><label>Consent Management:
                         <select id="organic_cmp" name="organic_cmp">
