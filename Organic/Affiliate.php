@@ -17,7 +17,10 @@ class Affiliate {
 
     public function register_scripts() {
         $siteId = $this->organic->getSiteId();
-        $sdk_url = getenv( 'ORGANIC_SDK_URL', 'https://organiccdn.io/assets/sdk/sdkv2.js' );
+        $sdk_url = getenv( 'ORGANIC_SDK_URL' );
+        if ( ! $sdk_url ) {
+            $sdk_url = 'https://organiccdn.io/assets/sdk/sdkv2.js';
+        }
         wp_enqueue_script( 'organic-sdk-config', plugins_url( 'affiliate/config.js', __DIR__ ) );
         wp_enqueue_script( 'organic-sdk', $sdk_url . '?guid=' . $siteId, [ 'organic-sdk-config' ], null, true );
         wp_register_script(
