@@ -15,26 +15,33 @@ import {
   ColorPicker,
 } from '@wordpress/components';
 import {
+  createRef,
   useState,
   useEffect,
   useCallback,
 } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
-import { AttributesType } from '../propTypes';
-import './editor.scss';
 import ProductCard from './ProductCard';
 import ProductSearchModal from './ProductSearchModal';
+import { AttributesType } from './propTypes';
 
 const Edit = ({ attributes, setAttributes }) => {
+  const productCardRef = createRef();
   useEffect(() => {
     if (attributes.productGuid) {
+      if (productCardRef.current) {
+        productCardRef.current.removeAttribute('data-organic-affiliate-processed');
+      }
       window.empire?.apps?.affiliate?.init?.();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     attributes.productGuid,
     attributes.displayImage,
     attributes.displayDescription,
+    attributes.cardRadius,
+    attributes.cardShadow,
     attributes.textColor,
     attributes.linkColor,
     attributes.backgroundColor,
@@ -175,8 +182,10 @@ const Edit = ({ attributes, setAttributes }) => {
             <CardDivider />
             <CardBody>
               <ProductCard
-                key={attributes.productGuid}
+                ref={productCardRef}
                 backgroundColor={attributes.backgroundColor}
+                cardRadius={attributes.cardRadius}
+                cardShadow={attributes.cardShadow}
                 displayDescription={attributes.displayDescription}
                 displayImage={attributes.displayImage}
                 linkColor={attributes.linkColor}
