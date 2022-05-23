@@ -21,7 +21,25 @@ class Affiliate {
         if ( ! $sdk_url ) {
             $sdk_url = 'https://organiccdn.io/assets/sdk/sdkv2.js';
         }
+        $link_domains = [];
+        if ( $this->organic->getSitePublicDomain() ) {
+            array_push( $link_domains, 'https://' . $this->organic->getSitePublicDomain() );
+        }
+        if ( $this->organic->getSiteOrganicDomain() ) {
+            array_push( $link_domains, 'https://' . $this->organic->getSiteOrganicDomain() );
+        }
+        // prefer custom subdomain like organic.example.com
+        $public_domain = $this->organic->getSitePublicDomain() ?: $this->organic->getSiteOrganicDomain();
         wp_enqueue_script( 'organic-sdk-config', plugins_url( 'affiliate/config.js', __DIR__ ) );
+        wp_localize_script(
+            'organic-sdk-config',
+            'organic_sdk_config',
+            [
+                'siteGuid' => $siteId,
+                'publicDomain' => 'https://' . $public_domain,
+                'linkDomains' => $link_domains,
+            ],
+        );
         wp_enqueue_script( 'organic-sdk', $sdk_url . '?guid=' . $siteId, [ 'organic-sdk-config' ], null, true );
         wp_register_script(
             'organic-affiliate-product-card',
