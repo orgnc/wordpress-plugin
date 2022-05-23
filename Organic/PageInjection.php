@@ -260,13 +260,15 @@ class PageInjection {
             <script>
                 /* The below condition is a very specific case setup for Ads AB testing */
                 if (
-                    window.organicTestKey &&
-                    window.organicTestKey.indexOf('organic_adthrive') > -1 &&
-                    BVTests.getValue(window.organicTestKey) === 'control'
+                    (
+                        window.organicTestKey &&
+                        window.organicTestKey.indexOf('organic_adthrive') > -1 &&
+                        BVTests.getValue(window.organicTestKey) === 'enabled'
+                    ) || (
+                        utils.queryString &&
+                        utils.queryString.debug_bv_tests === 'organic_adthrive_0-enabled'
+                    )
                 ) {
-                    if ( window.loadAdThrive && typeof window.loadAdThrive === 'function' )
-                        window.loadAdThrive(window, document);
-                } else {
                     /* Loading GPT script */
                     utils.loadScript(document, 'gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js', null, {async:true});
 
@@ -325,6 +327,9 @@ class PageInjection {
                         setTimeout(loadAds, loadDelay);
                     <?php } ?>
                     })();
+                } else {
+                    if ( window.loadAdThrive && typeof window.loadAdThrive === 'function' )
+                        window.loadAdThrive(window, document);
                 }
             </script>
             <?php
