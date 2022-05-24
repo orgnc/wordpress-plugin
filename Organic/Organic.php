@@ -302,7 +302,7 @@ class Organic {
         $graphql->init();
 
         // Set up affiliate app
-        if ( $this->affiliateEnabled ) {
+        if ( $this->isAffiliateAppEnabled() ) {
             new Affiliate( $this );
         }
     }
