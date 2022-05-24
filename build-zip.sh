@@ -10,9 +10,9 @@ cp readme.txt build/organic/
 cp composer.json build/organic/
 cp composer.lock build/organic/
 cp -r vendor build/organic/
-(cd affiliate/product-card && npm install && npm run build)
-mkdir -p build/organic/affiliate/product-card
-cp -r affiliate/product-card/build build/organic/affiliate/product-card/
+(cd affiliate/ && npm install && npm run build)
+mkdir -p build/organic/affiliate/
+cp -r affiliate/build build/organic/affiliate/
 cp -r affiliate/config.js build/organic/affiliate/config.js
 cd build
 zip -r organic-${BUILD_NUMBER}.zip organic

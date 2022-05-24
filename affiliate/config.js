@@ -1,3 +1,4 @@
+/* eslint-disable camelcase, no-undef */
 window.empire ||= {};
 window.empire.apps ||= {};
 window.empire.apps.affiliate ||= {};
@@ -9,5 +10,5 @@ window.empire.apps.affiliate.config = {
   appConf: {
     linkDomains: organic_sdk_config.linkDomains,
     trackingIDs: {},
-  }
+  },
 };
