@@ -34,6 +34,7 @@ const ProductSearchModal = ({ onClose, onProductSelect }) => {
 <body>
   <script>
     function selectProduct(data) {
+      data.link = 'https://betteryoumag-com.organicly.io/aff/r/' + data.guid;
       const message = {
           type: 'organic/affiliate-select-product',
           product: data,
@@ -41,9 +42,18 @@ const ProductSearchModal = ({ onClose, onProductSelect }) => {
       window.parent.postMessage(JSON.stringify(message), '*');
     }
   </script>
-  <button onclick="selectProduct({guid: '964805c4-6bf7-4418-a112-a58f1565a72d'})">Select Product - 1</button>
-  <button onclick="selectProduct({guid: '23276d4a-436c-435b-9713-04946785c749'})">Select Product - 2</button>
-  <button onclick="selectProduct({guid: 'e48dc9bc-cdc1-4656-9031-891bf6a688cb'})">Select Product - 3</button>
+  <button onclick="selectProduct({
+    guid: '964805c4-6bf7-4418-a112-a58f1565a72d',
+    name: 'Product 1',
+  })">Select Product - 1</button>
+  <button onclick="selectProduct({
+    guid: '23276d4a-436c-435b-9713-04946785c749',
+    name: 'Product 2',
+  })">Select Product - 2</button>
+  <button onclick="selectProduct({
+    guid: 'e48dc9bc-cdc1-4656-9031-891bf6a688cb',
+    name: 'Product 3',
+  })">Select Product - 3</button>
 </body>
 </html>
         `}
