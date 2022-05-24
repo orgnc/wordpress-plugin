@@ -45,7 +45,7 @@
             "phpunit -c ./phpunit.xml"
         ],
         "eslint": [
-            "cd affiliate/product-card && npm install && npm run lint:js"
+            "cd affiliate && npm install && npm run lint:js"
         ]
     },
     "config": {
