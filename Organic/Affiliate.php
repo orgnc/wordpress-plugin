@@ -42,15 +42,15 @@ class Affiliate {
         );
         wp_enqueue_script( 'organic-sdk', $sdk_url . '?guid=' . $siteId, [ 'organic-sdk-config' ], null, true );
         wp_register_script(
-            'organic-affiliate-product-card',
-            plugins_url( 'affiliate/product-card/build/index.js', __DIR__ ),
+            'organic-affiliate',
+            plugins_url( 'affiliate/build/index.js', __DIR__ ),
             [ 'organic-sdk' ],
         );
     }
 
     public function register_gutenberg_block() {
         register_block_type(
-            plugin_dir_path( __DIR__ ) . 'affiliate/product-card/build/',
+            plugin_dir_path( __DIR__ ) . 'affiliate/build/',
         );
     }
 
