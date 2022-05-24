@@ -2,9 +2,12 @@ import { registerBlockType } from '@wordpress/blocks';
 
 import './style.scss';
 
+import { register } from './insertLink/InsertAffiliateLink';
 import OrganicIcon from './OrganicIcon';
 import Edit from './productCard/Edit';
 import Save from './productCard/Save';
+
+register();
 
 registerBlockType('organic/affiliate-product-card', {
   attributes: {
