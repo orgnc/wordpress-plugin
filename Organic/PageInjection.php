@@ -328,34 +328,32 @@ class PageInjection {
                             setTimeout(loadAds, loadDelay);
                         <?php } ?>
                         })();
-                    } else {
-                        if ( window.loadAdThrive && typeof window.loadAdThrive === 'function' ) {
-                            window.loadAdThrive(window, document);
-                        } else if (typeof window.adthrive === 'undefined') {
-                            (function(w, d) {
-                                w.adthrive = w.adthrive || {};
-                                w.adthrive.cmd = w.adthrive.cmd || [];
-                                w.adthrive.plugin = 'adthrive-ads-<?php echo esc_js( ADTHRIVE_ADS_VERSION ); ?>';
-                                w.adthrive.host = 'ads.adthrive.com';
-                                w.adthrive.integration = 'plugin';
+                    } else if ( window.loadAdThrive && typeof window.loadAdThrive === 'function' ) {
+                        window.loadAdThrive(window, document);
+                    } else if ( typeof window.adthrive === 'undefined' ) {
+                        (function(w, d) {
+                            w.adthrive = w.adthrive || {};
+                            w.adthrive.cmd = w.adthrive.cmd || [];
+                            w.adthrive.plugin = 'adthrive-ads-2.1.1';
+                            w.adthrive.host = 'ads.adthrive.com';
+                            w.adthrive.integration = 'plugin';
 
-                                var commitParam = (w.adthriveCLS && w.adthriveCLS.bucket !== 'prod' && w.adthriveCLS.branch) ? '&commit=' + w.adthriveCLS.branch : '';
-
-                                var s = d.createElement('script');
-                                s.async = true;
-                                s.referrerpolicy='no-referrer-when-downgrade';
-                                s.src = 'https://' + w.adthrive.host + '/sites/591b55faa29bbe3a6f50b09c/ads.min.js?referrer=' + w.encodeURIComponent(w.location.href) + commitParam + '&cb=' + (Math.floor(Math.random() * 100) + 1);
-                                var n = d.getElementsByTagName('script')[0];
-                                n.parentNode.insertBefore(s, n);
-                            })(window, document);
-                        }
+                            var commitParam = (w.adthriveCLS && w.adthriveCLS.bucket !== 'prod' && w.adthriveCLS.branch) ? '&commit=' + w.adthriveCLS.branch : '';
+                            if 
+                            var s = d.createElement('script');
+                            s.async = true;
+                            s.referrerpolicy='no-referrer-when-downgrade';
+                            s.src = 'https://' + w.adthrive.host + '/sites/591b55faa29bbe3a6f50b09c/ads.min.js?referrer=' + w.encodeURIComponent(w.location.href) + commitParam + '&cb=' + (Math.floor(Math.random() * 100) + 1);
+                            var n = d.getElementsByTagName('script')[0];
+                            n.parentNode.insertBefore(s, n);
+                        })(window, document);
                     }
                 } catch (err) {
                     console.log('Error in Organic Plugin Setup:', err.message);
                     (function(w, d) {
                         w.adthrive = w.adthrive || {};
                         w.adthrive.cmd = w.adthrive.cmd || [];
-                        w.adthrive.plugin = 'adthrive-ads-<?php echo esc_js( ADTHRIVE_ADS_VERSION ); ?>';
+                        w.adthrive.plugin = 'adthrive-ads-2.1.1';
                         w.adthrive.host = 'ads.adthrive.com';
                         w.adthrive.integration = 'plugin';
 
