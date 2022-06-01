@@ -1,3 +1,4 @@
+/* eslint-disable camelcase, no-undef, react/jsx-filename-extension, react/jsx-props-no-spreading */
 import { registerBlockType } from '@wordpress/blocks';
 
 import './style.scss';
@@ -7,7 +8,7 @@ import OrganicIcon from './OrganicIcon';
 import Edit from './productCard/Edit';
 import Save from './productCard/Save';
 
-register();
+register(organic_affiliate_config.productSearchPageUrl);
 
 registerBlockType('organic/affiliate-product-card', {
   attributes: {
@@ -54,6 +55,11 @@ registerBlockType('organic/affiliate-product-card', {
     },
   },
   icon: OrganicIcon,
-  edit: Edit,
+  edit: (props) => (
+    <Edit
+      {...props}
+      productSearchPageUrl={organic_affiliate_config.productSearchPageUrl}
+    />
+  ),
   save: Save,
 });
