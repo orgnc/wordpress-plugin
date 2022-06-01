@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarDropdownMenu } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -11,7 +12,9 @@ import ProductSearchModal from '../ProductSearchModal';
 
 const FORMAT_NAME = 'organic/affiliate-product-link';
 
-const InsertAffiliateLink = ({ isActive, onChange, value }) => {
+const InsertAffiliateLink = ({
+  isActive, onChange, value, productSearchPageUrl,
+}) => {
   const [showModal, setShowModal] = useState(false);
   const hideModal = useCallback(
     () => setShowModal(false),
@@ -27,11 +30,11 @@ const InsertAffiliateLink = ({ isActive, onChange, value }) => {
     () => setShowModal(true),
     [setShowModal],
   );
-  const onProductSelect = useCallback((product) => {
+  const onProductSelect = useCallback((product, offerUrl) => {
     const { start, end } = value;
     const format = {
       type: FORMAT_NAME,
-      attributes: { url: product.link },
+      attributes: { url: offerUrl },
     };
     let newValue;
     if (start === end) {
@@ -69,6 +72,7 @@ const InsertAffiliateLink = ({ isActive, onChange, value }) => {
         <ProductSearchModal
           onClose={hideModal}
           onProductSelect={onProductSelect}
+          productSearchPageUrl={productSearchPageUrl}
         />
         )}
     </>
@@ -82,13 +86,20 @@ InsertAffiliateLink.propTypes = {
     end: PropTypes.number,
   }).isRequired,
   isActive: PropTypes.bool.isRequired,
+  productSearchPageUrl: PropTypes.string.isRequired,
 };
 
-const register = () => registerFormatType(FORMAT_NAME, {
+const register = (productSearchPageUrl) => registerFormatType(FORMAT_NAME, {
   title: 'Affiliate Product Link',
   tagName: 'a',
   attributes: { url: 'href' },
-  edit: InsertAffiliateLink,
+  className: null,
+  edit: (props) => (
+    <InsertAffiliateLink
+      {...props}
+      productSearchPageUrl={productSearchPageUrl}
+    />
+  ),
 });
 
 export {
