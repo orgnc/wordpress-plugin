@@ -119,6 +119,19 @@ class OrganicSdk {
     }
 
     /**
+     * Builds the SDK V2 URL to embed the JS SDK into web pages
+     *
+     * @return string
+     */
+    public function getSdkV2Url() {
+        $sdk_url = getenv( 'ORGANIC_SDK_URL' );
+        if ( ! $sdk_url ) {
+            $sdk_url = $this->cdnUrl . 'assets/sdk/sdkv2.js';
+        }
+        return $sdk_url . '?guid=' . $this->siteGuid;
+    }
+
+    /**
      * Builds fallback prebid.js URL
      *
      * @return string

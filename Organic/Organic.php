@@ -20,6 +20,8 @@ const SYNC_META_KEY = 'empire_sync';
  */
 class Organic {
 
+    const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
+
     private $isEnabled = false;
 
     /**
@@ -1486,5 +1488,13 @@ class Organic {
 
     public function getSdkVersion() {
         return $this->getOption( 'organic::sdk_version', $this->sdk::SDK_V1 );
+    }
+
+    public function getPlatformUrl() {
+        $organic_app_url = getenv( 'ORGANIC_PLATFORM_URL' );
+        if ( ! $organic_app_url ) {
+            $organic_app_url = self::DEFAULT_PLATFORM_URL;
+        }
+        return $organic_app_url;
     }
 }

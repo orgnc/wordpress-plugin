@@ -17,10 +17,7 @@ class Affiliate {
 
     public function register_scripts() {
         $siteId = $this->organic->getSiteId();
-        $sdk_url = getenv( 'ORGANIC_SDK_URL' );
-        if ( ! $sdk_url ) {
-            $sdk_url = 'https://organiccdn.io/assets/sdk/sdkv2.js';
-        }
+        $sdk_url = $this->organic->sdk->getSdkV2Url();
         $link_domains = [];
         if ( $this->organic->getSitePublicDomain() ) {
             array_push( $link_domains, 'https://' . $this->organic->getSitePublicDomain() );
@@ -40,11 +37,19 @@ class Affiliate {
                 'linkDomains' => $link_domains,
             ],
         );
-        wp_enqueue_script( 'organic-sdk', $sdk_url . '?guid=' . $siteId, [ 'organic-sdk-config' ], null, true );
+        wp_enqueue_script( 'organic-sdk', $sdk_url, [ 'organic-sdk-config' ], null, true );
         wp_register_script(
             'organic-affiliate',
             plugins_url( 'affiliate/build/index.js', __DIR__ ),
             [ 'organic-sdk' ],
+        );
+        $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
+        wp_localize_script(
+            'organic-affiliate',
+            'organic_affiliate_config',
+            [
+                'productSearchPageUrl' => $product_search_page_url . '?siteGuid=' . $siteId,
+            ],
         );
     }
 
@@ -53,5 +58,4 @@ class Affiliate {
             plugin_dir_path( __DIR__ ) . 'affiliate/build/',
         );
     }
-
 }

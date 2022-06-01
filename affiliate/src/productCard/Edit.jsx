@@ -26,7 +26,7 @@ import ProductSearchModal from '../ProductSearchModal';
 import ProductCard from './ProductCard';
 import { AttributesType } from './propTypes';
 
-const Edit = ({ attributes, setAttributes }) => {
+const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
   const productCardRef = createRef();
   useEffect(() => {
     if (attributes.productGuid) {
@@ -87,7 +87,7 @@ const Edit = ({ attributes, setAttributes }) => {
     [setAttributes],
   );
   const setDisplayDescription = useCallback(
-    (displayDescription) => setAttributes({ displayDescription }),
+    (displayDescripton) => setAttributes({ displayDescripton }),
     [setAttributes],
   );
   return (
@@ -150,6 +150,7 @@ const Edit = ({ attributes, setAttributes }) => {
         <ProductSearchModal
           onClose={hideModal}
           onProductSelect={onProductSelect}
+          productSearchPageUrl={productSearchPageUrl}
         />
         )}
       <BlockControls>
@@ -207,6 +208,7 @@ const Edit = ({ attributes, setAttributes }) => {
 Edit.propTypes = {
   attributes: AttributesType.isRequired,
   setAttributes: PropTypes.func.isRequired,
+  productSearchPageUrl: PropTypes.string.isRequired,
 };
 
 export default Edit;

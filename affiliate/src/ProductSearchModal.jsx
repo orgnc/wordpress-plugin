@@ -1,13 +1,15 @@
+import './productSearchModal.scss';
+
 import { Modal } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
-const ProductSearchModal = ({ onClose, onProductSelect }) => {
+const ProductSearchModal = ({ onClose, onProductSelect, productSearchPageUrl }) => {
   useEffect(() => {
     const handler = (event) => {
       const data = JSON.parse(event.data);
       if (data?.type === 'organic/affiliate-select-product') {
-        onProductSelect(data.product);
+        onProductSelect(data.product, data.offerUrl);
       }
     };
     window.addEventListener('message', handler);
@@ -15,6 +17,7 @@ const ProductSearchModal = ({ onClose, onProductSelect }) => {
   }, [onProductSelect]);
   return (
     <Modal
+      className="product-search-modal"
       onRequestClose={onClose}
       shouldCloseOnClickOutside={false}
       title="Product Search"
@@ -22,42 +25,10 @@ const ProductSearchModal = ({ onClose, onProductSelect }) => {
     >
       {/* TODO rkashapov: change to product-search page */ }
       <iframe
-        srcDoc={`
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <script>
-    function selectProduct(data) {
-      data.link = 'https://betteryoumag-com.organicly.io/aff/r/' + data.guid;
-      const message = {
-          type: 'organic/affiliate-select-product',
-          product: data,
-      };
-      window.parent.postMessage(JSON.stringify(message), '*');
-    }
-  </script>
-  <button onclick="selectProduct({
-    guid: '964805c4-6bf7-4418-a112-a58f1565a72d',
-    name: 'Product 1',
-  })">Select Product - 1</button>
-  <button onclick="selectProduct({
-    guid: '23276d4a-436c-435b-9713-04946785c749',
-    name: 'Product 2',
-  })">Select Product - 2</button>
-  <button onclick="selectProduct({
-    guid: 'e48dc9bc-cdc1-4656-9031-891bf6a688cb',
-    name: 'Product 3',
-  })">Select Product - 3</button>
-</body>
-</html>
-        `}
+        height="100%"
+        src={productSearchPageUrl}
         title="Product Search"
+        width="100%"
       />
     </Modal>
   );
@@ -68,6 +39,7 @@ const noop = () => null;
 ProductSearchModal.propTypes = {
   onClose: PropTypes.func,
   onProductSelect: PropTypes.func,
+  productSearchPageUrl: PropTypes.string.isRequired,
 };
 
 ProductSearchModal.defaultProps = {
