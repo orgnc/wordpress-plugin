@@ -339,7 +339,6 @@ class PageInjection {
                             w.adthrive.integration = 'plugin';
 
                             var commitParam = (w.adthriveCLS && w.adthriveCLS.bucket !== 'prod' && w.adthriveCLS.branch) ? '&commit=' + w.adthriveCLS.branch : '';
-                            if 
                             var s = d.createElement('script');
                             s.async = true;
                             s.referrerpolicy='no-referrer-when-downgrade';
