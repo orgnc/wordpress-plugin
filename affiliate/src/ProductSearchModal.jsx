@@ -23,7 +23,6 @@ const ProductSearchModal = ({ onClose, onProductSelect, productSearchPageUrl }) 
       title="Product Search"
       isFullScreen
     >
-      {/* TODO rkashapov: change to product-search page */ }
       <iframe
         height="100%"
         src={productSearchPageUrl}
