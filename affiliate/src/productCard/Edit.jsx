@@ -87,7 +87,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     [setAttributes],
   );
   const setDisplayDescription = useCallback(
-    (displayDescripton) => setAttributes({ displayDescripton }),
+    (displayDescription) => setAttributes({ displayDescription }),
     [setAttributes],
   );
   return (
