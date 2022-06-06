@@ -1,8 +1,8 @@
 import { forwardRef } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
-function serializeOptions(options) {
-  return Object.entries(options).map(([key, value]) => `${key}=${value}`).join(',');
+function serializeOptions(separator, options) {
+  return Object.entries(options).map(([key, value]) => `${key}=${value}`).join(separator);
 }
 
 function convertColorValue(value) {
@@ -18,26 +18,44 @@ const ProductCard = forwardRef(({
   textColor,
   linkColor,
   backgroundColor,
+  isAmp,
+  publicDomain,
 }, ref) => {
   if (!productGuid) {
     return null;
   }
-  const options = serializeOptions({
-    displayDescription,
-    displayImage,
-    cardRadius,
-    cardShadow,
-    textColor: convertColorValue(textColor),
-    linkColor: convertColorValue(linkColor),
-    backgroundColor: convertColorValue(backgroundColor),
-  });
+  const options = serializeOptions(
+    isAmp ? '&' : ',',
+    {
+      displayDescription,
+      displayImage,
+      cardRadius,
+      cardShadow,
+      textColor: convertColorValue(textColor),
+      linkColor: convertColorValue(linkColor),
+      backgroundColor: convertColorValue(backgroundColor),
+    },
+  );
+  if (!isAmp) {
+    return (
+      <div
+        ref={ref}
+        data-organic-affiliate-integration="product-card"
+        data-organic-affiliate-integration-options={options}
+        data-organic-affiliate-product-guid={productGuid}
+      />
+    );
+  }
+  const src = `${publicDomain}/integrations/affiliate/product-card?guid=${productGuid}&${options}`;
   return (
-    <div
-      ref={ref}
-      data-organic-affiliate-integration="product-card"
-      data-organic-affiliate-integration-options={options}
-      data-organic-affiliate-product-guid={productGuid}
-    />
+    <amp-iframe
+      frameborder={0}
+      height="540px"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      src={src}
+    >
+      <p placeholder>Loading iframe content</p>
+    </amp-iframe>
   );
 });
 
@@ -50,6 +68,8 @@ ProductCard.propTypes = {
   textColor: PropTypes.string,
   linkColor: PropTypes.string,
   backgroundColor: PropTypes.string,
+  isAmp: PropTypes.bool,
+  publicDomain: PropTypes.string,
 };
 
 ProductCard.defaultProps = {
@@ -61,6 +81,8 @@ ProductCard.defaultProps = {
   textColor: '',
   linkColor: '',
   backgroundColor: '',
+  isAmp: false,
+  publicDomain: '',
 };
 
 export default ProductCard;

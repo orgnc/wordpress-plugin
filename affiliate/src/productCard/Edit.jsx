@@ -26,7 +26,9 @@ import ProductSearchModal from '../ProductSearchModal';
 import ProductCard from './ProductCard';
 import { AttributesType } from './propTypes';
 
-const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
+const Edit = ({
+  attributes, setAttributes, productSearchPageUrl, publicDomain,
+}) => {
   const productCardRef = createRef();
   useEffect(() => {
     if (attributes.productGuid) {
@@ -45,6 +47,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     attributes.textColor,
     attributes.linkColor,
     attributes.backgroundColor,
+    attributes.isAmp,
   ]);
   const [showModal, setShowModal] = useState(!attributes.productGuid);
   const hideModal = useCallback(
@@ -88,6 +91,10 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
   );
   const setDisplayDescription = useCallback(
     (displayDescription) => setAttributes({ displayDescription }),
+    [setAttributes],
+  );
+  const setIsAmp = useCallback(
+    (isAmp) => setAttributes({ isAmp }),
     [setAttributes],
   );
   return (
@@ -179,6 +186,12 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 label="Display Description"
                 onChange={setDisplayDescription}
               />
+              <CheckboxControl
+                checked={attributes.isAmp}
+                help="Whether or not the product card should support AMP"
+                label="AMP-compatible"
+                onChange={setIsAmp}
+              />
             </CardBody>
             <CardDivider />
             <CardBody>
@@ -189,8 +202,10 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 cardShadow={attributes.cardShadow}
                 displayDescription={attributes.displayDescription}
                 displayImage={attributes.displayImage}
+                isAmp={attributes.isAmp}
                 linkColor={attributes.linkColor}
                 productGuid={attributes.productGuid}
+                publicDomain={publicDomain}
                 textColor={attributes.textColor}
               />
             </CardBody>
@@ -209,6 +224,7 @@ Edit.propTypes = {
   attributes: AttributesType.isRequired,
   setAttributes: PropTypes.func.isRequired,
   productSearchPageUrl: PropTypes.string.isRequired,
+  publicDomain: PropTypes.string.isRequired,
 };
 
 export default Edit;

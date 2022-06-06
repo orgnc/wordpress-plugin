@@ -46,6 +46,10 @@ registerBlockType('organic/affiliate-product-card', {
       type: 'string',
       default: '#FFFFFF',
     },
+    isAmp: {
+      type: 'boolean',
+      default: false,
+    },
   },
   example: {
     attributes: {
@@ -59,7 +63,13 @@ registerBlockType('organic/affiliate-product-card', {
     <Edit
       {...props}
       productSearchPageUrl={organic_affiliate_config.productSearchPageUrl}
+      publicDomain={organic_sdk_config.publicDomain}
     />
   ),
-  save: Save,
+  save: (props) => (
+    <Save
+      {...props}
+      publicDomain={organic_sdk_config.publicDomain}
+    />
+  ),
 });
