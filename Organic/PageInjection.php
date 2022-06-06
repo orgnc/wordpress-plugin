@@ -170,15 +170,16 @@ class PageInjection {
         // use a SPAN instead.
         $injectionPoint = strpos( $content, '</p>' );
         $injectionPointOffset = 4;
-        if ( $injectionPoint === false ) {
-            $injectionPoint = strpos( $content, '</span>' );
-            $injectionPointOffset = 7;
-            if ( $injectionPoint === false ) {
+        if ( $injectionPoint === false || $injectionPoint > 1000 ) {
+            $spanInjectionPoint = strpos( $content, '</span>', 200 );
+            if ( $spanInjectionPoint === false ) {
                 return $content;
             }
+            $injectionPoint = $spanInjectionPoint;
+            $injectionPointOffset = 7;
         }
 
-        // Adjust for the length of </p>
+        // Adjust for the length of </p> or </span>
         $injectionPoint += $injectionPointOffset;
 
         $this->connatixInjected = true;
