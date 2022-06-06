@@ -24,7 +24,6 @@ class PageInjection {
      * @var bool True if Connatix player is already on the page
      */
     private $connatixInjected = false;
-    private $ampAdsInjected = false;
 
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
@@ -58,13 +57,10 @@ class PageInjection {
         }
 
         $adsConfig = $this->organic->getAdsConfig();
-        $getTargeting = function() {
-            return $this->organic->getTargeting();
-        };
 
         add_filter(
             'amp_content_sanitizers',
-            function ( $sanitizer_classes, $post ) use ( $ampConfig, $adsConfig, $getTargeting ) {
+            function ( $sanitizer_classes, $post ) use ( $ampConfig, $adsConfig ) {
                 if ( ! $this->organic->eligibleForAds() ) {
                     return $sanitizer_classes;
                 }
@@ -73,7 +69,6 @@ class PageInjection {
                 $sanitizer_classes['\Organic\AmpAdsInjector'] = [
                     'ampConfig' => $ampConfig,
                     'adsConfig' => $adsConfig,
-                    'getTargeting' => $getTargeting,
                 ];
                 return $sanitizer_classes;
             },
