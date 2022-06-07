@@ -37,6 +37,8 @@ class AdminSettings {
             } else if ( isset( $_POST['organic_post_types'] ) ) {
                 $this->organic->updateOption( 'organic::post_types', $_POST['organic_post_types'], false );
                 $this->organic->setPostTypes( $_POST['organic_post_types'] );
+            } else if ( isset( $_POST['organic_content_sync'] ) ) {
+                $this->organic->syncContent( 100 );
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
@@ -296,6 +298,10 @@ class AdminSettings {
                 ?>
                 </ul>
                 <p><input type="submit" value="Save" />
+            </form>
+            <form method="post">
+                <input type="hidden" name="organic_content_sync" value="1" />
+                <input type="submit" value="Sync Content Batch" />
             </form>
         </div>
             <?php
