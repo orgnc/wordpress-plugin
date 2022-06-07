@@ -23,20 +23,20 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
     }
 
     public function handle_product_cards() {
-        $xpath = new DOMXPath($this->dom);
-        $product_card_divs = $xpath->query("//a[@data-organic-affiliate-integration='product-card']");
+        $xpath = new DOMXPath( $this->dom );
+        $product_card_divs = $xpath->query( "//a[@data-organic-affiliate-integration='product-card']" );
         foreach ( $product_card_divs as $product_card_div ) {
-            $this->injectAmpProductCard($product_card_div);
+            $this->injectAmpProductCard( $product_card_div );
         }
     }
 
     public function injectAmpProductCard( $product_card_div, $site_public_domain ) {
-        $product_guid = $product_card_div->getAttribute('data-organic-affiliate-product-guid');
-        $options_str = $product_card_div->getAttribute('data-organic-affiliate-integration-options');
+        $product_guid = $product_card_div->getAttribute( "data-organic-affiliate-product-guid" );
+        $options_str = $product_card_div->getAttribute( "data-organic-affiliate-integration-options" );
         $public_domain = $this->organic->getSitePublicDomain();
         $url = $site_public_domain . "?guid={$product_guid}";
         if ( ! empty( $options_str ) ) {
-            $url += "&" . str_replace( ",", '&' . $options_str );
+            $url += "&" . str_replace( ",", "&", $options_str );
         }
         $amp_iframe_code = <<<HTML
             <amp-iframe
@@ -48,8 +48,10 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
                 <p placeholder>Loading iframe content</p>
             </amp-iframe>
         HTML;
-        $amp_iframe = $this->dom->createElement( $amp_iframe_code );
-        $product_card_div.appendChild($amp_iframe);
+        $fragment = $this->dom->createDocumentFragment();
+        $amp_iframe = $fragment->appendXML( $amp_iframe_code );
+        $fragment->appendChild( $amp_iframe );
+        $product_card_div->appendChild( $fragment );
     }
 
 }

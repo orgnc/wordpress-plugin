@@ -88,10 +88,10 @@ class PageInjection {
     public function setupAffiliateAmpInjector() {
         add_filter(
             'amp_content_sanitizers',
-            function ($sanitizer_classes, $post) {
-                require_once( dirname(__FILE__) . '/AmpAffiliateInjector.php' );
+            function ( $sanitizer_classes, $post ) {
+                require_once( dirname( __FILE__ ) . '/AmpAffiliateInjector.php' );
                 $sanitizer_classes['\Organic\AmpAffiliateInjector'] = [];
-                return $sanitizer_classes
+                return $sanitizer_classes;
             },
             10,
             2
