@@ -914,12 +914,11 @@ class Organic {
      *
      * Works in batches of 1000 to minimize load issues
      *
+     * @param int $max_to_sync Number of posts to attempt to sync
      * @return int Number of posts synchronized
      * @throws Exception if posts have invalid published or modified dates
      */
-    public function syncContent() : int {
-        $max_to_sync = 1000;
-
+    public function syncContent( $max_to_sync = 1000 ) : int {
         // First go through ones that have never been sync-ed
         $query = $this->buildQueryNeverSyncedPosts( $max_to_sync );
         $updated = $this->_syncPosts( $query->posts );
