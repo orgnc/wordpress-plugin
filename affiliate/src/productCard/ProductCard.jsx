@@ -18,14 +18,12 @@ const ProductCard = forwardRef(({
   textColor,
   linkColor,
   backgroundColor,
-  isAmp,
-  publicDomain,
 }, ref) => {
   if (!productGuid) {
     return null;
   }
   const options = serializeOptions(
-    isAmp ? '&' : ',',
+    ',',
     {
       displayDescription,
       displayImage,
@@ -36,26 +34,13 @@ const ProductCard = forwardRef(({
       backgroundColor: convertColorValue(backgroundColor),
     },
   );
-  if (!isAmp) {
-    return (
-      <div
-        ref={ref}
-        data-organic-affiliate-integration="product-card"
-        data-organic-affiliate-integration-options={options}
-        data-organic-affiliate-product-guid={productGuid}
-      />
-    );
-  }
-  const src = `${publicDomain}/integrations/affiliate/product-card?guid=${productGuid}&${options}`;
   return (
-    <amp-iframe
-      frameborder={0}
-      height="540px"
-      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-      src={src}
-    >
-      <p placeholder>Loading iframe content</p>
-    </amp-iframe>
+    <div
+      ref={ref}
+      data-organic-affiliate-integration="product-card"
+      data-organic-affiliate-integration-options={options}
+      data-organic-affiliate-product-guid={productGuid}
+    />
   );
 });
 
@@ -68,8 +53,6 @@ ProductCard.propTypes = {
   textColor: PropTypes.string,
   linkColor: PropTypes.string,
   backgroundColor: PropTypes.string,
-  isAmp: PropTypes.bool,
-  publicDomain: PropTypes.string,
 };
 
 ProductCard.defaultProps = {
@@ -81,8 +64,6 @@ ProductCard.defaultProps = {
   textColor: '',
   linkColor: '',
   backgroundColor: '',
-  isAmp: false,
-  publicDomain: '',
 };
 
 export default ProductCard;

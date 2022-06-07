@@ -9,6 +9,4 @@ export const AttributesType = PropTypes.shape({
   textColor: PropTypes.string.isRequired,
   linkColor: PropTypes.string.isRequired,
   backgroundColor: PropTypes.string.isRequired,
-  isAmp: PropTypes.bool,
-  publicDomain: PropTypes.string,
 });

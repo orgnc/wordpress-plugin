@@ -63,13 +63,7 @@ registerBlockType('organic/affiliate-product-card', {
     <Edit
       {...props}
       productSearchPageUrl={organic_affiliate_config.productSearchPageUrl}
-      publicDomain={organic_sdk_config.publicDomain}
     />
   ),
-  save: (props) => (
-    <Save
-      {...props}
-      publicDomain={organic_sdk_config.publicDomain}
-    />
-  ),
+  save: Save,
 });

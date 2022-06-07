@@ -3,8 +3,22 @@
 namespace Organic;
 
 class AmpAdsInjector extends \AMP_Base_Sanitizer {
+    private Organic $organic;
+    private AdsInjector $adsInjector;
+    private bool $connatixInjected = false;
+    private $targeting = null;
+
     public function sanitize() {
         try {
+            $this->adsInjector = new AdsInjector(
+                $this->dom,
+                function( $html ) {
+                    $document = $this->dom::fromHtmlFragment( $html );
+                    return $document->getElementsByTagName( 'body' )->item( 0 );
+                }
+            );
+            $this->organic = Organic::getInstance();
+            $this->targeting = $this->organic->getTargeting();
             $this->handle();
         } catch ( \Exception $e ) {
             \Organic\Organic::captureException( $e );
@@ -14,17 +28,8 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
     public function handle() {
         $ampConfig = $this->args['ampConfig'];
         $adsConfig = $this->args['adsConfig'];
-        $targeting = $this->args['getTargeting']();
 
-        $adsInjector = new AdsInjector(
-            $this->dom,
-            function( $html ) {
-                $document = $this->dom::fromHtmlFragment( $html );
-                return $document->getElementsByTagName( 'body' )->item( 0 );
-            }
-        );
-
-        $rule = $adsInjector::getBlockRule( $adsConfig->adRules, $targeting );
+        $rule = $this->adsInjector::getBlockRule( $adsConfig->adRules, $this->targeting );
         $blockedKeys = ( $rule ? $rule['placementKeys'] : [] ) ?? [];
 
         // all placements are blocked by rule
@@ -46,13 +51,45 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
                 continue;
             }
 
-            $adHtml = $this->applyTargeting( $amp['html'], $targeting );
+            $adHtml = $this->applyTargeting( $amp['html'], $this->targeting );
             try {
-                $adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
+                $this->adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
             } catch ( \Exception $e ) {
                 \Organic\Organic::captureException( $e );
             }
         }
+
+        $this->injectConnatix();
+    }
+
+    private function injectConnatix() {
+        if ( $this->connatixInjected ) {
+            return;
+        }
+
+        if ( ! $this->organic->useConnatix() || ! is_single() ) {
+            return;
+        }
+
+        $psid = $this->organic->getConnatixPlayspaceId();
+        $player = <<<HTML
+            <amp-connatix-player
+                data-player-id="ps_$psid"
+                layout="responsive"
+                width="16"
+                height="9"
+            >
+            </amp-connatix-player>
+        HTML;
+
+        $this->adsInjector->injectAds(
+            $player,
+            'after',
+            [ 'p:first-child', 'span:first-child' ],
+            1
+        );
+
+        $this->connatixInjected = true;
     }
 
     public function applyTargeting( $html, $values ) {
@@ -79,4 +116,3 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         return str_replace( 'json="{}"', 'json=' . $json, $html );
     }
 }
-

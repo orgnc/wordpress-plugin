@@ -3,7 +3,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 import ProductCard from './ProductCard';
 import { AttributesType } from './propTypes';
 
-const Save = ({ attributes, publicDomain }) => {
+const Save = ({ attributes }) => {
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <div {...useBlockProps.save()}>
@@ -18,7 +18,6 @@ const Save = ({ attributes, publicDomain }) => {
           isAmp={attributes.isAmp}
           linkColor={attributes.linkColor}
           productGuid={attributes.productGuid}
-          publicDomain={publicDomain}
           textColor={attributes.textColor}
         />
         )}
@@ -28,7 +27,6 @@ const Save = ({ attributes, publicDomain }) => {
 
 Save.propTypes = {
   attributes: AttributesType.isRequired,
-  publicDomain: AttributesType.isRequired,
 };
 
 export default Save;
