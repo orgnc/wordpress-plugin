@@ -2,6 +2,8 @@
 <ruleset name="Solutions Wordpress">
     <description>Solutions Wordpress Coding Standards</description>
 
+    <config name="installed_paths" value="vendor/phpcompatibility/php-compatibility" />
+
     <file>./organic.php</file>
     <file>./Organic</file>
 
@@ -44,6 +46,8 @@
         <exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
         <exclude name="WordPress.Security.EscapeOutput.UnsafePrintingFunction"/>
     </rule>
+
+    <rule ref="PHPCompatibility" />
 
     <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>

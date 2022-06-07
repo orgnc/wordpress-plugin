@@ -103,22 +103,22 @@ class Organic {
     /**
      * @var array Configuration for AMP
      */
-    private ?AmpConfig $ampConfig = null;
+    private $ampConfig = null;
 
     /**
      * @var array Configuration for Prefill
      */
-    private ?PrefillConfig $prefillConfig = null;
+    private $prefillConfig = null;
 
     /**
      * @var AdsConfig Configuration for Ads
      */
-    private ?AdsConfig $adsConfig = null;
+    private $adsConfig = null;
 
     /**
      * @var FbiaConfig Configuration for FBIA
      */
-    private ?FbiaConfig $fbiaConfig = null;
+    private $fbiaConfig = null;
 
     /**
      * List of Post Types that we are synchronizing with Organic Platform
