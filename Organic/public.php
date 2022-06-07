@@ -20,8 +20,8 @@ function organic_get_all_campaign_assets(): array {
                 $campaignData['guid'],
                 $campaignData['name'],
                 $campaignData['status'],
-                $campaignData['externalId'],
-            ),
+                $campaignData['externalId']
+            )
         );
         $result[] = $asset;
     }
