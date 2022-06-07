@@ -15,7 +15,6 @@ const Save = ({ attributes }) => {
           cardShadow={attributes.cardShadow}
           displayDescription={attributes.displayDescription}
           displayImage={attributes.displayImage}
-          isAmp={attributes.isAmp}
           linkColor={attributes.linkColor}
           productGuid={attributes.productGuid}
           textColor={attributes.textColor}

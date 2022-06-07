@@ -46,10 +46,6 @@ registerBlockType('organic/affiliate-product-card', {
       type: 'string',
       default: '#FFFFFF',
     },
-    isAmp: {
-      type: 'boolean',
-      default: false,
-    },
   },
   example: {
     attributes: {

@@ -26,9 +26,7 @@ import ProductSearchModal from '../ProductSearchModal';
 import ProductCard from './ProductCard';
 import { AttributesType } from './propTypes';
 
-const Edit = ({
-  attributes, setAttributes, productSearchPageUrl,
-}) => {
+const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
   const productCardRef = createRef();
   useEffect(() => {
     if (attributes.productGuid) {
