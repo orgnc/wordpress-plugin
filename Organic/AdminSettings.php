@@ -38,7 +38,12 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::post_types', $_POST['organic_post_types'], false );
                 $this->organic->setPostTypes( $_POST['organic_post_types'] );
             } else if ( isset( $_POST['organic_content_sync'] ) ) {
-                $this->organic->syncContent( 100 );
+                try {
+                    $this->organic->syncContent( 100 );
+                } catch ( \Exception $e ) {
+                    echo 'Error: ' . $e->getMessage();
+                    echo $e->getTraceAsString();
+                }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
