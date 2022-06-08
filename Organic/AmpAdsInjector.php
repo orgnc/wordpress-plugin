@@ -103,10 +103,11 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             $targeting['targeting_keyword'] = $keywords;
         }
 
-        $category = $values['category'];
-        if ( ! is_null( $category ) ) {
-            $targeting['site_section'] = $category->slug;
-            $targeting['targeting_section'] = $category->slug;
+        $sections = $values['sections'];
+
+        if ( ! empty( $sections ) ) {
+            $targeting['site_section'] = $sections;
+            $targeting['targeting_section'] = $sections;
         }
 
         $json = json_encode( [ 'targeting' => $targeting ] );

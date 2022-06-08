@@ -463,18 +463,13 @@ class Organic {
         return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     }
 
-    public function getKeywordsFor( $postId ) {
+    public function getTagsFor( $postId ) {
         $keywords = get_the_tags( $postId );
 
-        if ( $keywords && is_array( $keywords ) ) {
-            return array_map(
-                function( $tag ) {
-                    return $tag->slug;
-                },
-                $keywords
-            );
+        if ( ! is_array( $keywords ) ) {
+            return [];
         }
-        return [];
+        return $this->getSlugs( ...$keywords );
     }
 
     public function getCategoryForCurrentPage() {
@@ -493,18 +488,35 @@ class Organic {
         }
     }
 
+    public function getSlugs( ...$terms ) {
+        return array_map(
+            fn( $term ) => $term->slug,
+            array_filter(
+                $terms,
+                fn( $term ) => is_a( $term, 'WP_Term' )
+            )
+        );
+    }
+
     public function getTargeting() {
         $post = get_post();
 
         $url = $this->getCurrentUrl();
-        $keywords = $this->getKeywordsFor( $post->ID );
+        $tags = $this->getTagsFor( $post->ID );
         $category = $this->getCategoryForCurrentPage();
+        $restCategories = [];
 
         $id = '';
         $gamId = '';
         if ( is_single() ) {
             $id = esc_html( get_the_ID() );
             $gamId = get_post_meta( $id, GAM_ID_META_KEY, true );
+            $restCategories = $category
+                ? array_filter(
+                    get_the_terms( $post->ID, 'category' ),
+                    fn ( $term ) => $term->term_id != $category->term_id
+                )
+                : [];
         } else if ( is_category() ) {
             $id = 'channel-' . $category->slug;
         } else if ( is_page() ) {
@@ -513,10 +525,19 @@ class Organic {
         $gamPageId = $gamId ? $gamId : $id;
         $gamExternalId = $id;
 
+        $firstOfRestCategories = array_shift( $restCategories );
+        $sections = $this->getSlugs( $category, $firstOfRestCategories );
+        $keywords = array_merge(
+            $this->getSlugs( ...$restCategories ),
+            $tags
+        );
+
         return [
             'siteDomain' => $this->siteDomain,
             'url' => $url,
+            'sections' => $sections,
             'keywords' => $keywords,
+            'tags' => $tags,
             'category' => $category,
             'gamPageId' => $gamPageId,
             'gamExternalId' => $gamExternalId,
