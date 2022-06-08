@@ -4,7 +4,11 @@ namespace Organic;
 
 class FbiaProxy {
     private $article;
-    private FbiaAdsInjector $injector;
+
+    /**
+     * @var FbiaAdsInjector
+     */
+    private $injector;
 
     public function __construct( $article, $organic ) {
         $this->article = $article;

@@ -228,7 +228,7 @@ class Organic {
      * @param $apiUrl string|null
      * @param string|null $cdnUrl
      */
-    public function init( ?string $apiUrl = null, ?string $cdnUrl = null ) {
+    public function init( $apiUrl = null, $cdnUrl = null ) {
         $this->sdkKey = $this->getOption( 'organic::sdk_key' );
         $this->siteId = $this->getOption( 'organic::site_id' );
         $this->siteDomain = $this->getOption( 'organic::site_domain' );
@@ -375,7 +375,11 @@ class Organic {
         return $this->isEnabled() && $this->adSlotsPrefillEnabled;
     }
 
-    public function eligibleForAds( ?string $content = null ) {
+    /**
+     * @param $content string|null
+     * @return bool|int
+     */
+    public function eligibleForAds( $content = null ) {
         global $wp_query;
 
         if ( is_admin() || wp_doing_ajax() ) {
@@ -809,7 +813,7 @@ class Organic {
                 $rich_content_images,
                 $rich_content_videos,
                 $rich_content_embeds,
-                $campaign_asset_guid,
+                $campaign_asset_guid
             );
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API
@@ -902,7 +906,7 @@ class Organic {
                     'key' => SYNC_META_KEY,
                     'compare' => 'NOT EXISTS',
                 ),
-            ),
+            )
         );
     }
 
@@ -923,7 +927,7 @@ class Organic {
                     'value' => 'synced',
                     'compare' => '!=',
                 ),
-            ),
+            )
         );
     }
 
@@ -1055,8 +1059,8 @@ class Organic {
                 "SELECT pm.meta_id AS id, pm.post_id, pm.meta_value AS gam_id
                 FROM {$wpdb->postmeta} pm
                 WHERE pm.meta_key = %s",
-                GAM_ID_META_KEY,
-            ),
+                GAM_ID_META_KEY
+            )
         );
         $this->debug( 'Found mapped gamIds in DB: ' . count( $metas ) );
         foreach ( $metas as $meta ) {
@@ -1198,63 +1202,63 @@ class Organic {
     /**
      * @return string|null
      */
-    public function getPixelId(): ?string {
+    public function getPixelId() {
         return $this->pixelId;
     }
 
     /**
      * @return string|null
      */
-    public function getPixelPublishedUrl(): ?string {
+    public function getPixelPublishedUrl() {
         return $this->pixelPublishedUrl;
     }
 
     /**
      * @return string|null
      */
-    public function getPixelTestingUrl(): ?string {
+    public function getPixelTestingUrl() {
         return $this->pixelTestingUrl;
     }
 
     /**
      * @param int|null $pixelId
      */
-    public function setPixelId( ?int $pixelId ): void {
+    public function setPixelId( $pixelId ) {
         $this->pixelId = $pixelId;
     }
 
     /**
      * @param string|null $pixelPublishedUrl
      */
-    public function setPixelPublishedUrl( ?string $pixelPublishedUrl ): void {
+    public function setPixelPublishedUrl( $pixelPublishedUrl ) {
         $this->pixelPublishedUrl = $pixelPublishedUrl;
     }
 
     /**
      * @param string|null $pixelTestingUrl
      */
-    public function setPixelTestingUrl( ?string $pixelTestingUrl ): void {
+    public function setPixelTestingUrl( $pixelTestingUrl ) {
         $this->pixelTestingUrl = $pixelTestingUrl;
     }
 
     /**
      * @return string|null
      */
-    public function getSiteId(): ?string {
+    public function getSiteId() {
         return $this->siteId;
     }
 
     /**
      * @return string|null SDK Key (if set)
      */
-    public function getSdkKey(): ?string {
+    public function getSdkKey() {
         return $this->sdkKey;
     }
 
     /**
      * @return string|null
      */
-    public function getOrganicPixelTestValue(): ?string {
+    public function getOrganicPixelTestValue() {
         return $this->organicPixelTestValue;
     }
 

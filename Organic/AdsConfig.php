@@ -14,7 +14,7 @@ class AdsConfig extends BaseConfig {
      *  string value
      *  (optional) array placementKeys
      */
-    public array $adRules;
+    public $adRules;
 
     /**
      * Map (key -> Placement) of Placements returned from Organic Platform API
@@ -23,10 +23,10 @@ class AdsConfig extends BaseConfig {
      *  int limit
      *  string relative
      */
-    public array $forPlacement;
+    public $forPlacement;
 
-    private string $fallbackUrl;
-    private string $prebidUrl;
+    private $fallbackUrl;
+    private $prebidUrl;
 
     public function __construct( array $raw ) {
         parent::__construct( $raw );

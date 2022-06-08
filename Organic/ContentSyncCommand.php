@@ -8,7 +8,7 @@ class ContentSyncCommand {
     /**
      * @var Organic
      */
-    private Organic $organic;
+    private $organic;
 
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
@@ -71,7 +71,7 @@ class ContentSyncCommand {
             $updated = $this->organic->fullResyncContent(
                 (int) ( $opts['batch-size'] ?? 100 ),
                 (int) ( $opts['start-from'] ?? 0 ),
-                (int) ( $opts['sleep-between'] ?? 1 ),
+                (int) ( $opts['sleep-between'] ?? 1 )
             );
             $this->organic->info( 'Organic Sync stats', [ 'updated' => $updated ] );
             return;

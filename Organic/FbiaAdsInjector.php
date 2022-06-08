@@ -3,13 +3,19 @@
 namespace Organic;
 
 use FluentDOM\DOM\Document;
-use FluentDOM\DOM\Element;
 
 class FbiaAdsInjector {
     const ALL_KEYS = 'ALL_KEYS';
 
-    private FbiaConfig $config;
-    private Organic $organic;
+    /**
+     * @var FbiaConfig
+     */
+    private $config;
+
+    /**
+     * @var Organic
+     */
+    private $organic;
     private $_targeting;
     private $_blockedKeys;
 
@@ -30,7 +36,7 @@ class FbiaAdsInjector {
         $dom = \FluentDOM::load(
             $html,
             'html5',
-            [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ],
+            [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ]
         );
         $this->injectMeta( $dom );
 
@@ -65,7 +71,7 @@ class FbiaAdsInjector {
         $meta = $dom->createElement(
             'meta',
             '',
-            $attrs,
+            $attrs
         );
 
         $dom->getElementsByTagName( 'head' )->item( 0 )->appendChild(
@@ -87,7 +93,7 @@ class FbiaAdsInjector {
 
         $node = AdsInjector::copyFragment(
             $dom,
-            AdsInjector::loadElement( $html ),
+            AdsInjector::loadElement( $html )
         );
 
         $dom->getElementsByTagName( 'header' )->item( 0 )->appendChild( $node );
@@ -115,7 +121,7 @@ class FbiaAdsInjector {
                     $html,
                     $placement['relative'],
                     $placement['selectors'],
-                    $placement['limit'],
+                    $placement['limit']
                 );
             } catch ( \Exception $e ) {
                 \Organic\Organic::captureException( $e );

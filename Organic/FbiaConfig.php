@@ -19,9 +19,20 @@ class FbiaConfig extends BaseConfig {
         'placements' => [],
     ];
 
-    public int $mode;
-    public bool $enabled;
-    public string $adDensity = self::AD_DENSITY_DEFAULT;
+    /**
+     * @var int
+     */
+    public $mode;
+
+    /**
+     * @var bool
+     */
+    public $enabled;
+
+    /**
+     * @var string
+     */
+    public $adDensity = self::AD_DENSITY_DEFAULT;
 
     public function __construct( array $raw ) {
         $config = array_merge( self::DEFAULTS, $raw );

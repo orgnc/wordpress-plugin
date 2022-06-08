@@ -22,11 +22,10 @@ class AdminNotice {
     public static function showNotices() {
         foreach ( static::$notices as $notice ) {
             $is_dismissible = $notice['is_dismissible'] ? 'is-dismissible' : '';
-            $div = <<<DIV
-            <div class="notice notice-{$notice['type']} {$is_dismissible}">
+            $div = "
+            <div class=\"notice notice-{$notice['type']} {$is_dismissible}'>
             <p>{$notice['message']}</p>
-            </div>
-            DIV;
+            </div>";
             echo $div;
         }
     }

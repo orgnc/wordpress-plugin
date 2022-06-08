@@ -10,7 +10,7 @@ class GraphQL {
     /**
      * @var Organic
      */
-    protected Organic $organic;
+    protected $organic;
 
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
@@ -170,13 +170,8 @@ class GraphQL {
                 'type' => 'String',
                 'description' => __( 'ArticleID for GAM for Revenue Attribution', 'organic' ),
                 'resolve' => function() {
-                    [
-                        'keywords' => $keywords,
-                        'category' => $category,
-                        'gamPageId' => $gamPageId,
-                        'gamExternalId' => $gamExternalId,
-                    ] = $this->organic->getTargeting();
-
+                    $targeting = $this->organic->getTargeting();
+                    $gamPageId = $targeting['gamPageId'];
                     return $gamPageId;
                 },
             ]

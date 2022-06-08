@@ -2,8 +2,6 @@
 <ruleset name="Solutions Wordpress">
     <description>Solutions Wordpress Coding Standards</description>
 
-    <config name="installed_paths" value="vendor/phpcompatibility/php-compatibility" />
-
     <file>./organic.php</file>
     <file>./Organic</file>
 
@@ -57,5 +55,6 @@
     </rule>
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 
-    <config name="minimum_supported_wp_version" value="5.5"/>
+    <config name="minimum_supported_wp_version" value="5.0" />
+    <config name="testVersion" value="7.0" />
 </ruleset>

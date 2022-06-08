@@ -6,13 +6,17 @@ class BaseConfig {
 
     /**
      * Map (key -> config-for-placement) of configs for Placements
+     *
+     * @var array
      */
-    public array $forPlacement;
+    public $forPlacement;
 
     /**
      * Raw Config returned from Organic Platform API
+     *
+     * @var array
      */
-    public array $raw;
+    public $raw;
 
     public function __construct( array $raw ) {
         if ( empty( $raw ) ) {
