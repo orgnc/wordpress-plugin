@@ -20,7 +20,7 @@ const SYNC_META_KEY = 'empire_sync';
  */
 class Organic {
 
-    public const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
+    const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
 
     private $isEnabled = false;
 
@@ -1291,14 +1291,14 @@ class Organic {
     /**
      * @return string|null
      */
-    public function getSitePublicDomain(): ?string {
+    public function getSitePublicDomain() {
         return $this->sitePublicDomain;
     }
 
     /**
      * @return string|null
      */
-    public function getSiteOrganicDomain(): ?string {
+    public function getSiteOrganicDomain() {
         return $this->siteOrganicDomain;
     }
 
