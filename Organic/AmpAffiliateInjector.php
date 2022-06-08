@@ -2,12 +2,17 @@
 
 namespace Organic;
 
+use AMP_Base_Sanitizer;
+use DOMDocument;
+use DOMXPath;
+
 class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
     private Organic $organic;
 
     public function sanitize() {
         try {
             $this->organic = Organic::getInstance();
+            $this->site_organic_domain = $this->organic->getSiteOrganicDomain();
             $this->handle();
         } catch ( \Exception $e ) {
             \Organic\Organic::captureException( $e );
@@ -15,8 +20,7 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
     }
 
     public function handle() {
-        $site_public_domain = $this->organic->getSitePublicDomain();
-        if ( empty( $site_public_domain ) ) {
+        if ( empty( $this->site_organic_domain ) ) {
             return; // can't insert amp-iframes without a public domain
         }
         $this->handle_product_cards();
@@ -30,11 +34,10 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
         }
     }
 
-    public function injectAmpProductCard( $product_card_div, $site_public_domain ) {
+    public function injectAmpProductCard( $product_card_div ) {
         $product_guid = $product_card_div->getAttribute( "data-organic-affiliate-product-guid" );
         $options_str = $product_card_div->getAttribute( "data-organic-affiliate-integration-options" );
-        $public_domain = $this->organic->getSitePublicDomain();
-        $url = $public_domain . "/integrations/affiliate/product-card" . "?guid={$product_guid}";
+        $url = "https//{$this->site_organic_domain}/integrations/affiliate/product-card?guid={$product_guid}";
         if ( ! empty( $options_str ) ) {
             // encode & properly for appendXML
             $url .= "&amp;" . str_replace( ",", "&amp;", $options_str );
