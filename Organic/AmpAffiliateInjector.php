@@ -24,7 +24,7 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
 
     public function handle_product_cards() {
         $xpath = new DOMXPath( $this->dom );
-        $product_card_divs = $xpath->query( "//a[@data-organic-affiliate-integration='product-card']" );
+        $product_card_divs = $xpath->query( "//div[@data-organic-affiliate-integration='product-card']" );
         foreach ( $product_card_divs as $product_card_div ) {
             $this->injectAmpProductCard( $product_card_div );
         }
@@ -34,10 +34,12 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
         $product_guid = $product_card_div->getAttribute( "data-organic-affiliate-product-guid" );
         $options_str = $product_card_div->getAttribute( "data-organic-affiliate-integration-options" );
         $public_domain = $this->organic->getSitePublicDomain();
-        $url = $site_public_domain . "?guid={$product_guid}";
+        $url = $public_domain . "/integrations/affiliate/product-card" . "?guid={$product_guid}";
         if ( ! empty( $options_str ) ) {
-            $url += "&" . str_replace( ",", "&", $options_str );
+            // encode & properly for appendXML
+            $url .= "&amp;" . str_replace( ",", "&amp;", $options_str );
         }
+        // placeholder attribute needed for AMP, ="" needed for valid XML
         $amp_iframe_code = <<<HTML
             <amp-iframe
                 height="540px"
@@ -45,12 +47,11 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
                 sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                 src="$url"
             >
-                <p placeholder>Loading iframe content</p>
+                <p placeholder="">Loading iframe content</p>
             </amp-iframe>
         HTML;
         $fragment = $this->dom->createDocumentFragment();
-        $amp_iframe = $fragment->appendXML( $amp_iframe_code );
-        $fragment->appendChild( $amp_iframe );
+        $fragment->appendXML( $amp_iframe_code );
         $product_card_div->appendChild( $fragment );
     }
 
