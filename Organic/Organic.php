@@ -1384,14 +1384,14 @@ class Organic {
     /**
      * @return string|null
      */
-    public function getSitePublicDomain(): ?string {
+    public function getSitePublicDomain() {
         return $this->sitePublicDomain;
     }
 
     /**
      * @return string|null
      */
-    public function getSiteOrganicDomain(): ?string {
+    public function getSiteOrganicDomain() {
         return $this->siteOrganicDomain;
     }
 
