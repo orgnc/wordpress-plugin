@@ -9,6 +9,10 @@ use DOMXPath;
 
 class AdsInjector {
     private $fragmentBuilder;
+    /**
+     * @var null|\FluentDOM\Xpath\Transformer
+     */
+    private $xpathTransformer = null;
 
     public static function loadElement( $html, $type = 'html5' ) {
         $document = \FluentDOM::load(
@@ -16,7 +20,7 @@ class AdsInjector {
             $type,
             [
                 \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true,
-            ],
+            ]
         );
         return $document->getElementsByTagName( 'html' )->item( 0 );
     }
@@ -38,13 +42,22 @@ class AdsInjector {
         };
     }
 
+    public function getXPathTransformer() {
+        if ( ! $this->xpathTransformer ) {
+            $this->xpathTransformer = \FluentDOM::getXPathTransformer();
+        }
+        return $this->xpathTransformer;
+    }
+
+    public function querySelector( string $selector ) {
+        $path = $this->getXPathTransformer()->toXpath( $selector );
+        return ( new DOMXPath( $this->dom ) )->query( $path );
+    }
+
     public function injectAds( $adHtml, $relative, $selectors, $limit ) {
         $count = 0;
-        $transformer = \FluentDOM::getXPathTransformer();
         foreach ( $selectors as $selector ) {
-            $path = $transformer->toXpath( $selector );
-
-            foreach ( ( new DOMXPath( $this->dom ) )->query( $path ) as $elem ) {
+            foreach ( $this->querySelector( $selector ) as $elem ) {
                 $ad = $this->nodeFromHtml( $adHtml );
                 $injected = $this->injectAd( $ad, $relative, $elem );
                 if ( $injected ) {

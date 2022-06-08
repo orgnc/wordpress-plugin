@@ -1,8 +1,8 @@
 import { forwardRef } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
-function serializeOptions(separator, options) {
-  return Object.entries(options).map(([key, value]) => `${key}=${value}`).join(separator);
+function serializeOptions(options) {
+  return Object.entries(options).map(([key, value]) => `${key}=${value}`).join(',');
 }
 
 function convertColorValue(value) {
@@ -22,18 +22,15 @@ const ProductCard = forwardRef(({
   if (!productGuid) {
     return null;
   }
-  const options = serializeOptions(
-    ',',
-    {
-      displayDescription,
-      displayImage,
-      cardRadius,
-      cardShadow,
-      textColor: convertColorValue(textColor),
-      linkColor: convertColorValue(linkColor),
-      backgroundColor: convertColorValue(backgroundColor),
-    },
-  );
+  const options = serializeOptions({
+    displayDescription,
+    displayImage,
+    cardRadius,
+    cardShadow,
+    textColor: convertColorValue(textColor),
+    linkColor: convertColorValue(linkColor),
+    backgroundColor: convertColorValue(backgroundColor),
+  });
   return (
     <div
       ref={ref}

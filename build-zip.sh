@@ -6,6 +6,7 @@ ls -alh
 sudo chown -R runner:docker .
 cp -r Organic build/organic/
 cp organic.php build/organic/
+cp readme.txt build/organic/
 cp composer.json build/organic/
 cp composer.lock build/organic/
 cp -r vendor build/organic/

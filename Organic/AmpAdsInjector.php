@@ -3,9 +3,9 @@
 namespace Organic;
 
 class AmpAdsInjector extends \AMP_Base_Sanitizer {
-    private Organic $organic;
-    private AdsInjector $adsInjector;
-    private bool $connatixInjected = false;
+    private $organic;
+    private $adsInjector;
+    private $connatixInjected = false;
     private $targeting = null;
 
     public function sanitize() {
@@ -40,11 +40,9 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         foreach ( $ampConfig->forPlacement as $key => $amp ) {
             $placement = $adsConfig->forPlacement[ $key ];
 
-            [
-                'selectors' => $selectors,
-                'limit' => $limit,
-                'relative' => $relative,
-            ] = $placement;
+            $selectors = $placement['selectors'];
+            $limit = $placement['limit'];
+            $relative = $placement['relative'];
 
             // certain placement is blocked
             if ( $rule && in_array( $key, $blockedKeys ) ) {
@@ -72,15 +70,14 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         }
 
         $psid = $this->organic->getConnatixPlayspaceId();
-        $player = <<<HTML
+        $player = "
             <amp-connatix-player
-                data-player-id="ps_$psid"
-                layout="responsive"
-                width="16"
-                height="9"
+                data-player-id=\"ps_$psid\"
+                layout=\"responsive\"
+                width=\"16\"
+                height=\"9\"
             >
-            </amp-connatix-player>
-        HTML;
+            </amp-connatix-player>";
 
         $this->adsInjector->injectAds(
             $player,

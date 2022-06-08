@@ -38,8 +38,7 @@ jobs:
       # Create a packaged up zip file
       - name: Set Version Number & Build Zip
         id: build-zip
-        run: |
-          ./build-zip.sh ${{ env.BUILD_NUMBER }}
+        run: ./build-zip.sh ${{ env.BUILD_NUMBER }}
 
       # Set up our S3 Connection
       - name: Set up S3cmd cli tool

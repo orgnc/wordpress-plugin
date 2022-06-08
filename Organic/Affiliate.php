@@ -35,13 +35,13 @@ class Affiliate {
                 'siteGuid' => $siteId,
                 'publicDomain' => 'https://' . $public_domain,
                 'linkDomains' => $link_domains,
-            ],
+            ]
         );
         wp_enqueue_script( 'organic-sdk', $sdk_url, [ 'organic-sdk-config' ], null, true );
         wp_register_script(
             'organic-affiliate',
             plugins_url( 'affiliate/build/index.js', __DIR__ ),
-            [ 'organic-sdk' ],
+            [ 'organic-sdk' ]
         );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
         wp_localize_script(
@@ -49,13 +49,13 @@ class Affiliate {
             'organic_affiliate_config',
             [
                 'productSearchPageUrl' => $product_search_page_url . '?siteGuid=' . $siteId,
-            ],
+            ]
         );
     }
 
     public function register_gutenberg_block() {
         register_block_type(
-            plugin_dir_path( __DIR__ ) . 'affiliate/build/',
+            plugin_dir_path( __DIR__ ) . 'affiliate/build/'
         );
     }
 }

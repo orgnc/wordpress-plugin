@@ -20,7 +20,7 @@ const SYNC_META_KEY = 'empire_sync';
  */
 class Organic {
 
-    public const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
+    const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
 
     private $isEnabled = false;
 
@@ -115,22 +115,22 @@ class Organic {
     /**
      * @var array Configuration for AMP
      */
-    private ?AmpConfig $ampConfig = null;
+    private $ampConfig = null;
 
     /**
      * @var array Configuration for Prefill
      */
-    private ?PrefillConfig $prefillConfig = null;
+    private $prefillConfig = null;
 
     /**
      * @var AdsConfig Configuration for Ads
      */
-    private ?AdsConfig $adsConfig = null;
+    private $adsConfig = null;
 
     /**
      * @var FbiaConfig Configuration for FBIA
      */
-    private ?FbiaConfig $fbiaConfig = null;
+    private $fbiaConfig = null;
 
     /**
      * List of Post Types that we are synchronizing with Organic Platform
@@ -245,7 +245,7 @@ class Organic {
      * @param $apiUrl string|null
      * @param string|null $cdnUrl
      */
-    public function init( ?string $apiUrl = null, ?string $cdnUrl = null ) {
+    public function init( $apiUrl = null, $cdnUrl = null ) {
         $this->sdkKey = $this->getOption( 'organic::sdk_key' );
         $this->siteId = $this->getOption( 'organic::site_id' );
         $this->sitePublicDomain = $this->getOption( 'organic::public_domain' );
@@ -322,7 +322,7 @@ class Organic {
      * @return string[]
      */
     public function getPostTypes() {
-         return $this->postTypes;
+        return $this->postTypes;
     }
 
     /**
@@ -379,7 +379,7 @@ class Organic {
      * Returns if Campaigns app is enabled
      *
      * @return bool
-    */
+     */
     public function isCampaignsAppEnabled() {
         return $this->isEnabled() && $this->campaignsEnabled;
     }
@@ -415,7 +415,11 @@ class Organic {
         return $this->isEnabled() && $this->adSlotsPrefillEnabled;
     }
 
-    public function eligibleForAds( ?string $content = null ) {
+    /**
+     * @param $content string|null
+     * @return bool|int
+     */
+    public function eligibleForAds( $content = null ) {
         global $wp_query;
 
         if ( is_admin() || wp_doing_ajax() ) {
@@ -611,10 +615,10 @@ class Organic {
     }
 
     /**
-    * Checks if post is eligible for sync
-    *
-    * @param $post
-    */
+     * Checks if post is eligible for sync
+     *
+     * @param $post
+     */
     public function isPostEligibleForSync( $post ) {
         // sync only real 'posts' not revisions or attachments
         if ( ! in_array( $post->post_type, $this->getPostTypes() ) ) {
@@ -661,7 +665,13 @@ class Organic {
         $canonical = \apply_filters( 'organic_post_url', $canonical, $post->ID );
         $title = \htmlspecialchars_decode( $post->post_title );
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
+        $subtitle = \htmlspecialchars_decode( $post->post_subtitle );
+        $subtitle = \apply_filters( 'organic_post_subtitle', $subtitle, $post->ID );
+        $featured_image_url = \apply_filters( 'organic_post_featured_image_url', $post->post_featured_image_url, $post->ID );
+        $template_name = \apply_filters( 'organic_post_template_name', $post->post_template_name, $post->ID );
+        $sponsorship = \apply_filters( 'organic_post_sponsorship', $post->post_sponsorship, $post->ID );
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
+        $is_published = \apply_filters( 'organic_post_is_published', $post->post_is_published, $post->ID );
         $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
         $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
         $campaign_asset_guid = null;
@@ -704,18 +714,146 @@ class Organic {
             );
         }
 
+        $third_party_integrations = array();
+        if ( function_exists( 'wp_get_post_get_third_party_integrations' ) ) {
+            foreach ( wp_get_post_get_third_party_integrations( $post->ID ) as $third_party_integration_id ) {
+                $third_party_integration = get_third_party_integration( $third_party_integration_id );
+                $third_party_integrations[] = array(
+                    'externalId' => (string) $third_party_integration->term_id,
+                    'site_guid' => $third_party_integration->site_guid,
+                    'has_google_analytics' => $third_party_integration->has_google_analytics,
+                    'has_google_tag_manager' => $third_party_integration->has_google_tag_manager,
+                    'has_facebook_targeting_pixel' => $third_party_integration->has_facebook_targeting_pixel,
+                    'has_google_ads_targeting_pixel' => $third_party_integration->has_google_ads_targeting_pixel,
+                    'has_openweb' => $third_party_integration->has_openweb,
+                );
+            }
+        }
+        $third_party_integrations =
+            \apply_filters( 'organic_post_third_party_integrations', $third_party_integrations, $post->ID );
+
+        $seo_schema_tags = array();
+        if ( function_exists( 'wp_get_post_get_seo_schema_tags' ) ) {
+            foreach ( wp_get_post_get_seo_schema_tags( $post->ID ) as $seo_schema_tag_id ) {
+                $seo_schema_tag = get_seo_schema_tag( $seo_schema_tag_id );
+                $seo_schema_tags[] = array(
+                    'externalId' => (string) $seo_schema_tag->term_id,
+                    'site_guid' => $seo_schema_tag->site_guid,
+                    'schema_type' => (string) $seo_schema_tag->schema_type,
+                    'schema_content' => (string) $seo_schema_tag->schema_content,
+                );
+            }
+        }
+        $seo_schema_tags =
+            \apply_filters( 'organic_post_seo_schema_tags', $seo_schema_tags, $post->ID );
+
+        $seo_data = array();
+        if ( function_exists( 'wp_get_post_get_seo_data' ) ) {
+            foreach ( wp_get_post_get_seo_data( $post->ID ) as $seo_datapoint_id ) {
+                $seo_datapoint = get_seo_datapoint( $seo_datapoint_id );
+                $seo_data[] = array(
+                    'externalId' => (string) $seo_datapoint->term_id,
+                    'site_guid' => $seo_datapoint->site_guid,
+                    'seo_title' => (string) $seo_datapoint->seo_title,
+                    'seo_description' => (string) $seo_datapoint->seo_description,
+                    'seo_image_url' => (string) $seo_datapoint->seo_image_url,
+                );
+            }
+        }
+        $seo_data = \apply_filters( 'organic_post_seo_data', $seo_data, $post->ID );
+
+        $custom_metadata = array();
+        if ( function_exists( 'wp_get_post_get_custom_metadata' ) ) {
+            foreach ( wp_get_post_get_custom_metadata( $post->ID ) as $custom_metadatapoint_id ) {
+                $custom_metadatapoint = get_custom_metadatapoint( $custom_metadatapoint_id );
+                $custom_metadata[] = array(
+                    'externalId' => (string) $custom_metadatapoint->term_id,
+                    'site_guid' => $custom_metadatapoint->site_guid,
+                    'twitter_meta' => (string) $custom_metadatapoint->twitter_meta,
+                    'opengraph_meta' => (string) $custom_metadatapoint->opengraph_meta,
+                );
+            }
+        }
+        $custom_metadata = \apply_filters( 'organic_post_custom_metadata', $custom_metadata, $post->ID );
+
+        $meta_tags = array();
+        if ( function_exists( 'wp_get_post_get_meta_tag' ) ) {
+            foreach ( wp_get_post_get_meta_tag( $post->ID ) as $meta_tag_id ) {
+                $meta_tag = get_meta_tag( $meta_tag_id );
+                $meta_tags[] = array(
+                    'externalId' => (string) $meta_tag->term_id,
+                    'site_guid' => $meta_tag->site_guid,
+                    'schema_type' => (string) $meta_tag->schema_type,
+                    'schema_content' => (string) $meta_tag->schema_content,
+                );
+            }
+        }
+        $meta_tags = \apply_filters( 'organic_post_meta_tags', $meta_tags, $post->ID );
+
+        $rich_content_images = array();
+        if ( function_exists( 'wp_get_post_get_rich_content_image' ) ) {
+            foreach ( wp_get_post_get_rich_content_image( $post->ID ) as $rich_content_image_id ) {
+                $rich_content_image = get_rich_content_image( $rich_content_image_id );
+                $rich_content_images[] = array(
+                    'externalId' => (string) $rich_content_image->term_id,
+                    'site_guid' => $rich_content_image->site_guid,
+                    'image_url' => (string) $rich_content_image->image_url,
+                );
+            }
+        }
+        $rich_content_images = \apply_filters( 'organic_post_rich_content_images', $rich_content_images, $post->ID );
+
+        $rich_content_videos = array();
+        if ( function_exists( 'wp_get_post_get_rich_content_video' ) ) {
+            foreach ( wp_get_post_get_rich_content_video( $post->ID ) as $rich_content_video_id ) {
+                $rich_content_video = get_rich_content_video( $rich_content_video_id );
+                $rich_content_videos[] = array(
+                    'externalId' => (string) $rich_content_video->term_id,
+                    'site_guid' => $rich_content_video->site_guid,
+                    'image_url' => (string) $rich_content_video->video_url,
+                );
+            }
+        }
+        $rich_content_videos = \apply_filters( 'organic_post_rich_content_videos', $rich_content_videos, $post->ID );
+
+        $rich_content_embeds = array();
+        if ( function_exists( 'wp_get_post_get_rich_content_embed' ) ) {
+            foreach ( wp_get_post_get_rich_content_embed( $post->ID ) as $rich_content_embed_id ) {
+                $rich_content_embed = get_rich_content_embed( $rich_content_embed_id );
+                $rich_content_embeds[] = array(
+                    'externalId' => (string) $rich_content_embed->term_id,
+                    'site_guid' => $rich_content_embed->site_guid,
+                    'image_url' => (string) $rich_content_embed->embed_url,
+                );
+            }
+        }
+        $rich_content_embeds = \apply_filters( 'organic_post_rich_content_embeds', $rich_content_embeds, $post->ID );
+
         try {
             $result = $this->sdk->contentCreateOrUpdate(
                 $external_id,
                 $canonical,
                 $title,
+                $subtitle,
+                $featured_image_url,
+                $template_name,
+                $sponsorship,
+                $is_published,
                 new DateTime( $published_date ),
                 new DateTime( $modified_date ),
                 $content,
                 $authors,
                 $categories,
                 $tags,
-                $campaign_asset_guid,
+                $third_party_integrations,
+                $seo_schema_tags,
+                $seo_data,
+                $custom_metadata,
+                $meta_tags,
+                $rich_content_images,
+                $rich_content_videos,
+                $rich_content_embeds,
+                $campaign_asset_guid
             );
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API
@@ -808,7 +946,7 @@ class Organic {
                     'key' => SYNC_META_KEY,
                     'compare' => 'NOT EXISTS',
                 ),
-            ),
+            )
         );
     }
 
@@ -829,7 +967,7 @@ class Organic {
                     'value' => 'synced',
                     'compare' => '!=',
                 ),
-            ),
+            )
         );
     }
 
@@ -838,12 +976,11 @@ class Organic {
      *
      * Works in batches of 1000 to minimize load issues
      *
+     * @param int $max_to_sync Number of posts to attempt to sync
      * @return int Number of posts synchronized
      * @throws Exception if posts have invalid published or modified dates
      */
-    public function syncContent() : int {
-        $max_to_sync = 1000;
-
+    public function syncContent( $max_to_sync = 1000 ) : int {
         // First go through ones that have never been sync-ed
         $query = $this->buildQueryNeverSyncedPosts( $max_to_sync );
         $updated = $this->_syncPosts( $query->posts );
@@ -962,8 +1099,8 @@ class Organic {
                 "SELECT pm.meta_id AS id, pm.post_id, pm.meta_value AS gam_id
                 FROM {$wpdb->postmeta} pm
                 WHERE pm.meta_key = %s",
-                GAM_ID_META_KEY,
-            ),
+                GAM_ID_META_KEY
+            )
         );
         $this->debug( 'Found mapped gamIds in DB: ' . count( $metas ) );
         foreach ( $metas as $meta ) {
@@ -1105,77 +1242,77 @@ class Organic {
     /**
      * @return string|null
      */
-    public function getPixelId(): ?string {
+    public function getPixelId() {
         return $this->pixelId;
     }
 
     /**
      * @return string|null
      */
-    public function getPixelPublishedUrl(): ?string {
+    public function getPixelPublishedUrl() {
         return $this->pixelPublishedUrl;
     }
 
     /**
      * @return string|null
      */
-    public function getPixelTestingUrl(): ?string {
+    public function getPixelTestingUrl() {
         return $this->pixelTestingUrl;
     }
 
     /**
      * @param int|null $pixelId
      */
-    public function setPixelId( ?int $pixelId ): void {
+    public function setPixelId( $pixelId ) {
         $this->pixelId = $pixelId;
     }
 
     /**
      * @param string|null $pixelPublishedUrl
      */
-    public function setPixelPublishedUrl( ?string $pixelPublishedUrl ): void {
+    public function setPixelPublishedUrl( $pixelPublishedUrl ) {
         $this->pixelPublishedUrl = $pixelPublishedUrl;
     }
 
     /**
      * @param string|null $pixelTestingUrl
      */
-    public function setPixelTestingUrl( ?string $pixelTestingUrl ): void {
+    public function setPixelTestingUrl( $pixelTestingUrl ) {
         $this->pixelTestingUrl = $pixelTestingUrl;
     }
 
     /**
      * @return string|null
      */
-    public function getSiteId(): ?string {
+    public function getSiteId() {
         return $this->siteId;
     }
 
     /**
      * @return string|null
      */
-    public function getSitePublicDomain(): ?string {
+    public function getSitePublicDomain() {
         return $this->sitePublicDomain;
     }
 
     /**
      * @return string|null
      */
-    public function getSiteOrganicDomain(): ?string {
+    public function getSiteOrganicDomain() {
         return $this->siteOrganicDomain;
     }
 
     /**
      * @return string|null SDK Key (if set)
      */
-    public function getSdkKey(): ?string {
+    public function getSdkKey() {
         return $this->sdkKey;
     }
 
     /**
      * @return string|null
      */
-    public function getOrganicPixelTestValue(): ?string {
+    public function getOrganicPixelTestValue() {
         return $this->organicPixelTestValue;
     }
 

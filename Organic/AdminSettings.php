@@ -37,6 +37,13 @@ class AdminSettings {
             } else if ( isset( $_POST['organic_post_types'] ) ) {
                 $this->organic->updateOption( 'organic::post_types', $_POST['organic_post_types'], false );
                 $this->organic->setPostTypes( $_POST['organic_post_types'] );
+            } else if ( isset( $_POST['organic_content_sync'] ) ) {
+                try {
+                    $this->organic->syncContent( 100 );
+                } catch ( \Exception $e ) {
+                    echo 'Error: ' . $e->getMessage();
+                    echo $e->getTraceAsString();
+                }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
@@ -98,12 +105,10 @@ class AdminSettings {
 
         if ( ! $fbia->isFacebookPluginConfigured() ) {
             AdminNotice::warning(
-                <<< EOM
-                Facebook instant articles are enabled for this site, but facebook plugin has
-                its own ads configuration.
-                <br/>
-                Turn it off by setting 'Ad type' to 'none' on the plugin settings page.
-                EOM
+                "Facebook instant articles are enabled for this site, but facebook plugin has its own ads 
+                     configuration.
+                     <br/>
+                     Turn it off by setting 'Ad type' to 'none' on the plugin settings page."
             );
         }
 
@@ -339,6 +344,10 @@ class AdminSettings {
                 </ul>
                 <p><input type="submit" value="Save" />
             </form>
+            <form method="post">
+                <input type="hidden" name="organic_content_sync" value="1" />
+                <input type="submit" value="Sync Content Batch" />
+            </form>
         </div>
             <?php
     }
@@ -379,9 +388,5 @@ class AdminSettings {
         }
 
         update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
-        // Only run the sync if we are actually configured
-        if ( $this->organic->getSiteId() && $this->organic->getSdkKey() ) {
-            $this->organic->syncPost( $post );
-        }
     }
 }

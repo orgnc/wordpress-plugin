@@ -20,15 +20,15 @@ function organic_get_all_campaign_assets(): array {
                 $campaignData['guid'],
                 $campaignData['name'],
                 $campaignData['status'],
-                $campaignData['externalId'],
-            ),
+                $campaignData['externalId']
+            )
         );
         $result[] = $asset;
     }
     return $result;
 }
 
-function organic_content_assign_campaign_asset( $post_id, ?string $campaign_asset_guid ): void {
+function organic_content_assign_campaign_asset( $post_id, $campaign_asset_guid ) {
     Organic::getInstance()->assignContentCampaignAsset( $post_id, $campaign_asset_guid );
 }
 
