@@ -55,9 +55,9 @@ class OrganicSdk {
      */
     public function __construct(
         string $siteGuid,
-        $token = null,
-        $apiUrl = null,
-        $cdnUrl = null
+               $token = null,
+               $apiUrl = null,
+               $cdnUrl = null
     ) {
         if ( ! $apiUrl ) {
             $apiUrl = self::DEFAULT_API_URL;
@@ -109,7 +109,7 @@ class OrganicSdk {
      * @return string
      */
     public function getSdkUrl() {
-          return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
+        return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
     }
 
     /**
@@ -211,7 +211,7 @@ class OrganicSdk {
         array $rich_content_embeds = array(),
         string $campaign_asset_guid = null
     ) {
-         // Validate the structure of the referenced metadata
+        // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
         $categories = $this->metaArrayToObjects( $categories, 'categories' );
         $tags = $this->metaArrayToObjects( $tags, 'tags' );
@@ -236,24 +236,22 @@ class OrganicSdk {
                 'categories' => $categories,
                 'content' => $content,
                 'externalId' => $externalId,
-                'is_published' => $is_published,
+                'isPublished' => (bool) $is_published,
                 'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
                 'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
                 'subtitle' => $subtitle,
-                'featured_image_url' => $featured_image_url,
-                'template_name' => $template_name,
+                'featuredImageUrl' => $featured_image_url,
+                'templateName' => $template_name,
                 'sponsorship' => $sponsorship,
-                'third_party_integrations' => $third_party_integrations,
-                'seo_schema_tags' => $seo_schema_tags,
-                'seo_data' => $seo_data,
-                'custom_metadata' => $custom_metadata,
-                'meta_tags' => $meta_tags,
-                'rich_content_images' => $rich_content_images,
-                'rich_content_videos' => $rich_content_videos,
-                'rich_content_embeds' => $rich_content_embeds,
+                'thirdPartyIntegrations' => $third_party_integrations,
+                'seoSchemaTags' => $seo_schema_tags,
+                'seoData' => $seo_data,
+                'customMetadata' => $custom_metadata,
+                'metaTags' => $meta_tags,
+                'richContentIndex' => array_merge( $rich_content_images, $rich_content_videos, $rich_content_embeds ),
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
