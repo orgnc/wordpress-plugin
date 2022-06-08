@@ -242,10 +242,6 @@ class OrganicSdk {
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
-                'subtitle' => $subtitle,
-                'featuredImageUrl' => $featured_image_url,
-                'templateName' => $template_name,
-                'sponsorship' => $sponsorship,
                 'thirdPartyIntegrations' => $third_party_integrations,
                 'seoSchemaTags' => $seo_schema_tags,
                 'seoData' => $seo_data,
@@ -255,6 +251,19 @@ class OrganicSdk {
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
+        if ( $subtitle ) {
+            $variables['input']['subtitle'] = $subtitle;
+        }
+        if ( $featured_image_url ) {
+            $variables['input']['featuredImageUrl'] = $featured_image_url;
+        }
+        if ( $template_name ) {
+            $variables['input']['templateName'] = $template_name;
+        }
+        if ( $sponsorship ) {
+            $variables['input']['sponsorship'] = $sponsorship;
+        }
+
         $result = $this->runQuery( $mutation, $variables );
         return $result['data']['contentCreateOrUpdate'];
     }
