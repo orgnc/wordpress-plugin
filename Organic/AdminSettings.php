@@ -101,12 +101,10 @@ class AdminSettings {
 
         if ( ! $fbia->isFacebookPluginConfigured() ) {
             AdminNotice::warning(
-                <<< EOM
-                Facebook instant articles are enabled for this site, but facebook plugin has
-                its own ads configuration.
-                <br/>
-                Turn it off by setting 'Ad type' to 'none' on the plugin settings page.
-                EOM
+                "Facebook instant articles are enabled for this site, but facebook plugin has its own ads 
+                     configuration.
+                     <br/>
+                     Turn it off by setting 'Ad type' to 'none' on the plugin settings page."
             );
         }
 

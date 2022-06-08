@@ -45,6 +45,8 @@
         <exclude name="WordPress.Security.EscapeOutput.UnsafePrintingFunction"/>
     </rule>
 
+    <rule ref="PHPCompatibility" />
+
     <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>
             <property name="indent" value="4"/>
@@ -53,5 +55,6 @@
     </rule>
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 
-    <config name="minimum_supported_wp_version" value="5.5"/>
+    <config name="minimum_supported_wp_version" value="5.0" />
+    <config name="testVersion" value="7.0" />
 </ruleset>

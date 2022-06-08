@@ -3,8 +3,15 @@
 namespace Organic;
 
 class PrefillAdsInjector {
-    private AdsConfig $adsConfig;
-    private PrefillConfig $prefillConfig;
+    /**
+     * @var AdsConfig
+     */
+    private $adsConfig;
+
+    /**
+     * @var PrefillConfig
+     */
+    private $prefillConfig;
     private $targeting;
 
     public function __construct( AdsConfig $adsConfig, PrefillConfig $prefillConfig, $targeting ) {
@@ -17,7 +24,7 @@ class PrefillAdsInjector {
         $contentDom = \FluentDOM::load(
             $content,
             'html5',
-            [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ],
+            [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ]
         );
 
         $implementation = new \DOMImplementation();
@@ -30,7 +37,7 @@ class PrefillAdsInjector {
                 $document = \FluentDOM::load(
                     $html,
                     'html5',
-                    [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ],
+                    [ \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true ]
                 );
                 return $document->getElementsByTagName( 'html' )->item( 0 );
             }
@@ -53,11 +60,9 @@ class PrefillAdsInjector {
 
             $placement = $this->adsConfig->forPlacement[ $key ];
 
-            [
-                'selectors' => $selectors,
-                'limit' => $limit,
-                'relative' => $relative,
-            ] = $placement;
+            $selectors = $placement['selectors'];
+            $limit = $placement['limit'];
+            $relative = $placement['relative'];
 
             $adContainer = $prefill['html'];
 

@@ -20,9 +20,9 @@ use RuntimeException;
  */
 class OrganicSdk {
 
-    public const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
-    public const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
-    public const FALLBACK_PREBID_BUILD = 'prebid5.13.0.js';
+    const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
+    const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
+    const FALLBACK_PREBID_BUILD = 'prebid5.13.0.js';
 
 
     /**
@@ -55,9 +55,9 @@ class OrganicSdk {
      */
     public function __construct(
         string $siteGuid,
-        ?string $token = null,
-        ?string $apiUrl = null,
-        ?string $cdnUrl = null
+        $token = null,
+        $apiUrl = null,
+        $cdnUrl = null
     ) {
         if ( ! $apiUrl ) {
             $apiUrl = self::DEFAULT_API_URL;
@@ -510,7 +510,7 @@ class OrganicSdk {
      *
      * @param string|null $token
      */
-    public function updateToken( ?string $token ) {
+    public function updateToken( $token ) {
         $params = array();
         if ( $token ) {
             $params['x-api-key'] = $token;

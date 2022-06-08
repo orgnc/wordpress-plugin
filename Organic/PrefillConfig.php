@@ -8,6 +8,8 @@ class PrefillConfig extends BaseConfig {
      * Each prefill must contain at least:
      *  string html
      *  string css
+     *
+     * @var array
      */
-    public array $forPlacement;
+    public $forPlacement;
 }

@@ -9,7 +9,10 @@ use DOMXPath;
 
 class AdsInjector {
     private $fragmentBuilder;
-    private ?\FluentDOM\Xpath\Transformer $xpathTransformer = null;
+    /**
+     * @var null|\FluentDOM\Xpath\Transformer
+     */
+    private $xpathTransformer = null;
 
     public static function loadElement( $html, $type = 'html5' ) {
         $document = \FluentDOM::load(
@@ -17,7 +20,7 @@ class AdsInjector {
             $type,
             [
                 \FluentDOM\HTML5\Loader::DISABLE_HTML_NAMESPACE => true,
-            ],
+            ]
         );
         return $document->getElementsByTagName( 'html' )->item( 0 );
     }

@@ -14,7 +14,7 @@ class PageInjection {
     /**
      * @var Organic
      */
-    private Organic $organic;
+    private $organic;
 
     /**
      * Tracker flag to ensure we don't inject multiple copies of the Connatix player. This has
@@ -89,7 +89,7 @@ class PageInjection {
                 $article = $ia_post->instant_article;
                 $ia_post->instant_article = new FbiaProxy(
                     $article,
-                    $this->organic,
+                    $this->organic
                 );
             }
         );
@@ -121,7 +121,7 @@ class PageInjection {
                         $prefillInjector = new PrefillAdsInjector(
                             $adsConfig,
                             $prefillConfig,
-                            $targeting,
+                            $targeting
                         );
 
                         try {
@@ -234,12 +234,11 @@ class PageInjection {
         if ( $this->organic->getPixelPublishedUrl() || $this->organic->getSiteId() ) {
             $categoryString = '';
             $keywordString = '';
-            [
-                'keywords' => $keywords,
-                'category' => $category,
-                'gamPageId' => $gamPageId,
-                'gamExternalId' => $gamExternalId,
-            ] = $this->organic->getTargeting();
+            $targeting = $this->organic->getTargeting();
+            $keywords = $targeting['keywords'];
+            $category = $targeting['category'];
+            $gamPageId = $targeting['gamPageId'];
+            $gamExternalId = $targeting['gamExternalId'];
 
             if ( ! is_null( $category ) ) {
                 $categoryString = $category->slug;

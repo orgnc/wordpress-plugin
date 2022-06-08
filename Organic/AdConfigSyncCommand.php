@@ -8,7 +8,7 @@ class AdConfigSyncCommand {
     /**
      * @var Organic
      */
-    private Organic $organic;
+    private $organic;
 
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
