@@ -58,6 +58,7 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::inject_ads_config', isset( $_POST['organic_inject_ads_config'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
+                $this->organic->updateOption( 'organic::content_foreground', isset( $_POST['organic_content_foreground'] ) ? true : false, false );
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
                 $this->update_results[] = 'updated';
             }
@@ -130,6 +131,7 @@ class AdminSettings {
         $inject_ads_config = $this->organic->getOption( 'organic::inject_ads_config' );
         $ad_slots_prefill_enabled = $this->organic->getOption( 'organic::ad_slots_prefill_enabled' );
         $campaigns_enabled = $this->organic->getOption( 'organic::campaigns_enabled' );
+        $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -247,6 +249,15 @@ class AdminSettings {
                         Campaigns Application is enabled on the Platform
                     </label>
                 </p>
+                <label>
+                    <input
+                            type="checkbox"
+                            name="organic_content_foreground"
+                            id="organic_content_foreground"
+                        <?php echo $content_foreground ? 'checked' : ''; ?>
+                    />
+                    Force content updates to happen immediately on save. Only use if CRON is disabled on your site.
+                </label>
                 <p>
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
@@ -346,5 +357,9 @@ class AdminSettings {
         }
 
         update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
+
+        if ( $this->organic->getContentForeground() ) {
+            $this->organic->syncPost( $post );
+        }
     }
 }

@@ -43,6 +43,11 @@ class Organic {
     private $connatixPlayspaceId;
 
     /**
+     * @var bool True if we are forcing Content Meta synchronization into foreground
+     */
+    private $contentForeground = false;
+
+    /**
      * @var int % of traffic to send to Organic SDK instead of Organic Pixel
      */
     private $organicPixelTestPercent = 0;
@@ -255,6 +260,7 @@ class Organic {
         $this->postTypes = $this->getOption( 'organic::post_types', [ 'post', 'page' ] );
 
         $this->campaignsEnabled = $this->getOption( 'organic::campaigns_enabled' );
+        $this->contentForeground = $this->getOption( 'organic::content_foreground' );
 
         /* Load up our sub-page configs */
         new AdminSettings( $this );
@@ -1197,6 +1203,17 @@ class Organic {
 
     public function getAdsTxtManager() : AdsTxt {
         return $this->adsTxt;
+    }
+
+    /**
+     * Check if we are configured for foreground synchronization.
+     * This does not block background / cron based synchronization as well, but may make your saves slower for
+     * the editors.
+     *
+     * @return bool
+     */
+    public function getContentForeground() : bool {
+        return $this->contentForeground;
     }
 
     /**
