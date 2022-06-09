@@ -490,54 +490,94 @@ class Organic {
 
     public function getSlugs( ...$terms ) {
         return array_map(
-            fn( $term ) => $term->slug,
+            function( $term ) {
+                return $term->slug;
+            },
             array_filter(
                 $terms,
-                fn( $term ) => is_a( $term, 'WP_Term' )
+                function( $term ) {
+                    return is_a( $term, 'WP_Term' );
+                }
             )
         );
+    }
+
+    /**
+     * Returns term's nesting level
+     *
+     * @param mixed $term
+     * @param int $maxLevel
+     * @return int
+     */
+    public function getTermLevel( $term, $maxLevel = 5 ) {
+        $level = 1;
+        $parent = $term;
+        for ( ;; ) {
+            if ( $parent->parent == 0 || $level >= $maxLevel ) {
+                break;
+            }
+            $parent = get_term_by( 'term_id', $parent->parent, $term->taxonomy );
+            $level++;
+        }
+        return $level;
     }
 
     public function getTargeting() {
         $post = get_post();
 
         $url = $this->getCurrentUrl();
-        $tags = $this->getTagsFor( $post->ID );
+        $keywords = $this->getTagsFor( $post->ID );
         $category = $this->getCategoryForCurrentPage();
-        $restCategories = [];
+        $sections = null;
 
         $id = '';
         $gamId = '';
         if ( is_single() ) {
             $id = esc_html( get_the_ID() );
             $gamId = get_post_meta( $id, GAM_ID_META_KEY, true );
-            $restCategories = $category
-                ? array_filter(
-                    get_the_terms( $post->ID, 'category' ),
-                    fn ( $term ) => $term->term_id != $category->term_id
-                )
-                : [];
+
+            $categories = get_the_terms( $post->ID, 'category' ) ?: [];
+            usort(
+                $categories,
+                function ( $a, $b ) {
+                    return $a->term_id - $b->term_id;
+                }
+            );
+
+            $c1terms = array_filter(
+                $categories,
+                function( $term ) {
+                    return $this->getTermLevel( $term ) == 1;
+                }
+            );
+
+            $c2terms = array_filter(
+                $categories,
+                function( $term ) {
+                    return $this->getTermLevel( $term ) > 1;
+                }
+            );
+
+            // $category can be set by WPSEO_Primary_Term
+            $sections = array_unique( $this->getSlugs( $category, ...$c1terms ) );
+            $keywords = array_merge(
+                $this->getSlugs( ...$c2terms ),
+                $keywords
+            );
         } else if ( is_category() ) {
             $id = 'channel-' . $category->slug;
+            $sections = [ $category->slug ];
         } else if ( is_page() ) {
             $id = 'page-' . $post->post_name;
         }
         $gamPageId = $gamId ? $gamId : $id;
         $gamExternalId = $id;
 
-        $firstOfRestCategories = array_shift( $restCategories );
-        $sections = $this->getSlugs( $category, $firstOfRestCategories );
-        $keywords = array_merge(
-            $this->getSlugs( ...$restCategories ),
-            $tags
-        );
-
         return [
             'siteDomain' => $this->siteDomain,
             'url' => $url,
             'sections' => $sections,
             'keywords' => $keywords,
-            'tags' => $tags,
             'category' => $category,
             'gamPageId' => $gamPageId,
             'gamExternalId' => $gamExternalId,
