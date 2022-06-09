@@ -43,6 +43,11 @@ class Organic {
     private $connatixPlayspaceId;
 
     /**
+     * @var bool True if we are forcing Content Meta synchronization into foreground
+     */
+    private $contentForeground = false;
+
+    /**
      * @var int % of traffic to send to Organic SDK instead of Organic Pixel
      */
     private $organicPixelTestPercent = 0;
@@ -255,6 +260,7 @@ class Organic {
         $this->postTypes = $this->getOption( 'organic::post_types', [ 'post', 'page' ] );
 
         $this->campaignsEnabled = $this->getOption( 'organic::campaigns_enabled' );
+        $this->contentForeground = $this->getOption( 'organic::content_foreground' );
 
         /* Load up our sub-page configs */
         new AdminSettings( $this );
@@ -457,18 +463,13 @@ class Organic {
         return $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     }
 
-    public function getKeywordsFor( $postId ) {
+    public function getTagsFor( $postId ) {
         $keywords = get_the_tags( $postId );
 
-        if ( $keywords && is_array( $keywords ) ) {
-            return array_map(
-                function( $tag ) {
-                    return $tag->slug;
-                },
-                $keywords
-            );
+        if ( ! is_array( $keywords ) ) {
+            return [];
         }
-        return [];
+        return $this->getSlugs( ...$keywords );
     }
 
     public function getCategoryForCurrentPage() {
@@ -487,20 +488,85 @@ class Organic {
         }
     }
 
+    public function getSlugs( ...$terms ) {
+        return array_map(
+            function( $term ) {
+                return $term->slug;
+            },
+            array_filter(
+                $terms,
+                function( $term ) {
+                    return is_a( $term, 'WP_Term' );
+                }
+            )
+        );
+    }
+
+    /**
+     * Returns term's nesting level
+     *
+     * @param mixed $term
+     * @param int $maxLevel
+     * @return int
+     */
+    public function getTermLevel( $term, $maxLevel = 5 ) {
+        $level = 1;
+        $parent = $term;
+        for ( ;; ) {
+            if ( $parent->parent == 0 || $level >= $maxLevel ) {
+                break;
+            }
+            $parent = get_term_by( 'term_id', $parent->parent, $term->taxonomy );
+            $level++;
+        }
+        return $level;
+    }
+
     public function getTargeting() {
         $post = get_post();
 
         $url = $this->getCurrentUrl();
-        $keywords = $this->getKeywordsFor( $post->ID );
+        $keywords = $this->getTagsFor( $post->ID );
         $category = $this->getCategoryForCurrentPage();
+        $sections = null;
 
         $id = '';
         $gamId = '';
         if ( is_single() ) {
             $id = esc_html( get_the_ID() );
             $gamId = get_post_meta( $id, GAM_ID_META_KEY, true );
+
+            $categories = get_the_terms( $post->ID, 'category' ) ?: [];
+            usort(
+                $categories,
+                function ( $a, $b ) {
+                    return $a->term_id - $b->term_id;
+                }
+            );
+
+            $c1terms = array_filter(
+                $categories,
+                function( $term ) {
+                    return $this->getTermLevel( $term ) == 1;
+                }
+            );
+
+            $c2terms = array_filter(
+                $categories,
+                function( $term ) {
+                    return $this->getTermLevel( $term ) > 1;
+                }
+            );
+
+            // $category can be set by WPSEO_Primary_Term
+            $sections = array_unique( $this->getSlugs( $category, ...$c1terms ) );
+            $keywords = array_merge(
+                $this->getSlugs( ...$c2terms ),
+                $keywords
+            );
         } else if ( is_category() ) {
             $id = 'channel-' . $category->slug;
+            $sections = [ $category->slug ];
         } else if ( is_page() ) {
             $id = 'page-' . $post->post_name;
         }
@@ -510,6 +576,7 @@ class Organic {
         return [
             'siteDomain' => $this->siteDomain,
             'url' => $url,
+            'sections' => $sections,
             'keywords' => $keywords,
             'category' => $category,
             'gamPageId' => $gamPageId,
@@ -1197,6 +1264,17 @@ class Organic {
 
     public function getAdsTxtManager() : AdsTxt {
         return $this->adsTxt;
+    }
+
+    /**
+     * Check if we are configured for foreground synchronization.
+     * This does not block background / cron based synchronization as well, but may make your saves slower for
+     * the editors.
+     *
+     * @return bool
+     */
+    public function getContentForeground() : bool {
+        return $this->contentForeground;
     }
 
     /**

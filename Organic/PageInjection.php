@@ -232,16 +232,16 @@ class PageInjection {
         }
 
         if ( $this->organic->getPixelPublishedUrl() || $this->organic->getSiteId() ) {
-            $categoryString = '';
+            $sectionString = '';
             $keywordString = '';
             $targeting = $this->organic->getTargeting();
             $keywords = $targeting['keywords'];
-            $category = $targeting['category'];
+            $sections = $targeting['sections'];
             $gamPageId = $targeting['gamPageId'];
             $gamExternalId = $targeting['gamExternalId'];
 
-            if ( ! is_null( $category ) ) {
-                $categoryString = $category->slug;
+            if ( ! empty( $sections ) ) {
+                $sectionString = esc_html( implode( ',', $sections ) );
             }
 
             if ( ! empty( $keywords ) ) {
@@ -280,7 +280,7 @@ class PageInjection {
                         window.__trackadm_usp_cookie = 'ne-opt-out';
                         window.tadmPageId = '<?php echo $gamPageId; ?>';
                         window.tadmKeywords = '<?php echo $keywordString; ?>';
-                        window.tadmSection = '<?php echo $categoryString; ?>';
+                        window.tadmSection = '<?php echo $sectionString; ?>';
                         window.trackADMData = {
                             tests: BVTests.getTargetingValue()
                         };
@@ -302,7 +302,7 @@ class PageInjection {
                             externalId: '<?php echo $gamExternalId; ?>',
                             keywords: '<?php echo $keywordString; ?>',
                             disableKeywordReporting: false,
-                            section: '<?php echo $categoryString; ?>',
+                            section: '<?php echo $sectionString; ?>',
                             disableSectionReporting: false,
                             tests: BVTests.getTargetingValue(),
                         }
