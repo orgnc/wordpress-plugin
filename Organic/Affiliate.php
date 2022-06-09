@@ -35,6 +35,9 @@ class Affiliate {
                 'siteGuid' => $siteId,
                 'publicDomain' => 'https://' . $public_domain,
                 'linkDomains' => $link_domains,
+                'amazonUsDefault' => $this->organic->getOption( 'organic::affiliate_tracking_id_amazon_us' ),
+                'amazonUsRecovery' => $this->organic->getOption( 'organic::affiliate_tracking_id_amazon_us_recovery' ),
+                'logEvents' => ! is_admin(),
             ]
         );
         wp_enqueue_script( 'organic-sdk', $sdk_url, [ 'organic-sdk-config' ], null, true );
