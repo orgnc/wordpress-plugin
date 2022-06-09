@@ -71,6 +71,9 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::content_foreground', isset( $_POST['organic_content_foreground'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::affiliate_enabled', isset( $_POST['organic_affiliate_enabled'] ) ? true : false, false );
+                # TODO: fetch this from the platform
+                $this->organic->updateOption( 'organic::affiliate_tracking_id_amazon_us', $_POST['organic_affiliate_tracking_id_amazon_us'] ?: '', false );
+                $this->organic->updateOption( 'organic::affiliate_tracking_id_amazon_us_recovery', $_POST['organic_affiliate_tracking_id_amazon_us_recovery'] ?: '', false );
 
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
                 $this->update_results[] = 'updated';
@@ -150,6 +153,8 @@ class AdminSettings {
         $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
         $site_public_domain = $this->organic->getOption( 'organic::public_domain' );
         $site_organic_domain = $this->organic->getOption( 'organic::organic_domain' );
+        $tracking_id_amazon_us_default = $this->organic->getOption( 'organic::affiliate_tracking_id_amazon_us' );
+        $tracking_id_amazon_us_recovery = $this->organic->getOption( 'organic::affiliate_tracking_id_amazon_us_recovery' );
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -309,6 +314,8 @@ class AdminSettings {
                     />
                     Force content updates to happen immediately on save. Only use if CRON is disabled on your site.
                 </label>
+
+                <h4>Affiliate Settings</h4>
                 <p>
                     <label>
                         <input
@@ -321,12 +328,35 @@ class AdminSettings {
                     </label>
                 </p>
                 <p>
+                    <label>
+                        Tracking ID Amazon US Default:
+                        <input
+                            type="text"
+                            name="organic_affiliate_tracking_id_amazon_us"
+                            id="organic_affiliate_tracking_id_amazon_us"
+                            value="<?php echo $tracking_id_amazon_us_default; ?>"
+                        />
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        Tracking ID Amazon US Recovery:
+                        <input
+                            type="text"
+                            name="organic_affiliate_tracking_id_amazon_us_recovery"
+                            id="organic_affiliate_tracking_id_amazon_us_recovery"
+                            value="<?php echo $tracking_id_amazon_us_recovery; ?>"
+                        />
+                    </label>
+                </p>
+                <p>
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
                     <input id="update-and-sync-submit" type="submit" name="organic_update" value="Update and sync" />
                     <?php echo $update_status; ?>
                 </p>
             </form>
+
             <h2>Ads.txt</h2>
             <form method="post">
                 <label>ads.txt

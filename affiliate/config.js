@@ -1,5 +1,6 @@
 /* eslint-disable camelcase, no-undef */
 window.empire ||= {};
+window.empire.siteGuid = organic_sdk_config.siteGuid;
 window.empire.apps ||= {};
 window.empire.apps.affiliate ||= {};
 window.empire.apps.affiliate.config = {
@@ -9,6 +10,14 @@ window.empire.apps.affiliate.config = {
   },
   appConf: {
     linkDomains: organic_sdk_config.linkDomains,
-    trackingIDs: {},
+    trackingIDs: {
+      default: {
+        amazonUS: organic_sdk_config.amazonUsDefault,
+      },
+      recovery: {
+        amazonUS: organic_sdk_config.amazonUsRecovery,
+      },
+    },
+    logEvents: Boolean(organic_sdk_config.logEvents),
   },
 };
