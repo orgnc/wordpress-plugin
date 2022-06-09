@@ -44,6 +44,13 @@ class AdminSettings {
                     echo 'Error: ' . $e->getMessage();
                     echo $e->getTraceAsString();
                 }
+            } else if ( isset( $_POST['organic_content_id_sync'] ) ) {
+                try {
+                    $this->organic->syncContentIdMap();
+                } catch ( \Exception $e ) {
+                    echo 'Error: ' . $e->getMessage();
+                    echo $e->getTraceAsString();
+                }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
@@ -316,6 +323,10 @@ class AdminSettings {
             <form method="post">
                 <input type="hidden" name="organic_content_sync" value="1" />
                 <input type="submit" value="Sync Content Batch" />
+            </form>
+            <form method="post">
+                <input type="hidden" name="organic_content_id_sync" value="1" />
+                <input type="submit" value="Sync Content IDs" />
             </form>
         </div>
             <?php
