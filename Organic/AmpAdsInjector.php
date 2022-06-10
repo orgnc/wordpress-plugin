@@ -69,6 +69,32 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             return;
         }
 
+        $targeting = $this->organic->getTargeting();
+        $section = implode( ',', $targeting['sections'] ?: [] );
+        $keywords = implode( ',', $targeting['keywords'] ?: [] );
+        $gamPageId = $targeting['gamPageId'];
+        $externalId = $targeting['gamExternalId'];
+        $macros = htmlspecialchars(
+            json_encode(
+                [
+                    'cust_params' => http_build_query(
+                        [
+                            'site' => $this->organic->siteDomain,
+                            'targeting_article' => $externalId,
+                            'targeting_section' => $section,
+                            'targeting_keyword' => $keywords,
+                            'article' => $gamPageId,
+                        ]
+                    ),
+                    'article' => $gamPageId,
+                    'category' => $section,
+                    'keywords' => $keywords,
+                ]
+            ),
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
         $psid = $this->organic->getConnatixPlayspaceId();
         $player = "
             <amp-connatix-player
@@ -76,6 +102,10 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
                 layout=\"responsive\"
                 width=\"16\"
                 height=\"9\"
+                data-param-custom-param1=\"$gamPageId\"
+                data-param-custom-param2=\"$section\"
+                data-param-custom-param3=\"$keywords\"
+                data-param-macros=\"$macros\"
             >
             </amp-connatix-player>";
 
