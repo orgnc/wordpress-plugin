@@ -57,6 +57,7 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::test_value', $_POST['organic_value'], false );
                 $this->organic->updateOption( 'organic::connatix_enabled', isset( $_POST['organic_connatix_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::connatix_playspace_id', $_POST['organic_connatix_playspace_id'], false );
+                $this->organic->updateOption( 'organic::feed_images', isset( $_POST['organic_feed_images'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::cmp', $_POST['organic_cmp'] ?: '', false );
                 $this->organic->updateOption( 'organic::one_trust_id', $_POST['organic_one_trust_id'] ?: '', false );
                 $this->organic->updateOption( 'organic::sdk_key', $_POST['organic_sdk_key'] ?: '', false );
@@ -127,6 +128,7 @@ class AdminSettings {
         $enabled = $this->organic->getOption( 'organic::enabled' );
         $connatix_enabled = $this->organic->getOption( 'organic::connatix_enabled' );
         $connatix_playspace_id = $this->organic->getOption( 'organic::connatix_playspace_id' );
+        $feed_images = $this->organic->getOption( 'organic::feed_images' );
         $cmp = $this->organic->getOption( 'organic::cmp' );
         $one_trust_id = $this->organic->getOption( 'organic::one_trust_id' );
         $sdk_key = $this->organic->getOption( 'organic::sdk_key' );
@@ -196,6 +198,9 @@ class AdminSettings {
                 <p id="connatix-config" style="display: <?php echo ( $connatix_enabled ? 'block' : 'none' ); ?>;">
                     <label>Playspace Player ID: <input type="text" name="organic_connatix_playspace_id" style="width: 355px;" value="<?php echo $connatix_playspace_id; ?>" /></label>
                 </p>
+                <p>
+                    <label>Inject Images into RSS Feed: <input type="checkbox" name="organic_feed_images" <?php echo $feed_images ? 'checked' : ''; ?> /></label>
+                </p>
                 <script>
                     var hideShowConnatix = function() {
                         if ( document.getElementById("organic_connatix_enabled").checked ) {
@@ -217,7 +222,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_amp_ads_enabled"
                                 id="organic_amp_ads_enabled"
-                        <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
+                            <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
                         AMP Ads Enabled
                     </label>
@@ -228,7 +233,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_inject_ads_config"
                                 id="organic_inject_ads_config"
-                        <?php echo $inject_ads_config ? 'checked' : ''; ?>
+                            <?php echo $inject_ads_config ? 'checked' : ''; ?>
                         />
                         Automatically inject ad configuration into the page
                         to increase page performance by reducing frontend requests
@@ -240,7 +245,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_ad_slots_prefill_enabled"
                                 id="organic_ad_slots_prefill_enabled"
-                        <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
+                            <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
                         />
                         Prefill ad containers to prevent Content Layout Shift (CLS) issues
                     </label>
@@ -251,7 +256,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_campaigns_enabled"
                                 id="organic_campaigns_enabled"
-                        <?php echo $campaigns_enabled ? 'checked' : ''; ?>
+                            <?php echo $campaigns_enabled ? 'checked' : ''; ?>
                         />
                         Campaigns Application is enabled on the Platform
                     </label>
@@ -269,7 +274,7 @@ class AdminSettings {
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
                     <input id="update-and-sync-submit" type="submit" name="organic_update" value="Update and sync" />
-                <?php echo $update_status; ?>
+                    <?php echo $update_status; ?>
                 </p>
             </form>
             <h2>Ads.txt</h2>
@@ -296,27 +301,27 @@ class AdminSettings {
                 the Organic Platform and eligible for Ads to be injected?</p>
             <form method="post">
                 <ul>
-                <?php
-                $post_types = get_post_types(
-                    array(
-                        'public'   => true,
-                        '_builtin' => false,
-                    )
-                );
+                    <?php
+                    $post_types = get_post_types(
+                        array(
+                            'public'   => true,
+                            '_builtin' => false,
+                        )
+                    );
                     $post_types[] = 'post';
                     $post_types[] = 'page';
-                foreach ( $post_types as $post_type ) {
-                    $checked = '';
-                    if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
-                        $checked = 'checked="checked"';
-                    }
+                    foreach ( $post_types as $post_type ) {
+                        $checked = '';
+                        if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
+                            $checked = 'checked="checked"';
+                        }
 
-                    echo '<li><label>';
-                    echo "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> ";
-                    echo $post_type;
-                    echo "</label></li>\n";
-                }
-                ?>
+                        echo '<li><label>';
+                        echo "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> ";
+                        echo $post_type;
+                        echo "</label></li>\n";
+                    }
+                    ?>
                 </ul>
                 <p><input type="submit" value="Save" />
             </form>
@@ -329,7 +334,7 @@ class AdminSettings {
                 <input type="submit" value="Sync Content IDs" />
             </form>
         </div>
-            <?php
+        <?php
     }
 
     public function pluginSettingsLink( $links ) {
