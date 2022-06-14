@@ -48,6 +48,11 @@ class Organic {
     private $contentForeground = false;
 
     /**
+     * @var bool True if we want to modify the RSS feeds to include featured images
+     */
+    private $feedImages = false;
+
+    /**
      * @var int % of traffic to send to Organic SDK instead of Organic Pixel
      */
     private $organicPixelTestPercent = 0;
@@ -252,6 +257,7 @@ class Organic {
 
         $this->connatixEnabled = $this->getOption( 'organic::connatix_enabled' );
         $this->connatixPlayspaceId = $this->getOption( 'organic::connatix_playspace_id' );
+        $this->feedImages = $this->getOption( 'organic::feed_images' );
 
         $this->pixelId = $this->getOption( 'organic::pixel_id' );
         $this->pixelPublishedUrl = $this->getOption( 'organic::pixel_published_url' );
@@ -1275,6 +1281,15 @@ class Organic {
      */
     public function getContentForeground() : bool {
         return $this->contentForeground;
+    }
+
+    /**
+     * Indicates if the plugin is configured to inject Featured Images into the RSS feed
+     *
+     * @return bool
+     */
+    public function getFeedImages() : bool {
+        return $this->feedImages;
     }
 
     /**

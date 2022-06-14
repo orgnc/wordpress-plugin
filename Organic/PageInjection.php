@@ -42,6 +42,8 @@ class PageInjection {
 
         add_action( 'wp_head', array( $this, 'injectPixel' ) );
         add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
+        add_action( 'rss2_item', array( $this, 'injectRssImage' ) );
+        add_action( 'rss2_ns', array( $this, 'injectRssNs' ) );
 
         if ( $this->organic->useAdsSlotsPrefill() ) {
             $this->setupAdsSlotsPrefill();
@@ -288,11 +290,11 @@ class PageInjection {
                     window.empire.apps = window.empire.apps || {};
                     window.empire.apps.ads = window.empire.apps.ads || {};
                     window.empire.apps.ads.config = window.empire.apps.ads.config || {};
-                <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
+                    <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
 
                     window.empire.apps.ads.config.siteDomain = "<?php echo $this->organic->siteDomain; ?>";
                     window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
-                <?php } ?>
+                    <?php } ?>
 
                     window.empire.apps.ads.targeting = {
                         pageId: '<?php echo $gamPageId; ?>',
@@ -312,22 +314,44 @@ class PageInjection {
                     (function() {
                         function loadAds() {
                             utils.loadScript(document, 'prebid-library', "<?php echo $this->organic->getAdsConfig()->getPrebidBuildUrl(); ?>");
-                    <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
-                        utils.loadScript(document, 'organic-sdk', "<?php echo $this->organic->sdk->getSdkUrl(); ?>");
-                    <?php } else { ?>
+                            <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
+                            utils.loadScript(document, 'organic-sdk', "<?php echo $this->organic->sdk->getSdkUrl(); ?>");
+                            <?php } else { ?>
                             utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->organic->getPixelPublishedUrl(); ?>");
-                    <?php } ?>
+                            <?php } ?>
                         }
 
-                    <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
+                        <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
                         loadAds();
-                    <?php } else { ?>
+                        <?php } else { ?>
                         setTimeout(loadAds, loadDelay);
-                    <?php } ?>
+                        <?php } ?>
                     })();
                 }
             </script>
             <?php
+        }
+    }
+
+    /**
+     * Adds in media URLs to the RSS feed to allow outstream players to rely on the feed for slideshows
+     *
+     * @return void
+     */
+    public function injectRssImage() {
+        if ( $this->organic->getFeedImages() && has_post_thumbnail() ) {
+            echo '<media:content url="' . get_the_post_thumbnail_url( null, 'medium' ) . '" medium="image" />';
+        }
+    }
+
+    /**
+     * Adds in support for media URLs via an RSS2 extension
+     *
+     * @return void
+     */
+    public function injectRssNs() {
+        if ( $this->organic->getFeedImages() ) {
+            echo 'xmlns:media="http://search.yahoo.com/mrss/"';
         }
     }
 }
