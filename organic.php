@@ -23,4 +23,4 @@ if ( ! $environment ) {
 }
 
 $organic = new Organic( $environment );
-$organic->init( getenv( 'EMPIRE_API_URL', getenv( 'EMPIRE_CDN_URL' ) ) );
+$organic->init( getenv( 'EMPIRE_API_URL' ), getenv( 'EMPIRE_CDN_URL' ) );
