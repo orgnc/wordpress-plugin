@@ -332,6 +332,13 @@ class OrganicSdk {
                                                 'gamEnabled',
                                             )
                                         ),
+                                        ( new Query( 'outbrain' ) )->setSelectionSet(
+                                            array(
+                                                'enabled',
+                                                'selectors',
+                                                'relative',
+                                            )
+                                        ),
                                         ( new Query( 'indexServer' ) )->setSelectionSet(
                                             array(
                                                 'enabled',
