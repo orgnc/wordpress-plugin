@@ -224,6 +224,16 @@ class PageInjection {
             return;
         }
 
+        if ( $this->organic->getSdkVersion() == $this->organic->sdk::SDK_V2 && $this->organic->getSiteId() ) {
+            # As for 16.06.2022 SDKv2 contains Affiliate and Ads SDK.
+            # There could be cases when we need to disable ads but enable affiliate
+            # and vise versa.
+            # TODO: support disabling parts of sdkv2
+
+            // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+            echo '<script src="' . $this->organic->sdk->getSdkV2Url() . '"></script>';
+        }
+
         // Checks if this is a page using a template without ads.
         if ( ! apply_filters( 'organic_eligible_for_ads', true ) ) {
             return;
@@ -311,14 +321,16 @@ class PageInjection {
 
                     var loadDelay = 2000;
 
-                    (function() {
+                (function() {
                         function loadAds() {
                             utils.loadScript(document, 'prebid-library', "<?php echo $this->organic->getAdsConfig()->getPrebidBuildUrl(); ?>");
-                            <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
+                    <?php if ( $this->organic->getSdkVersion() == $this->organic->sdk::SDK_V1 ) { ?>
+                        <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
                             utils.loadScript(document, 'organic-sdk', "<?php echo $this->organic->sdk->getSdkUrl(); ?>");
-                            <?php } else { ?>
-                            utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->organic->getPixelPublishedUrl(); ?>");
-                            <?php } ?>
+                        <?php } else { ?>
+                                utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->organic->getPixelPublishedUrl(); ?>");
+                        <?php } ?>
+                    <?php } ?>
                         }
 
                         <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
