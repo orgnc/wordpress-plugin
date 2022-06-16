@@ -63,17 +63,12 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::one_trust_id', $_POST['organic_one_trust_id'] ?: '', false );
                 $this->organic->updateOption( 'organic::sdk_key', $_POST['organic_sdk_key'] ?: '', false );
                 $this->organic->updateOption( 'organic::site_id', $_POST['organic_site_id'] ?: '', false );
-                $this->organic->updateOption( 'organic::public_domain', $_POST['organic_public_domain'] ?: '', false );
-                $this->organic->updateOption( 'organic::organic_domain', $_POST['organic_organic_domain'] ?: '', false );
                 $this->organic->updateOption( 'organic::amp_ads_enabled', isset( $_POST['organic_amp_ads_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::inject_ads_config', isset( $_POST['organic_inject_ads_config'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::content_foreground', isset( $_POST['organic_content_foreground'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::affiliate_enabled', isset( $_POST['organic_affiliate_enabled'] ) ? true : false, false );
-                # TODO: fetch this from the platform
-                $this->organic->updateOption( 'organic::affiliate_tracking_id_amazon_us', $_POST['organic_affiliate_tracking_id_amazon_us'] ?: '', false );
-                $this->organic->updateOption( 'organic::affiliate_tracking_id_amazon_us_recovery', $_POST['organic_affiliate_tracking_id_amazon_us_recovery'] ?: '', false );
 
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
                 $this->update_results[] = 'updated';
@@ -151,10 +146,6 @@ class AdminSettings {
         $campaigns_enabled = $this->organic->getOption( 'organic::campaigns_enabled' );
         $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
         $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
-        $site_public_domain = $this->organic->getOption( 'organic::public_domain' );
-        $site_organic_domain = $this->organic->getOption( 'organic::organic_domain' );
-        $tracking_id_amazon_us_default = $this->organic->getOption( 'organic::affiliate_tracking_id_amazon_us' );
-        $tracking_id_amazon_us_recovery = $this->organic->getOption( 'organic::affiliate_tracking_id_amazon_us_recovery' );
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -189,31 +180,6 @@ class AdminSettings {
                 </label></p>
                 <p><label>Organic API Key: <input type="text" name="organic_sdk_key" style="width: 355px;" value="<?php echo $sdk_key; ?>" /></label></p>
                 <p><label>Organic Site ID: <input type="text" name="organic_site_id" style="width: 355px;" value="<?php echo $site_id; ?>" /></label></p>
-                <p>
-                    <label>Site Public Domain:
-                        <input
-                            type="text"
-                            name="organic_public_domain"
-                            style="width: 355px;"
-                            id="organic_public_domain"
-                            placeholder="organic.example.com"
-                            value="<?php echo $site_public_domain; ?>"
-                        />
-                    </label>
-                </p>
-                <p>
-                    <label> Site Organic Domain:
-                        <input
-                            type="text"
-                            name="organic_organic_domain"
-                            style="width: 355px;"
-                            id="organic_organic_domain"
-                            placeholder="example-com.organicly.io"
-                            value="<?php echo $site_organic_domain; ?>"
-                        />
-                    </label>
-                </p>
-
                 <p><label>Consent Management:
                         <select id="organic_cmp" name="organic_cmp">
                             <option value="">None (WARNING: DO NOT USE IN PRODUCTION)</option>
@@ -314,8 +280,6 @@ class AdminSettings {
                     />
                     Force content updates to happen immediately on save. Only use if CRON is disabled on your site.
                 </label>
-
-                <h4>Affiliate Settings</h4>
                 <p>
                     <label>
                         <input
@@ -323,30 +287,9 @@ class AdminSettings {
                                 name="organic_affiliate_enabled"
                                 id="organic_affiliate_enabled"
                         <?php echo $affiliate_enabled ? 'checked' : ''; ?>
+                        <?php echo $sdk_version != $this->organic->sdk::SDK_V2 ? 'disabled' : ''; ?>
                         />
-                        Affiliate Application is enabled on the Platform
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        Tracking ID Amazon US Default:
-                        <input
-                            type="text"
-                            name="organic_affiliate_tracking_id_amazon_us"
-                            id="organic_affiliate_tracking_id_amazon_us"
-                            value="<?php echo $tracking_id_amazon_us_default; ?>"
-                        />
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        Tracking ID Amazon US Recovery:
-                        <input
-                            type="text"
-                            name="organic_affiliate_tracking_id_amazon_us_recovery"
-                            id="organic_affiliate_tracking_id_amazon_us_recovery"
-                            value="<?php echo $tracking_id_amazon_us_recovery; ?>"
-                        />
+                        Affiliate Application is enabled on the Platform (Requires SDK V2)
                     </label>
                 </p>
                 <p>
