@@ -53,6 +53,7 @@ class AdminSettings {
                 }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
+                $this->organic->updateOption( 'organic::sdk_version', $_POST['organic_sdk_version'] ?: $this->organic->sdk::SDK_V1, false );
                 $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
                 $this->organic->updateOption( 'organic::test_value', $_POST['organic_value'], false );
                 $this->organic->updateOption( 'organic::connatix_enabled', isset( $_POST['organic_connatix_enabled'] ) ? true : false, false );
@@ -126,6 +127,7 @@ class AdminSettings {
 
     public function showSettings() {
         $enabled = $this->organic->getOption( 'organic::enabled' );
+        $sdk_version = $this->organic->getSdkVersion();
         $connatix_enabled = $this->organic->getOption( 'organic::connatix_enabled' );
         $connatix_playspace_id = $this->organic->getOption( 'organic::connatix_playspace_id' );
         $feed_images = $this->organic->getOption( 'organic::feed_images' );
@@ -167,6 +169,12 @@ class AdminSettings {
 
                 <hr />
                 <h3>Organic Settings</h3>
+                <p><label>SDK version:
+                    <select id="organic_sdk_version" name="organic_sdk_version">
+                        <option value="<?php echo $this->organic->sdk::SDK_V1; ?>" <?php echo ( $sdk_version == $this->organic->sdk::SDK_V1 ? 'selected="selected"' : '' ); ?>>v1</option>
+                        <option value="<?php echo $this->organic->sdk::SDK_V2; ?>" <?php echo ( $sdk_version == $this->organic->sdk::SDK_V2 ? 'selected="selected"' : '' ); ?>>v2 (breaks ads)</option>
+                    </select>
+                </label></p>
                 <p><label>Organic API Key: <input type="text" name="organic_sdk_key" style="width: 355px;" value="<?php echo $sdk_key; ?>" /></label></p>
                 <p><label>Organic Site ID: <input type="text" name="organic_site_id" style="width: 355px;" value="<?php echo $site_id; ?>" /></label></p>
 

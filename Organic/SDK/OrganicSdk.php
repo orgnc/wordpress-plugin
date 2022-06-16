@@ -23,7 +23,8 @@ class OrganicSdk {
     const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
     const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
     const FALLBACK_PREBID_BUILD = 'prebid5.13.0.js';
-
+    const SDK_V1 = 'v1';
+    const SDK_V2 = 'v2';
 
     /**
      * @var string
@@ -88,6 +89,7 @@ class OrganicSdk {
      * @param string $name Displayable name of the author (not necessarily unique)
      * @return array|object
      */
+
     public function authorUpdate( string $externalId, string $name ) {
         return $this->metaUpdate( 'authorUpdate', $externalId, $name );
     }
@@ -110,6 +112,10 @@ class OrganicSdk {
      */
     public function getSdkUrl() {
         return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
+    }
+
+    public function getSdkV2Url() {
+        return $this->cdnUrl . 'sdk/sdkv2.js?guid=' . $this->siteGuid;
     }
 
     /**

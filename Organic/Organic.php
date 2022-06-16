@@ -1431,4 +1431,8 @@ class Organic {
     public function debug( string $message, array $context = [] ) {
         $this->log( LogLevel::DEBUG, $message, $context );
     }
+
+    public function getSdkVersion() {
+        return $this->getOption( 'organic::sdk_version', $this->sdk::SDK_V1 );
+    }
 }
