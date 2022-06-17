@@ -7,7 +7,7 @@ use DOMDocument;
 use DOMXPath;
 
 class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
-    private Organic $organic;
+    private $organic;
 
     public function sanitize() {
         try {
@@ -52,7 +52,7 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
             >
                 <p placeholder="">Loading iframe content</p>
             </amp-iframe>
-        HTML;
+HTML;
         $fragment = $this->dom->createDocumentFragment();
         $fragment->appendXML( $amp_iframe_code );
         $product_card_div->appendChild( $fragment );
