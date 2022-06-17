@@ -37,7 +37,7 @@ class PageInjection {
             if ( $this->organic->useAmpAds() ) {
                 $this->setupAmpAdsInjector();
             }
-            if ($this->organic->isAffiliateAppEnabled()) {
+            if ( $this->organic->isAffiliateAppEnabled() ) {
                 $this->setupAffiliateAmpInjector();
             }
             return;

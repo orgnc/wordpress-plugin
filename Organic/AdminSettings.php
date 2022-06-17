@@ -63,8 +63,6 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::one_trust_id', $_POST['organic_one_trust_id'] ?: '', false );
                 $this->organic->updateOption( 'organic::sdk_key', $_POST['organic_sdk_key'] ?: '', false );
                 $this->organic->updateOption( 'organic::site_id', $_POST['organic_site_id'] ?: '', false );
-                $this->organic->updateOption( 'organic::public_domain', $_POST['organic_public_domain'] ?: '', false );
-                $this->organic->updateOption( 'organic::organic_domain', $_POST['organic_organic_domain'] ?: '', false );
                 $this->organic->updateOption( 'organic::amp_ads_enabled', isset( $_POST['organic_amp_ads_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::inject_ads_config', isset( $_POST['organic_inject_ads_config'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
@@ -115,7 +113,7 @@ class AdminSettings {
 
         if ( ! $fbia->isFacebookPluginConfigured() ) {
             AdminNotice::warning(
-                "Facebook instant articles are enabled for this site, but facebook plugin has its own ads 
+                "Facebook instant articles are enabled for this site, but facebook plugin has its own ads
                      configuration.
                      <br/>
                      Turn it off by setting 'Ad type' to 'none' on the plugin settings page."
@@ -292,17 +290,6 @@ class AdminSettings {
                         <?php echo $sdk_version != $this->organic->sdk::SDK_V2 ? 'disabled' : ''; ?>
                         />
                         Affiliate Application is enabled on the Platform (Requires SDK V2)
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input
-                                type="checkbox"
-                                name="organic_affiliate_enabled"
-                                id="organic_affiliate_enabled"
-                        <?php echo $affiliate_enabled ? 'checked' : ''; ?>
-                        />
-                        Affiliate Application is enabled on the Platform
                     </label>
                 </p>
                 <p>

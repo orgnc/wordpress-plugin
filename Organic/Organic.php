@@ -113,16 +113,6 @@ class Organic {
     private $siteId;
 
     /**
-     * @var string Site Public Domain, e.g. organic.example.com
-     */
-    private $sitePublicDomain;
-
-    /**
-     * @var string Site Organic Domain, e.g. example-com.organicly.io
-     */
-    private $siteOrganicDomain;
-
-    /**
      * @var array Configuration for AMP
      */
     private $ampConfig = null;
@@ -258,8 +248,6 @@ class Organic {
     public function init( $apiUrl = null, $cdnUrl = null ) {
         $this->sdkKey = $this->getOption( 'organic::sdk_key' );
         $this->siteId = $this->getOption( 'organic::site_id' );
-        $this->sitePublicDomain = $this->getOption( 'organic::public_domain' );
-        $this->siteOrganicDomain = $this->getOption( 'organic::organic_domain' );
         $this->siteDomain = $this->getOption( 'organic::site_domain' );
         $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
 
@@ -286,8 +274,6 @@ class Organic {
 
         $this->campaignsEnabled = $this->getOption( 'organic::campaigns_enabled' );
         $this->contentForeground = $this->getOption( 'organic::content_foreground' );
-
-        $this->affiliateEnabled = $this->getOption( 'organic::affiliate_enabled' );
 
         $this->affiliateEnabled = $this->getOption( 'organic::affiliate_enabled' );
 
@@ -1376,20 +1362,6 @@ class Organic {
      */
     public function getSiteId() {
         return $this->siteId;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getSitePublicDomain() {
-        return $this->sitePublicDomain;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getSiteOrganicDomain() {
-        return $this->siteOrganicDomain;
     }
 
     /**

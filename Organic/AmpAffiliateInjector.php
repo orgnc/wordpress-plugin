@@ -35,12 +35,12 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
     }
 
     public function injectAmpProductCard( $product_card_div ) {
-        $product_guid = $product_card_div->getAttribute( "data-organic-affiliate-product-guid" );
-        $options_str = $product_card_div->getAttribute( "data-organic-affiliate-integration-options" );
+        $product_guid = $product_card_div->getAttribute( 'data-organic-affiliate-product-guid' );
+        $options_str = $product_card_div->getAttribute( 'data-organic-affiliate-integration-options' );
         $url = "https://{$this->site_organic_domain}/integrations/affiliate/product-card?guid={$product_guid}";
         if ( ! empty( $options_str ) ) {
             // encode & properly for appendXML
-            $url .= "&amp;" . str_replace( ",", "&amp;", $options_str );
+            $url .= '&amp;' . str_replace( ',', '&amp;', $options_str );
         }
         // placeholder attribute needed for AMP, ="" needed for valid XML
         $amp_iframe_code = <<<HTML
