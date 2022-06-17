@@ -390,11 +390,6 @@ class Organic {
      * @return bool
     */
     public function isAffiliateAppEnabled() {
-        // TODO rkashapov: eventually enable on production
-        // Temporary disable affiliate features on production
-        if ( getenv( 'WP_ENV' ) == 'production' ) {
-            return false;
-        }
         return $this->isEnabled() && $this->getSdkVersion() == $this->sdk::SDK_V2 && $this->affiliateEnabled;
     }
 
