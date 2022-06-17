@@ -44,12 +44,21 @@ class AdminSettings {
                     echo 'Error: ' . $e->getMessage();
                     echo $e->getTraceAsString();
                 }
+            } else if ( isset( $_POST['organic_content_id_sync'] ) ) {
+                try {
+                    $this->organic->syncContentIdMap();
+                } catch ( \Exception $e ) {
+                    echo 'Error: ' . $e->getMessage();
+                    echo $e->getTraceAsString();
+                }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
+                $this->organic->updateOption( 'organic::sdk_version', $_POST['organic_sdk_version'] ?: $this->organic->sdk::SDK_V1, false );
                 $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
                 $this->organic->updateOption( 'organic::test_value', $_POST['organic_value'], false );
                 $this->organic->updateOption( 'organic::connatix_enabled', isset( $_POST['organic_connatix_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::connatix_playspace_id', $_POST['organic_connatix_playspace_id'], false );
+                $this->organic->updateOption( 'organic::feed_images', isset( $_POST['organic_feed_images'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::cmp', $_POST['organic_cmp'] ?: '', false );
                 $this->organic->updateOption( 'organic::one_trust_id', $_POST['organic_one_trust_id'] ?: '', false );
                 $this->organic->updateOption( 'organic::sdk_key', $_POST['organic_sdk_key'] ?: '', false );
@@ -60,6 +69,7 @@ class AdminSettings {
                 $this->organic->updateOption( 'organic::inject_ads_config', isset( $_POST['organic_inject_ads_config'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
+                $this->organic->updateOption( 'organic::content_foreground', isset( $_POST['organic_content_foreground'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::affiliate_enabled', isset( $_POST['organic_affiliate_enabled'] ) ? true : false, false );
 
                 $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
@@ -121,8 +131,10 @@ class AdminSettings {
 
     public function showSettings() {
         $enabled = $this->organic->getOption( 'organic::enabled' );
+        $sdk_version = $this->organic->getSdkVersion();
         $connatix_enabled = $this->organic->getOption( 'organic::connatix_enabled' );
         $connatix_playspace_id = $this->organic->getOption( 'organic::connatix_playspace_id' );
+        $feed_images = $this->organic->getOption( 'organic::feed_images' );
         $cmp = $this->organic->getOption( 'organic::cmp' );
         $one_trust_id = $this->organic->getOption( 'organic::one_trust_id' );
         $sdk_key = $this->organic->getOption( 'organic::sdk_key' );
@@ -134,9 +146,8 @@ class AdminSettings {
         $inject_ads_config = $this->organic->getOption( 'organic::inject_ads_config' );
         $ad_slots_prefill_enabled = $this->organic->getOption( 'organic::ad_slots_prefill_enabled' );
         $campaigns_enabled = $this->organic->getOption( 'organic::campaigns_enabled' );
+        $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
         $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
-        $site_public_domain = $this->organic->getOption( 'organic::public_domain' );
-        $site_organic_domain = $this->organic->getOption( 'organic::organic_domain' );
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -163,33 +174,14 @@ class AdminSettings {
 
                 <hr />
                 <h3>Organic Settings</h3>
+                <p><label>SDK version:
+                    <select id="organic_sdk_version" name="organic_sdk_version">
+                        <option value="<?php echo $this->organic->sdk::SDK_V1; ?>" <?php echo ( $sdk_version == $this->organic->sdk::SDK_V1 ? 'selected="selected"' : '' ); ?>>v1</option>
+                        <option value="<?php echo $this->organic->sdk::SDK_V2; ?>" <?php echo ( $sdk_version == $this->organic->sdk::SDK_V2 ? 'selected="selected"' : '' ); ?>>v2 (breaks ads)</option>
+                    </select>
+                </label></p>
                 <p><label>Organic API Key: <input type="text" name="organic_sdk_key" style="width: 355px;" value="<?php echo $sdk_key; ?>" /></label></p>
                 <p><label>Organic Site ID: <input type="text" name="organic_site_id" style="width: 355px;" value="<?php echo $site_id; ?>" /></label></p>
-                <p>
-                    <label>Site Public Domain:
-                        <input
-                            type="text"
-                            name="organic_public_domain"
-                            style="width: 355px;"
-                            id="organic_public_domain"
-                            placeholder="organic.example.com"
-                            value="<?php echo $site_public_domain; ?>"
-                        />
-                    </label>
-                </p>
-                <p>
-                    <label> Site Organic Domain:
-                        <input
-                            type="text"
-                            name="organic_organic_domain"
-                            style="width: 355px;"
-                            id="organic_organic_domain"
-                            placeholder="example-com.organicly.io"
-                            value="<?php echo $site_organic_domain; ?>"
-                        />
-                    </label>
-                </p>
-
                 <p><label>Consent Management:
                         <select id="organic_cmp" name="organic_cmp">
                             <option value="">None (WARNING: DO NOT USE IN PRODUCTION)</option>
@@ -218,6 +210,9 @@ class AdminSettings {
                 <p id="connatix-config" style="display: <?php echo ( $connatix_enabled ? 'block' : 'none' ); ?>;">
                     <label>Playspace Player ID: <input type="text" name="organic_connatix_playspace_id" style="width: 355px;" value="<?php echo $connatix_playspace_id; ?>" /></label>
                 </p>
+                <p>
+                    <label>Inject Images into RSS Feed: <input type="checkbox" name="organic_feed_images" <?php echo $feed_images ? 'checked' : ''; ?> /></label>
+                </p>
                 <script>
                     var hideShowConnatix = function() {
                         if ( document.getElementById("organic_connatix_enabled").checked ) {
@@ -239,7 +234,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_amp_ads_enabled"
                                 id="organic_amp_ads_enabled"
-                        <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
+                            <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
                         AMP Ads Enabled
                     </label>
@@ -250,7 +245,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_inject_ads_config"
                                 id="organic_inject_ads_config"
-                        <?php echo $inject_ads_config ? 'checked' : ''; ?>
+                            <?php echo $inject_ads_config ? 'checked' : ''; ?>
                         />
                         Automatically inject ad configuration into the page
                         to increase page performance by reducing frontend requests
@@ -262,7 +257,7 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_ad_slots_prefill_enabled"
                                 id="organic_ad_slots_prefill_enabled"
-                        <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
+                            <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
                         />
                         Prefill ad containers to prevent Content Layout Shift (CLS) issues
                     </label>
@@ -273,9 +268,30 @@ class AdminSettings {
                                 type="checkbox"
                                 name="organic_campaigns_enabled"
                                 id="organic_campaigns_enabled"
-                        <?php echo $campaigns_enabled ? 'checked' : ''; ?>
+                            <?php echo $campaigns_enabled ? 'checked' : ''; ?>
                         />
                         Campaigns Application is enabled on the Platform
+                    </label>
+                </p>
+                <label>
+                    <input
+                            type="checkbox"
+                            name="organic_content_foreground"
+                            id="organic_content_foreground"
+                        <?php echo $content_foreground ? 'checked' : ''; ?>
+                    />
+                    Force content updates to happen immediately on save. Only use if CRON is disabled on your site.
+                </label>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_affiliate_enabled"
+                                id="organic_affiliate_enabled"
+                        <?php echo $affiliate_enabled ? 'checked' : ''; ?>
+                        <?php echo $sdk_version != $this->organic->sdk::SDK_V2 ? 'disabled' : ''; ?>
+                        />
+                        Affiliate Application is enabled on the Platform (Requires SDK V2)
                     </label>
                 </p>
                 <p>
@@ -293,9 +309,10 @@ class AdminSettings {
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
                     <input id="update-and-sync-submit" type="submit" name="organic_update" value="Update and sync" />
-                <?php echo $update_status; ?>
+                    <?php echo $update_status; ?>
                 </p>
             </form>
+
             <h2>Ads.txt</h2>
             <form method="post">
                 <label>ads.txt
@@ -320,27 +337,27 @@ class AdminSettings {
                 the Organic Platform and eligible for Ads to be injected?</p>
             <form method="post">
                 <ul>
-                <?php
-                $post_types = get_post_types(
-                    array(
-                        'public'   => true,
-                        '_builtin' => false,
-                    )
-                );
+                    <?php
+                    $post_types = get_post_types(
+                        array(
+                            'public'   => true,
+                            '_builtin' => false,
+                        )
+                    );
                     $post_types[] = 'post';
                     $post_types[] = 'page';
-                foreach ( $post_types as $post_type ) {
-                    $checked = '';
-                    if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
-                        $checked = 'checked="checked"';
-                    }
+                    foreach ( $post_types as $post_type ) {
+                        $checked = '';
+                        if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
+                            $checked = 'checked="checked"';
+                        }
 
-                    echo '<li><label>';
-                    echo "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> ";
-                    echo $post_type;
-                    echo "</label></li>\n";
-                }
-                ?>
+                        echo '<li><label>';
+                        echo "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> ";
+                        echo $post_type;
+                        echo "</label></li>\n";
+                    }
+                    ?>
                 </ul>
                 <p><input type="submit" value="Save" />
             </form>
@@ -348,8 +365,12 @@ class AdminSettings {
                 <input type="hidden" name="organic_content_sync" value="1" />
                 <input type="submit" value="Sync Content Batch" />
             </form>
+            <form method="post">
+                <input type="hidden" name="organic_content_id_sync" value="1" />
+                <input type="submit" value="Sync Content IDs" />
+            </form>
         </div>
-            <?php
+        <?php
     }
 
     public function pluginSettingsLink( $links ) {
@@ -388,5 +409,9 @@ class AdminSettings {
         }
 
         update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
+
+        if ( $this->organic->getContentForeground() ) {
+            $this->organic->syncPost( $post );
+        }
     }
 }

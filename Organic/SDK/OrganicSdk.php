@@ -23,7 +23,8 @@ class OrganicSdk {
     const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
     const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
     const FALLBACK_PREBID_BUILD = 'prebid5.13.0.js';
-
+    const SDK_V1 = 'v1';
+    const SDK_V2 = 'v2';
 
     /**
      * @var string
@@ -55,9 +56,9 @@ class OrganicSdk {
      */
     public function __construct(
         string $siteGuid,
-        $token = null,
-        $apiUrl = null,
-        $cdnUrl = null
+               $token = null,
+               $apiUrl = null,
+               $cdnUrl = null
     ) {
         if ( ! $apiUrl ) {
             $apiUrl = self::DEFAULT_API_URL;
@@ -88,6 +89,7 @@ class OrganicSdk {
      * @param string $name Displayable name of the author (not necessarily unique)
      * @return array|object
      */
+
     public function authorUpdate( string $externalId, string $name ) {
         return $this->metaUpdate( 'authorUpdate', $externalId, $name );
     }
@@ -109,7 +111,16 @@ class OrganicSdk {
      * @return string
      */
     public function getSdkUrl() {
-          return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
+        return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
+    }
+
+    /**
+     * Builds the SDK V2 URL to embed the JS SDK into web pages
+     *
+     * @return string
+     */
+    public function getSdkV2Url() {
+        return $this->cdnUrl . 'sdk/sdkv2?guid=' . $this->siteGuid;
     }
 
     /**
@@ -224,7 +235,7 @@ class OrganicSdk {
         array $rich_content_embeds = array(),
         string $campaign_asset_guid = null
     ) {
-         // Validate the structure of the referenced metadata
+        // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
         $categories = $this->metaArrayToObjects( $categories, 'categories' );
         $tags = $this->metaArrayToObjects( $tags, 'tags' );
@@ -249,27 +260,34 @@ class OrganicSdk {
                 'categories' => $categories,
                 'content' => $content,
                 'externalId' => $externalId,
-                'is_published' => $is_published,
+                'isPublished' => (bool) $is_published,
                 'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
                 'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
-                'subtitle' => $subtitle,
-                'featured_image_url' => $featured_image_url,
-                'template_name' => $template_name,
-                'sponsorship' => $sponsorship,
-                'third_party_integrations' => $third_party_integrations,
-                'seo_schema_tags' => $seo_schema_tags,
-                'seo_data' => $seo_data,
-                'custom_metadata' => $custom_metadata,
-                'meta_tags' => $meta_tags,
-                'rich_content_images' => $rich_content_images,
-                'rich_content_videos' => $rich_content_videos,
-                'rich_content_embeds' => $rich_content_embeds,
+                'thirdPartyIntegrations' => $third_party_integrations,
+                'seoSchemaTags' => $seo_schema_tags,
+                'seoData' => $seo_data,
+                'customMetadata' => $custom_metadata,
+                'metaTags' => $meta_tags,
+                'richContentIndex' => array_merge( $rich_content_images, $rich_content_videos, $rich_content_embeds ),
                 'campaignAssetGuid' => $campaign_asset_guid,
             ),
         );
+        if ( $subtitle ) {
+            $variables['input']['subtitle'] = $subtitle;
+        }
+        if ( $featured_image_url ) {
+            $variables['input']['featuredImageUrl'] = $featured_image_url;
+        }
+        if ( $template_name ) {
+            $variables['input']['templateName'] = $template_name;
+        }
+        if ( $sponsorship ) {
+            $variables['input']['sponsorship'] = $sponsorship;
+        }
+
         $result = $this->runQuery( $mutation, $variables );
         return $result['data']['contentCreateOrUpdate'];
     }
@@ -336,6 +354,13 @@ class OrganicSdk {
                                                 'partnerId',
                                                 'tagEnabled',
                                                 'gamEnabled',
+                                            )
+                                        ),
+                                        ( new Query( 'outbrain' ) )->setSelectionSet(
+                                            array(
+                                                'enabled',
+                                                'selectors',
+                                                'relative',
                                             )
                                         ),
                                         ( new Query( 'indexServer' ) )->setSelectionSet(

@@ -13,7 +13,6 @@ cp -r vendor build/organic/
 (cd affiliate/ && npm install && npm run build)
 mkdir -p build/organic/affiliate/
 cp -r affiliate/build build/organic/affiliate/
-cp -r affiliate/config.js build/organic/affiliate/config.js
 cd build
 zip -r organic-${BUILD_NUMBER}.zip organic
 cp organic-${BUILD_NUMBER}.zip organic.zip
