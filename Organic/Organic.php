@@ -1284,7 +1284,12 @@ class Organic {
     public function syncAffiliateConfig() {
         try {
             $config = $this->sdk->queryAffiliateConfig();
-        } catch ( \Exception | GuzzleException $e ) {
+        } catch ( GuzzleException $e ) {
+            self::captureException( $e );
+            return array(
+                'updated' => false,
+            );
+        } catch ( \Exception $e ) {
             self::captureException( $e );
             return array(
                 'updated' => false,
