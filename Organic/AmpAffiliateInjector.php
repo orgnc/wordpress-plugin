@@ -3,41 +3,34 @@
 namespace Organic;
 
 use AMP_Base_Sanitizer;
-use DOMDocument;
 use DOMXPath;
-use GuzzleHttp\Client;
 
 class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
     private $organic;
+    private $affiliate_domain;
 
     public function sanitize() {
         try {
             $this->organic = Organic::getInstance();
-            $this->site_domain = $this->get_site_domain();
+            $this->affiliate_domain = $this->get_affiliate_domain();
             $this->handle();
         } catch ( \Exception $e ) {
             \Organic\Organic::captureException( $e );
         }
     }
 
-    private function get_site_domain() {
-        // make a call to platform API to get affiliate config
-        $site_id = $this->organic->getSiteId();
-        $api_url = 'https://api.organic.ly/sdkv2/config/' . $site_id;
-        $client = new Client();
-        $response = $client->get( $api_url );
-        $json = json_decode( $response->getBody(), true );
-        $guid = $json['affiliateConfig']['siteConf']['guid'] ?? null;
-        if ( ! $guid || $guid !== $site_id ) {
-            $e = new \Exception( 'Could not verify affiliate site guid' );
-            \Organic\Organic::captureException( $e );
-            return null;
+    private function get_affiliate_domain() {
+        $affiliate_domain = $this->organic->getAffiliateDomain();
+        if ( ! $affiliate_domain ) {
+            $this->organic->syncAffiliateConfig();
+            $affiliate_domain = $this->organic->getAffiliateDomain();
         }
-        return $json['affiliateConfig']['siteConf']['publicDomain'] ?? null;
+        return $affiliate_domain;
     }
 
     public function handle() {
-        if ( empty( $this->site_domain ) ) {
+
+        if ( empty( $this->affiliate_domain ) ) {
             return; // can't insert amp-iframes without a public domain
         }
         $this->handle_product_cards();
@@ -56,10 +49,13 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
         }
     }
 
-    private function inject_amp_product_card( $product_card_div ) {
+    /**
+     * @throws \Exception
+     */
+    private function inject_amp_product_card($product_card_div ) {
         $product_guid = $product_card_div->getAttribute( 'data-organic-affiliate-product-guid' );
         $options_str = $product_card_div->getAttribute( 'data-organic-affiliate-integration-options' );
-        $url = "{$this->site_domain}/integrations/affiliate/product-card?guid={$product_guid}";
+        $url = "{$this->affiliate_domain}/integrations/affiliate/product-card?guid={$product_guid}";
         if ( ! empty( $options_str ) ) {
             // encode & properly for appendXML
             $url .= '&amp;' . str_replace( ',', '&amp;', $options_str );

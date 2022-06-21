@@ -10,6 +10,7 @@ use GraphQL\Mutation;
 use GraphQL\Variable;
 use GraphQL\Query;
 use GraphQL\RawObject;
+use GuzzleHttp\Client as RestClient; // let's switch to GraphQL in the future
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -506,6 +507,22 @@ class OrganicSdk {
         );
         $result = $this->runQuery( $gql );
         return $result['data']['adsTxt']['text'];
+    }
+
+    public function queryAffiliateConfig() {
+        // make a call to platform API to get affiliate config
+        $site_guid = $this->siteGuid;
+        $api_url = 'https://api.organic.ly/sdkv2/config/' . $site_guid;
+        $client = new RestClient();
+        $response = $client->get( $api_url );
+        $json = json_decode( $response->getBody(), true );
+        $guid = $json['affiliateConfig']['siteConf']['guid'] ?? null;
+        if ( ! $guid || $guid !== $site_guid ) {
+            $e = new \Exception( 'Could not verify affiliate site guid' );
+            \Organic\Organic::captureException( $e );
+            return null;
+        }
+        return $json['affiliateConfig']['siteConf'] ?? null;
     }
 
     /**

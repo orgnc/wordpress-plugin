@@ -152,6 +152,11 @@ class Organic {
     private static $instance = null;
 
     /**
+     * @var false|void The public-facing domain for the Affiliate App
+     */
+    private $affiliateDomain = null;
+
+    /**
      * Main purpose is to allow access to the plugin instance from the `wp shell`:
      *  >>> $organic = Organic\Organic::getInstance()
      *  => Organic\Organic {#1829
@@ -276,6 +281,7 @@ class Organic {
         $this->contentForeground = $this->getOption( 'organic::content_foreground' );
 
         $this->affiliateEnabled = $this->getOption( 'organic::affiliate_enabled' );
+        $this->affiliateDomain = $this->getOption( 'organic::affiliate_domain' );
 
         /* Load up our sub-page configs */
         new AdminSettings( $this );
@@ -286,6 +292,7 @@ class Organic {
         new ContentIdMapSyncCommand( $this );
         new AdConfigSyncCommand( $this );
         new AdsTxtSyncCommand( $this );
+        new AffiliateConfigSyncCommand( $this );
 
         // Set up our GraphQL hooks to expose settings
         $graphql = new GraphQL( $this );
@@ -408,6 +415,10 @@ class Organic {
 
     public function useAdsSlotsPrefill() : bool {
         return $this->isEnabled() && $this->adSlotsPrefillEnabled;
+    }
+
+    public function getAffiliateDomain() {
+        return $this->affiliateDomain;
     }
 
     /**
@@ -1267,6 +1278,17 @@ class Organic {
             'updated' => true,
             'cache_purged' => true,
         ];
+    }
+
+    public function syncAffiliateConfig() {
+        $config = $this->sdk->queryAffiliateConfig();
+
+        $this->debug( 'Got affiliate domain: ' . $config['publicDomain'] );
+        $this->updateOption( 'organic::affiliate_domain', $config['publicDomain'], false );
+
+        return array(
+            'updated' => true,
+        );
     }
 
     public function substituteTags( string $content ) : string {
