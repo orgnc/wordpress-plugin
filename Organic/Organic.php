@@ -3,6 +3,7 @@
 namespace Organic;
 
 use DateTime;
+use GuzzleHttp\Exception\GuzzleException;
 use Organic\SDK\OrganicSdk;
 use Exception;
 use WP_Query;
@@ -1281,10 +1282,18 @@ class Organic {
     }
 
     public function syncAffiliateConfig() {
-        $config = $this->sdk->queryAffiliateConfig();
+        try {
+            $config = $this->sdk->queryAffiliateConfig();
+        } catch ( \Exception | GuzzleException $e ) {
+            self::captureException( $e );
+            return array(
+                'updated' => false
+            );
+        }
 
-        $this->debug( 'Got affiliate domain: ' . $config['publicDomain'] );
-        $this->updateOption( 'organic::affiliate_domain', $config['publicDomain'], false );
+        $domain = $config['publicDomain'] ;
+        $this->debug( 'Got affiliate domain: ' . $domain );
+        $this->updateOption( 'organic::affiliate_domain', $domain, false );
 
         return array(
             'updated' => true,

@@ -49,9 +49,6 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
         }
     }
 
-    /**
-     * @throws \Exception
-     */
     private function inject_amp_product_card( $product_card_div ) {
         $product_guid = $product_card_div->getAttribute( 'data-organic-affiliate-product-guid' );
         $options_str = $product_card_div->getAttribute( 'data-organic-affiliate-integration-options' );
