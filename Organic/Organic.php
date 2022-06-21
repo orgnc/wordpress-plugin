@@ -1284,14 +1284,14 @@ class Organic {
     public function syncAffiliateConfig() {
         try {
             $config = $this->sdk->queryAffiliateConfig();
-        } catch ( \Exception | GuzzleException $e ) {
+        } catch ( \Exception|GuzzleException $e ) {
             self::captureException( $e );
             return array(
-                'updated' => false
+                'updated' => false,
             );
         }
 
-        $domain = $config['publicDomain'] ;
+        $domain = $config['publicDomain'];
         $this->debug( 'Got affiliate domain: ' . $domain );
         $this->updateOption( 'organic::affiliate_domain', $domain, false );
 
