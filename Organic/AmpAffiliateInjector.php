@@ -7,19 +7,28 @@ use DOMXPath;
 
 class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
     private $organic;
+    private $adsInjector;
     private $affiliate_domain;
 
     public function sanitize() {
         try {
             $this->organic = Organic::getInstance();
-            $this->affiliate_domain = $this->get_affiliate_domain();
+            # we use the "ads" injector to inject amp-iframe product card code
+            $this->adsInjector = new AdsInjector(
+                $this->dom,
+                function( $html ) {
+                    $document = $this->dom::fromHtmlFragment( $html );
+                    return $document->getElementsByTagName( 'body' )->item( 0 );
+                }
+            );
+            $this->affiliate_domain = $this->getAffiliateDomain();
             $this->handle();
         } catch ( \Exception $e ) {
             \Organic\Organic::captureException( $e );
         }
     }
 
-    private function get_affiliate_domain() {
+    private function getAffiliateDomain() {
         $affiliate_domain = $this->organic->getAffiliateDomain();
         if ( ! $affiliate_domain ) {
             $this->organic->syncAffiliateConfig();
@@ -33,23 +42,22 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
         if ( empty( $this->affiliate_domain ) ) {
             return; // can't insert amp-iframes without a public domain
         }
-        $this->handle_product_cards();
+        $this->handleProductCards();
     }
 
-    public function handle_product_cards() {
+    public function handleProductCards() {
         $xpath = new DOMXPath( $this->dom );
         $product_card_divs = $xpath->query( "//div[@data-organic-affiliate-integration='product-card']" );
         foreach ( $product_card_divs as $product_card_div ) {
-            if ( $product_card_div->hasAttribute( 'data-organic-affiliate-processed' ) ) {
-                if ( $product_card_div->getAttribute( 'data-organic-affiliate-processed' ) === true ) {
-                    continue;
-                }
+            $processed = $product_card_div->getAttribute( 'data-organic-affiliate-processed' );
+            if ( ! empty($processed) && $processed === true) {
+                continue;
             }
-            $this->inject_amp_product_card( $product_card_div );
+            $this->injectAmpProductCard( $product_card_div );
         }
     }
 
-    private function inject_amp_product_card( $product_card_div ) {
+    private function injectAmpProductCard( $product_card_div ) {
         $product_guid = $product_card_div->getAttribute( 'data-organic-affiliate-product-guid' );
         $options_str = $product_card_div->getAttribute( 'data-organic-affiliate-integration-options' );
         $url = "{$this->affiliate_domain}/integrations/affiliate/product-card?guid={$product_guid}";
@@ -68,9 +76,8 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
                 <p placeholder="">Loading iframe content</p>
             </amp-iframe>
 HTML;
-        $fragment = $this->dom->createDocumentFragment();
-        $fragment->appendXML( $amp_iframe_code );
-        $product_card_div->appendChild( $fragment );
+        $product_card = $this->adsInjector->nodeFromHtml($amp_iframe_code);
+        $this->adsInjector->injectAd($product_card, 'inside_start', $product_card_div);
         $product_card_div->setAttribute( 'data-organic-affiliate-processed', true );
     }
 
