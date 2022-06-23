@@ -50,7 +50,7 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
         $product_card_divs = $xpath->query( "//div[@data-organic-affiliate-integration='product-card']" );
         foreach ( $product_card_divs as $product_card_div ) {
             $processed = $product_card_div->getAttribute( 'data-organic-affiliate-processed' );
-            if ( ! empty( $processed ) && $processed === true) {
+            if ( ! empty( $processed ) && $processed === true ) {
                 continue;
             }
             $this->injectAmpProductCard( $product_card_div );
