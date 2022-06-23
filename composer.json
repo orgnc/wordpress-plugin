@@ -8,7 +8,9 @@
         "fluentdom/fluentdom": "^8.0",
         "fluentdom/html5": "^2.0",
         "fluentdom/selectors-symfony": "^4.0",
-        "fluentdom/selectors-phpcss": "^2.0"
+        "fluentdom/selectors-phpcss": "^2.0",
+        "ext-json": "*",
+        "ext-dom": "*"
     },
     "authors": [
         {
