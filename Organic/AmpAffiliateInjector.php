@@ -50,7 +50,7 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
         $product_card_divs = $xpath->query( "//div[@data-organic-affiliate-integration='product-card']" );
         foreach ( $product_card_divs as $product_card_div ) {
             $processed = $product_card_div->getAttribute( 'data-organic-affiliate-processed' );
-            if ( ! empty($processed) && $processed === true) {
+            if ( ! empty( $processed ) && $processed === true) {
                 continue;
             }
             $this->injectAmpProductCard( $product_card_div );
@@ -76,8 +76,8 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
                 <p placeholder="">Loading iframe content</p>
             </amp-iframe>
 HTML;
-        $product_card = $this->adsInjector->nodeFromHtml($amp_iframe_code);
-        $this->adsInjector->injectAd($product_card, 'inside_start', $product_card_div);
+        $product_card = $this->adsInjector->nodeFromHtml( $amp_iframe_code );
+        $this->adsInjector->injectAd( $product_card, 'inside_start', $product_card_div );
         $product_card_div->setAttribute( 'data-organic-affiliate-processed', true );
     }
 
