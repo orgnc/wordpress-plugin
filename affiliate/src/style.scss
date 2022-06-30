@@ -8,3 +8,8 @@
 .wp-block-organic-affiliate-product-card {
   width: 100%;
 }
+
+[data-organic-affiliate-integration="product-card"] {
+  min-height: 540px;
+  font-size: 0;
+}
