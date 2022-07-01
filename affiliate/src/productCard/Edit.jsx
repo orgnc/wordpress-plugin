@@ -1,7 +1,6 @@
 import {
   useBlockProps,
   BlockControls,
-  InspectorControls,
 } from '@wordpress/block-editor';
 import {
   Card,
@@ -10,9 +9,6 @@ import {
   CheckboxControl,
   Toolbar,
   IconButton,
-  PanelBody,
-  PanelRow,
-  ColorPicker,
 } from '@wordpress/components';
 import {
   createRef,
@@ -40,11 +36,6 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     attributes.productGuid,
     attributes.displayImage,
     attributes.displayDescription,
-    attributes.cardRadius,
-    attributes.cardShadow,
-    attributes.textColor,
-    attributes.linkColor,
-    attributes.backgroundColor,
   ]);
   const [showModal, setShowModal] = useState(!attributes.productGuid);
   const hideModal = useCallback(
@@ -62,26 +53,6 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     },
     [setAttributes, hideModal],
   );
-  const setCardRadius = useCallback(
-    (cardRadius) => setAttributes({ cardRadius }),
-    [setAttributes],
-  );
-  const setCardShadow = useCallback(
-    (cardShadow) => setAttributes({ cardShadow }),
-    [setAttributes],
-  );
-  const setTextColor = useCallback(
-    (textColor) => setAttributes({ textColor }),
-    [setAttributes],
-  );
-  const setLinkColor = useCallback(
-    (linkColor) => setAttributes({ linkColor }),
-    [setAttributes],
-  );
-  const setBackgroundColor = useCallback(
-    (backgroundColor) => setAttributes({ backgroundColor }),
-    [setAttributes],
-  );
   const setDisplayImage = useCallback(
     (displayImage) => setAttributes({ displayImage }),
     [setAttributes],
@@ -93,58 +64,6 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <div {...useBlockProps()}>
-      <InspectorControls>
-        <PanelBody title="Settings">
-          <PanelRow>
-            <CheckboxControl
-              checked={attributes.cardRadius}
-              help="Enable card radius"
-              label="Card Radius"
-              onChange={setCardRadius}
-            />
-          </PanelRow>
-          <PanelRow>
-            <CheckboxControl
-              checked={attributes.cardShadow}
-              help="Enable card shadow"
-              label="Card Shadow"
-              onChange={setCardShadow}
-            />
-          </PanelRow>
-        </PanelBody>
-        <PanelBody
-          initialOpen={false}
-          title="Colors"
-        >
-          <PanelRow>
-            Text Color:
-          </PanelRow>
-          <PanelRow>
-            <ColorPicker
-              color={attributes.textColor}
-              onChange={setTextColor}
-            />
-          </PanelRow>
-          <PanelRow>
-            Link Color:
-          </PanelRow>
-          <PanelRow>
-            <ColorPicker
-              color={attributes.linkColor}
-              onChange={setLinkColor}
-            />
-          </PanelRow>
-          <PanelRow>
-            Background Color:
-          </PanelRow>
-          <PanelRow>
-            <ColorPicker
-              color={attributes.backgroundColor}
-              onChange={setBackgroundColor}
-            />
-          </PanelRow>
-        </PanelBody>
-      </InspectorControls>
       {showModal
         && (
         <ProductSearchModal
@@ -184,14 +103,9 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
             <CardBody>
               <ProductCard
                 ref={productCardRef}
-                backgroundColor={attributes.backgroundColor}
-                cardRadius={attributes.cardRadius}
-                cardShadow={attributes.cardShadow}
                 displayDescription={attributes.displayDescription}
                 displayImage={attributes.displayImage}
-                linkColor={attributes.linkColor}
                 productGuid={attributes.productGuid}
-                textColor={attributes.textColor}
               />
             </CardBody>
           </>

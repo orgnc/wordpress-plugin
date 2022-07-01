@@ -10,14 +10,9 @@ const Save = ({ attributes }) => {
       {attributes?.productGuid
         && (
         <ProductCard
-          backgroundColor={attributes.backgroundColor}
-          cardRadius={attributes.cardRadius}
-          cardShadow={attributes.cardShadow}
           displayDescription={attributes.displayDescription}
           displayImage={attributes.displayImage}
-          linkColor={attributes.linkColor}
           productGuid={attributes.productGuid}
-          textColor={attributes.textColor}
         />
         )}
     </div>
