@@ -108,6 +108,31 @@ class OrganicSdk {
     }
 
     /**
+     * Registers the complete tree of categories
+     *
+     * Example input:
+     *   array(
+     *     'externalId' => 'external_id_1',
+     *     'name' => 'Category level 0',
+     *     'children' => [
+     *       array(
+     *         'externalId' => 'external_id_2',
+     *         'name' => 'Category level 1',
+     *       )
+     *     ]
+     *   )
+     *
+     * @param array $categoryTree A hierarchical tree of categories
+     * @return array|object
+     */
+    public function categoryTreeUpdate( array $categoryTree ) {
+        $mutation = ( new Mutation( 'categoryUpdate' ) );
+        $mutation->setArguments( $categoryTree );
+        $mutation->setSelectionSet( array( 'ok' ) );
+        return $this->runQuery( $mutation );
+    }
+
+    /**
      * Builds the SDK URL to embed the JS SDK into web pages
      *
      * @return string
