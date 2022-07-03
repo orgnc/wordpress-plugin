@@ -707,6 +707,38 @@ class Organic {
     }
 
     /**
+     *  Synchronizes the full tree of categories
+     *  @return void|null
+     */
+    public function syncCategories() {
+        $categories = get_terms( [ 'category' ] );
+        $cat_id_map = array();
+        $tree = array();
+        foreach ( $categories as $cat ) {
+            $cat_id_map[ $cat->term_id ] = array(
+                'external_id' => $cat->term_id,
+                'name' => $cat->name,
+                'children' => array(),
+            );
+        }
+        foreach ( $categories as &$cat ) {
+            $cat_data = &$cat_id_map[ $cat->term_id ];
+            if ( $cat->parent == 0 ) {
+                array_push( $tree, $cat_data );
+            } else {
+                $parent = &$cat_id_map[ $cat->parent ];
+                $children = &$parent['children'];
+                array_push( $children, $cat_data );
+            }
+        }
+        try {
+            $this->sdk->categoryTreeUpdate( $tree );
+        } catch ( \Exception $e ) {
+            $this::captureException( $e );
+        }
+    }
+
+    /**
      * Synchronizes a single Post to Organic
      *
      * @param $post
