@@ -741,7 +741,11 @@ class Organic {
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
         $is_published = \apply_filters( 'organic_post_is_published', $post->post_is_published, $post->ID );
         $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
-        $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
+        $modified_date = \apply_filters(
+            'organic_post_modified_date',
+            \apply_filters( 'get_display_datetime', $post->ID ),
+            $post->ID
+        );
         $campaign_asset_guid = null;
         if ( $this->isCampaignsAppEnabled() ) {
             $campaign_asset_guid = get_post_meta( $post->ID, CAMPAIGN_ASSET_META_KEY, true );
