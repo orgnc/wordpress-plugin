@@ -40,3 +40,23 @@ function get_custom_post_title($title, $id) {
 }
 add_filter( 'organic_post_title', 'get_custom_post_title', 10, 2);
 ```
+## Organic Affiliate Features Development
+The Wordpress Plugin includes the following Affiliate App features:
+* Insert Product Card: is implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
+* Insert Affiliate Link: is implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/).
+
+### Building
+The source code is in the [affiliate/src](https://github.com/orgnc/wordpress-plugin/tree/master/affiliate/src) directory.
+To build the code you'll need npm. SWP container doesn't include it by default. To install it run:
+```sh
+apt update && apt install -y npm
+```
+To build the code, run (in the affiliate/src directory):
+```sh
+npm install
+npm run build
+```
+### NOTE
+Wordpress doesn't support symlinks. If you develop the WP plugin by creating a symlink in the
+mu-plugins directory, the Gutenberg Block won't work. Instead, you'll need to copy the code inside the
+mu-plugins/wordpress-plugin directory.
