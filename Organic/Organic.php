@@ -429,7 +429,7 @@ class Organic {
     public function eligibleForAds( $content = null ) {
         global $wp_query;
 
-        if ( is_admin() || wp_doing_ajax() ) {
+        if ( is_admin() || wp_doing_ajax() || is_feed() ) {
             return false;
         }
 
