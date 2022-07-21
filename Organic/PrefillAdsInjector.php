@@ -21,9 +21,6 @@ class PrefillAdsInjector {
     }
 
     public function prefill( $content ) {
-        if ( is_feed() ) {
-            return $content;
-        }
         $contentDom = \FluentDOM::load(
             $content,
             'html5',
