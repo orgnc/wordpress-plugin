@@ -306,9 +306,8 @@ class PageInjection {
                     window.tadmPageId = '<?php echo $gamPageId; ?>';
                     window.tadmKeywords = '<?php echo $keywordString; ?>';
                     window.tadmSection = '<?php echo $sectionString; ?>';
-                    window.trackADMData = {
-                        tests: BVTests.getTargetingValue()
-                    };
+                    window.trackADMData = window.trackADMData || {};
+                    window.trackADMData.tests = BVTests.getTargetingValue();
 
                     /* Organic Config - to be phased in */
                     window.__organic_usp_cookie = 'ne-opt-out';
