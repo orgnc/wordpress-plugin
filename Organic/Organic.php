@@ -614,7 +614,7 @@ class Organic {
         $gamPageId = $gamId ? $gamId : $id;
         $gamExternalId = $id;
 
-        return [
+        $targeting = [
             'siteDomain' => $this->siteDomain,
             'url' => $url,
             'sections' => $sections,
@@ -623,6 +623,7 @@ class Organic {
             'gamPageId' => $gamPageId,
             'gamExternalId' => $gamExternalId,
         ];
+        return \apply_filters( 'organic_targeting', $targeting );
     }
 
     /**
