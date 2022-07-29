@@ -12,18 +12,16 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Organic\Organic;
 
-$environment = getenv( 'ORGANIC_ENVIRONMENT' );
+$environment = getenv( 'ORGANIC_ENVIRONMENT' ) ?: getenv( 'EMPIRE_ENVIRONMENT' );
 if ( ! $environment ) {
-    /* @deprecated */
-    $environment = getenv( 'EMPIRE_ENVIRONMENT' );
-
-    if ( ! $environment ) {
-        $environment = 'PRODUCTION';
-    }
+    $environment = 'PRODUCTION';
 }
 
 $organic = new Organic( $environment );
-$organic->init( getenv( 'EMPIRE_API_URL' ), getenv( 'EMPIRE_CDN_URL' ) );
+$organic->init(
+    getenv( 'ORGANIC_API_URL' ) ?: getenv( 'EMPIRE_API_URL' ),
+    getenv( 'ORGANIC_CDN_URL' ) ?: getenv( 'EMPIRE_CDN_URL' )
+);
 
 function add_organic_block_category( $categories ) {
     return array_merge(
