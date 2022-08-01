@@ -51,6 +51,13 @@ class AdminSettings {
                     echo 'Error: ' . $e->getMessage();
                     echo $e->getTraceAsString();
                 }
+            } else if ( isset( $_POST['organic_category_sync'] ) ) {
+                try {
+                    $this->organic->syncCategories();
+                } catch ( \Exception $e ) {
+                    echo 'Error: ' . $e->getMessage();
+                    echo $e->getTraceAsString();
+                }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::sdk_version', $_POST['organic_sdk_version'] ?: $this->organic->sdk::SDK_V1, false );
@@ -355,6 +362,10 @@ class AdminSettings {
             <form method="post">
                 <input type="hidden" name="organic_content_id_sync" value="1" />
                 <input type="submit" value="Sync Content IDs" />
+            </form>
+            <form method="post">
+                <input type="hidden" name="organic_category_sync" value="1" />
+                <input type="submit" value="Sync Categories" />
             </form>
         </div>
         <?php

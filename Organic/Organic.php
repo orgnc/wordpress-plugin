@@ -712,14 +712,16 @@ class Organic {
      *  @return void|null
      */
     public function syncCategories() {
+
         $categories = get_terms( [ 'category' ] );
         $cat_id_map = array();
         $trees = array();
         foreach ( $categories as $cat ) {
             $cat_id_map[ $cat->term_id ] = array(
-                'external_id' => $cat->term_id,
+                'externalId' => (string) $cat->term_id,
                 'name' => $cat->name,
                 'children' => array(),
+                'siteGuid' => $this->siteId,
             );
         }
         foreach ( $categories as &$cat ) {
