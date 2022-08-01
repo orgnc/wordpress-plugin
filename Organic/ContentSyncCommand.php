@@ -78,7 +78,6 @@ class ContentSyncCommand {
         }
 
         $this->organic->syncCategories();
-
         $post_ids = array_filter( explode( ',', ( $opts['posts'] ?? '' ) ) );
         if ( count( $post_ids ) ) {
             foreach ( $post_ids as $post_id ) {

@@ -15,6 +15,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
 
+
 /**
  * Communicate with the Organic Platform APIs (GraphQL)
  *
@@ -126,9 +127,10 @@ class OrganicSdk {
      * @return array|object
      */
     public function categoryTreeUpdate( array $categoryTree ) {
-        $mutation = ( new Mutation( 'categoryUpdate' ) );
+        $mutation = ( new NestedArgsMutation( 'categoryUpdate' ) );
         $mutation->setArguments( $categoryTree );
         $mutation->setSelectionSet( array( 'ok' ) );
+
         return $this->runQuery( $mutation );
     }
 

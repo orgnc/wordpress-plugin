@@ -712,12 +712,13 @@ class Organic {
      *  @return void|null
      */
     public function syncCategories() {
+
         $categories = get_terms( [ 'category' ] );
         $cat_id_map = array();
         $trees = array();
         foreach ( $categories as $cat ) {
             $cat_id_map[ $cat->term_id ] = array(
-                'external_id' => $cat->term_id,
+                'externalId' => (string) $cat->term_id,
                 'name' => $cat->name,
                 'children' => array(),
             );
@@ -733,6 +734,7 @@ class Organic {
             }
         }
         foreach ( $trees as &$tree ) {
+            $tree['siteGuid'] = $this->siteId;
             try {
                 $this->sdk->categoryTreeUpdate( $tree );
             } catch ( \Exception $e ) {
