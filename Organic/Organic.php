@@ -721,7 +721,6 @@ class Organic {
                 'externalId' => (string) $cat->term_id,
                 'name' => $cat->name,
                 'children' => array(),
-                'siteGuid' => $this->siteId,
             );
         }
         foreach ( $categories as &$cat ) {
@@ -735,6 +734,7 @@ class Organic {
             }
         }
         foreach ( $trees as &$tree ) {
+            $tree['siteGuid'] = $this->siteId;
             try {
                 $this->sdk->categoryTreeUpdate( $tree );
             } catch ( \Exception $e ) {
