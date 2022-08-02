@@ -39,6 +39,9 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
 
         foreach ( $ampConfig->forPlacement as $key => $amp ) {
             $placement = $adsConfig->forPlacement[ $key ];
+            if ( ! $placement['enabled'] ) {
+                continue;
+            }
 
             $selectors = $placement['selectors'];
             $limit = $placement['limit'];
