@@ -59,6 +59,9 @@ class PrefillAdsInjector {
             }
 
             $placement = $this->adsConfig->forPlacement[ $key ];
+            if ( ! $placement['enabled'] ) {
+                continue;
+            }
 
             $selectors = $placement['selectors'];
             $limit = $placement['limit'];

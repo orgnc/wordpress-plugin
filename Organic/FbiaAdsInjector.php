@@ -116,6 +116,9 @@ class FbiaAdsInjector {
             }
 
             $placement = $adsConfig->forPlacement[ $key ];
+            if ( ! $placement['enabled'] ) {
+                continue;
+            }
             try {
                 $count += $injector->injectAds(
                     $html,
