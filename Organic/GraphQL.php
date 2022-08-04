@@ -132,32 +132,37 @@ class GraphQL {
                 'type' => 'OrganicConfig',
                 'description' => __( 'Sitewide Configuration for Organic Platform', 'organic' ),
                 'resolve' => function() {
+                    $connatix = $this->organic->getConnatixConfig();
                     $testEnabled = $this->organic->getOrganicPixelTestPercent() < 100 &&
                         $this->organic->getOrganicPixelTestPercent() > 0;
                     return [
                         'adsEnabled' => $this->organic->isEnabled(),
                         'adsTestEnabled' => $testEnabled,
-                        'adsTestPercentEnabled' => $testEnabled ?
-                            $this->organic->getOrganicPixelTestPercent() : null,
-                        'adsTestSplitTestKey' => $testEnabled ?
-                            $this->organic->getOrganicPixelTestValue() : null,
+                        'adsTestPercentEnabled' => $testEnabled
+                            ? $this->organic->getOrganicPixelTestPercent()
+                            : null,
+                        'adsTestSplitTestKey' => $testEnabled
+                            ? $this->organic->getOrganicPixelTestValue()
+                            : null,
                         'adsTxt' => $this->organic->getAdsTxtManager()->get(),
                         'ampAdsEnabled' => $this->organic->useAmpAds(),
-                        'connatixPlayspaceEnabled' => $this->organic->useConnatix(),
-                        'connatixPlayspaceId' => $this->organic->useConnatix() ?
-                            $this->organic->getConnatixPlayspaceId() : null,
+                        'connatixPlayspaceEnabled' => $connatix->isEnabled(),
+                        'connatixPlayspaceId' => $connatix->getPlayspaceId() ?: null,
                         'oneTrustEnabled' => $this->organic->useCmpOneTrust(),
                         'oneTrustSiteId' => $this->organic->getOneTrustId(),
                         'preloadConfigEnabled' => $this->organic->useInjectedAdsConfig(),
-                        'preloadConfigRules' => $this->organic->getAdsConfig()->adRules ?
-                            json_encode( $this->organic->getAdsConfig()->adRules ) : '[]',
+                        'preloadConfigRules' => $this->organic->getAdsConfig()->adRules
+                            ? json_encode( $this->organic->getAdsConfig()->adRules )
+                            : '[]',
                         'preloadContainersEnabled' => $this->organic->useAdsSlotsPrefill(),
-                        'preloadContainersConfig' => $this->organic->getAdsConfig()->forPlacement ?
-                            json_encode( $this->organic->getAdsConfig()->forPlacement ) : '[]',
+                        'preloadContainersConfig' => $this->organic->getAdsConfig()->forPlacement
+                            ? json_encode( $this->organic->getAdsConfig()->forPlacement )
+                            : '[]',
                         'siteDomain' => $this->organic->siteDomain,
                         'siteId' => $this->organic->getSiteId(),
-                        'adsRawData' => $this->organic->getAdsConfig()->raw ?
-                            json_encode( $this->organic->getAdsConfig()->raw ) : '[]',
+                        'adsRawData' => $this->organic->getAdsConfig()->raw
+                            ? json_encode( $this->organic->getAdsConfig()->raw )
+                            : '[]',
                     ];
                 },
             ]

@@ -25,8 +25,14 @@ class PageInjection {
      */
     private $connatixInjected = false;
 
+    /**
+     * @var ConnatixConfig
+     */
+    private $connatix;
+
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
+        $this->connatix = $organic->getConnatixConfig();
         $is_amp = organic_is_amp();
 
         if ( ! $this->organic->isEnabled() ) {
@@ -164,7 +170,7 @@ class PageInjection {
             return $content;
         }
 
-        if ( ! $this->organic->useConnatix() || ! is_single() ) {
+        if ( ! $this->connatix->isEnabled() || ! is_single() ) {
             return $content;
         }
 
@@ -206,7 +212,7 @@ class PageInjection {
             }
             cnxps.cmd.push(function () {
                 cnxps({
-                    playerId: "' . $this->organic->getConnatixPlayspaceId() . '",
+                    playerId: "' . $this->connatix->getPlayspaceId() . '",
                     customParam1: window.empire.apps.ads.targeting.pageId + "",
                     customParam2: window.empire.apps.ads.targeting.section + "",
                     customParam3: window.empire.apps.ads.targeting.keywords + "",
@@ -255,7 +261,7 @@ class PageInjection {
             return;
         }
 
-        if ( $this->organic->useConnatix() ) {
+        if ( $this->connatix->isEnabled() ) {
             echo '<script>!function(n){if(!window.cnxps){window.cnxps={},window.cnxps.cmd=[];var t=n.createElement(\'iframe\');t.display=\'none\',t.onload=function(){var n=t.contentWindow.document,c=n.createElement(\'script\');c.src=\'//cd.connatix.com/connatix.playspace.js\',c.setAttribute(\'async\',\'1\'),c.setAttribute(\'type\',\'text/javascript\'),n.body.appendChild(c)},n.head.appendChild(t)}}(document);</script>';
         }
 
