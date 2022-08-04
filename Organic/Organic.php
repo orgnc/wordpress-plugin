@@ -36,16 +36,6 @@ class Organic {
     private $cmp;
 
     /**
-     * @var bool If we should be showing the Playspace player
-     */
-    private $connatixEnabled;
-
-    /**
-     * @var string Player ID to use for Playspace ads
-     */
-    private $connatixPlayspaceId;
-
-    /**
      * @var bool True if we are forcing Content Meta synchronization into foreground
      */
     private $contentForeground = false;
@@ -127,6 +117,11 @@ class Organic {
      * @var AdsConfig Configuration for Ads
      */
     private $adsConfig = null;
+
+    /**
+     * @var ConnatixConfig
+     */
+    private $connatixConfig = null;
 
     /**
      * @var FbiaConfig Configuration for FBIA
@@ -268,8 +263,6 @@ class Organic {
         $this->organicPixelTestPercent = intval( $this->getOption( 'organic::percent_test' ) );
         $this->organicPixelTestValue = $this->getOption( 'organic::test_value' );
 
-        $this->connatixEnabled = $this->getOption( 'organic::connatix_enabled' );
-        $this->connatixPlayspaceId = $this->getOption( 'organic::connatix_playspace_id' );
         $this->feedImages = $this->getOption( 'organic::feed_images' );
 
         $this->pixelId = $this->getOption( 'organic::pixel_id' );
@@ -354,24 +347,6 @@ class Organic {
      */
     public function useCmpOneTrust() : bool {
         return $this->isEnabled() && $this->cmp === 'one-trust' && $this->getOneTrustId();
-    }
-
-    /**
-     * Check if the Connatix Playspace player is configured and enabled
-     *
-     * @return bool
-     */
-    public function useConnatix() : bool {
-        return $this->isEnabled() && $this->connatixEnabled && $this->connatixPlayspaceId;
-    }
-
-    /**
-     * Get the Player ID for the Connatix Playspace player
-     *
-     * @return string
-     */
-    public function getConnatixPlayspaceId() : string {
-        return $this->connatixPlayspaceId;
     }
 
     /**
@@ -498,6 +473,17 @@ class Organic {
 
         return $this->adsConfig;
     }
+
+    public function getConnatixConfig() : ConnatixConfig {
+        if ( ! empty( $this->connatixConfig ) ) {
+            return $this->connatixConfig;
+        }
+
+        $this->connatixConfig = new ConnatixConfig( $this );
+
+        return $this->connatixConfig;
+    }
+
 
     public function getCurrentUrl() {
         $protocol = is_ssl() ? 'https://' : 'http://';

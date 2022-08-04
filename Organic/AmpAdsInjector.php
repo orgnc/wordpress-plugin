@@ -3,7 +3,15 @@
 namespace Organic;
 
 class AmpAdsInjector extends \AMP_Base_Sanitizer {
+    /**
+     * @var Organic
+     */
     private $organic;
+    /**
+     * @var ConnatixConfig
+     */
+    private $connatix;
+
     private $adsInjector;
     private $connatixInjected = false;
     private $targeting = null;
@@ -18,6 +26,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
                 }
             );
             $this->organic = Organic::getInstance();
+            $this->connatix = $this->organic->getConnatixConfig();
             $this->targeting = $this->organic->getTargeting();
             $this->handle();
         } catch ( \Exception $e ) {
@@ -68,7 +77,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             return;
         }
 
-        if ( ! $this->organic->useConnatix() || ! is_single() ) {
+        if ( ! $this->connatix->isEnabled() || ! is_single() ) {
             return;
         }
 
@@ -98,7 +107,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             'UTF-8'
         );
 
-        $psid = $this->organic->getConnatixPlayspaceId();
+        $psid = $this->connatix->getPlayspaceId();
         $player = "
             <amp-connatix-player
                 data-player-id=\"ps_$psid\"
