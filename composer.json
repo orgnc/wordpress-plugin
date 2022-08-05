@@ -25,7 +25,8 @@
         },
         "files": [
           "Organic/public.php",
-          "Organic/helpers.php"
+          "Organic/helpers.php",
+          "Organic/types.php"
         ]
     },
     "require-dev": {

@@ -13,3 +13,15 @@ function organic_is_amp() {
      // naive implementation due to we're in mu-plugin
     return isset( $_GET['amp'] );
 }
+
+/**
+ * validate UUID
+ *
+ * @param string $uuid
+ * @return bool
+ */
+function is_valid_uuid( string $uuid ) {
+    return is_string( $uuid )
+        ? preg_match( '/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $uuid ) === 1
+        : false;
+}
