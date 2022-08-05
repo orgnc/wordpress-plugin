@@ -19,22 +19,23 @@ class BaseConfig {
     public $raw;
 
     public function __construct( array $raw ) {
-        if ( empty( $raw ) ) {
+        if ( empty( $raw ) || ! is_array( $raw ) ) {
             $this->forPlacement = [];
             $this->raw = [];
             return;
+        } else {
+            $this->raw = $raw;
         }
 
-        $forPlacement = array_reduce(
-            $raw['placements'],
-            function ( $byKey, $config ) {
-                $byKey[ $config['key'] ] = $config;
-                return $byKey;
-            },
-            []
-        );
-
-        $this->forPlacement = $forPlacement;
-        $this->raw = $raw;
+        $this->forPlacement = isset( $this->raw['placements'] )
+            ? array_reduce(
+                $this->raw['placements'],
+                function ( $byKey, $config ) {
+                    $byKey[ $config['key'] ] = $config;
+                    return $byKey;
+                },
+                []
+            )
+            : [];
     }
 }

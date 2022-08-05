@@ -407,12 +407,6 @@ class OrganicSdk {
                                                 'mode',
                                             )
                                         ),
-                                        ( new Query( 'connatix' ) )->setSelectionSet(
-                                            array(
-                                                'enabled',
-                                                'playspaceId',
-                                            )
-                                        ),
                                         'pixelSettings',
                                     )
                                 ),
@@ -432,6 +426,8 @@ class OrganicSdk {
                                         'key',
                                         'name',
                                         'description',
+                                        'adType',
+                                        'connatixId',
                                         'adUnitId',
                                         'relative',
                                         'relativeSettings',
