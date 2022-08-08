@@ -839,9 +839,9 @@ class Organic {
         $seo_schema_data = $this->metadataCollector->getSeoSchemaData( $post->ID );
         foreach ( $seo_schema_data as $seo_schema_tag ) {
             $seo_schema_tags[] = array(
-                'externalId' => (string) $seo_schema_tag[ '@id' ],
+                'externalId' => (string) $seo_schema_tag['@id'],
                 'site_guid' => $this->site_id,
-                'schema_type' => (string) $seo_schema_tag[ '@type' ],
+                'schema_type' => (string) $seo_schema_tag['@type'],
                 'schema_content' => $seo_schema_tag,
             );
         }
@@ -912,9 +912,11 @@ class Organic {
         $rich_content_videos = \apply_filters( 'organic_post_rich_content_videos', $rich_content_videos, $post->ID );
 
         $allowed_mime_types = get_allowed_mime_types();
-        $mime_types = array_filter( $allowed_mime_types, function( $item ) {
-            return ! ( str_starts_with( $item, 'image' ) || str_starts_with( $item, 'video' ) );
-        }
+        $mime_types = array_filter(
+            $allowed_mime_types,
+            function( $item ) {
+                return ! ( str_starts_with( $item, 'image' ) || str_starts_with( $item, 'video' ) );
+            }
         );
         $attachments = get_attached_media( $mime_types, $post->ID );
         $rich_content_embeds = array();

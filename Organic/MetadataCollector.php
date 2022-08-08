@@ -62,28 +62,33 @@ class MetadataCollector {
         $data = [];
         foreach ( $this->yoastPresenters as $p ) {
             $val = $p->get();
-            if ( empty( $val ) ) continue;
+            if ( empty( $val ) ) {
+                continue;
+            }
             $key = $p->get_key();
-            if ( ! str_starts_with( $key, "og:" ) and
-                ! str_starts_with( $key, "twitter:") ) continue;
-            $items = [];
+            if ( ! str_starts_with( $key, 'og:' ) &&
+                ! str_starts_with( $key, 'twitter:' ) ) {
+                continue;
+            };
+            $items = array();
             if ( is_array( $val ) ) {
                 foreach ( $val as $elem ) {
-                    if ( is_array( $elem) ) {
+                    if ( is_array( $elem ) ) {
                         foreach ( $elem as $subkey => $v ) {
                             $newkey = $key . ':' . $subkey;
-                            $items[$newkey] = $v;
+                            $items[ $newkey ] = $v;
                         }
                     }
                 }
                 if ( empty( $items ) ) {
                     $items[ $key ] = implode(
-                        '; ', array_map(
-                            function ($k, $v) {
+                        '; ',
+                        array_map(
+                            function ( $k, $v ) {
                                 return $k . '=' . $v;
                             },
-                            array_keys($val),
-                            array_values($val)
+                            array_keys( $val ),
+                            array_values( $val )
                         )
                     );
                 }
@@ -102,10 +107,10 @@ class MetadataCollector {
      * @return array
      */
     public function getSeoSchemaData( $post_id ) {
-        if ( function_exists('YoastSEO' ) ) {
+        if ( function_exists( 'YoastSEO' ) ) {
             $seo_schema = YoastSEO()->meta->for_post( $post_id )->schema;
-            if ( $seo_schema && $seo_schema[ '@graph' ] ) {
-                return $seo_schema[ '@graph' ];
+            if ( $seo_schema && $seo_schema['@graph'] ) {
+                return $seo_schema['@graph'];
             }
         }
         return array();
@@ -118,7 +123,7 @@ class MetadataCollector {
      * @return array
      */
     public function getSeoData( $post_id ) {
-        if ( function_exists('YoastSEO' ) ) {
+        if ( function_exists( 'YoastSEO' ) ) {
             $seo_data = YoastSEO()->meta->for_post( $post_id );
             return array(
                 'seo_title' => $seo_data->title,
