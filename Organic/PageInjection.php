@@ -381,12 +381,12 @@ class PageInjection {
             window.empire.apps.content.metadata.third_party_integrations = {
         <?php
         foreach ( $integ_3rd_party as $name => $value ) {
-            echo $name.": ".($value ? 'true' : 'false').",".PHP_EOL;
+            echo $name . ': ' . ( $value ? 'true' : 'false' ) . ',' . PHP_EOL;
         }
         ?>
             };
         </script>
-    <?php
+        <?php
     }
 
 

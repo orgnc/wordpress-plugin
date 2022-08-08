@@ -830,18 +830,18 @@ class Organic {
             'site_guid' => $this->site_id,
         );
         foreach ( $this->getThirdPartyIntegrations() as $name => $value ) {
-            $third_party_integrations[$name] = $value;
+            $third_party_integrations[ $name ] = $value;
         }
         $third_party_integrations =
             \apply_filters( 'organic_post_third_party_integrations', $third_party_integrations, $post->ID );
 
         $seo_schema_tags = array();
-        $seo_schema_data = $this->metadataCollector->getSeoSchemaData($post->ID);
-        foreach ($seo_schema_data as $seo_schema_tag) {
+        $seo_schema_data = $this->metadataCollector->getSeoSchemaData( $post->ID );
+        foreach ( $seo_schema_data as $seo_schema_tag ) {
             $seo_schema_tags[] = array(
-                'externalId' => (string)$seo_schema_tag['@id'],
+                'externalId' => (string) $seo_schema_tag[ '@id' ],
                 'site_guid' => $this->site_id,
-                'schema_type' => (string)$seo_schema_tag['@type'],
+                'schema_type' => (string) $seo_schema_tag[ '@type' ],
                 'schema_content' => $seo_schema_tag,
             );
         }
@@ -850,7 +850,7 @@ class Organic {
 
         $seo_data = array();
         $post_seo_data = $this->metadataCollector->getSeoData( $post->ID );
-        if (!empty($post_seo_data)) {
+        if ( ! empty( $post_seo_data ) ) {
             $seo_data = array(
                 'externalId' => $external_id,
                 'site_guid' => $this->site_id,
@@ -888,7 +888,7 @@ class Organic {
         $meta_tags = \apply_filters( 'organic_post_meta_tags', $meta_tags, $post->ID );
 
         $rich_content_images = array();
-        $attachments = get_attached_media(['image'], $post->ID);
+        $attachments = get_attached_media( [ 'image' ], $post->ID );
         foreach ( $attachments as $image_obj ) {
             $rich_content_images[] = array(
                 'externalId' => (string) $image_obj->ID,
@@ -900,7 +900,7 @@ class Organic {
         $rich_content_images = \apply_filters( 'organic_post_rich_content_images', $rich_content_images, $post->ID );
 
         $rich_content_videos = array();
-        $attachments = get_attached_media(['video'], $post->ID);
+        $attachments = get_attached_media( [ 'video' ], $post->ID );
         foreach ( $attachments as $video_obj ) {
             $rich_content_videos[] = array(
                 'externalId' => (string) $video_obj->ID,
@@ -912,10 +912,11 @@ class Organic {
         $rich_content_videos = \apply_filters( 'organic_post_rich_content_videos', $rich_content_videos, $post->ID );
 
         $allowed_mime_types = get_allowed_mime_types();
-        $mime_types = array_filter($allowed_mime_types, function($item) {
-            return !(str_starts_with($item, 'image') or str_starts_with($item, 'video'));
-        });
-        $attachments = get_attached_media($mime_types, $post->ID);
+        $mime_types = array_filter( $allowed_mime_types, function( $item ) {
+            return ! ( str_starts_with( $item, 'image' ) || str_starts_with( $item, 'video' ) );
+        }
+        );
+        $attachments = get_attached_media( $mime_types, $post->ID );
         $rich_content_embeds = array();
         foreach ( $attachments as $embed_obj ) {
             $rich_content_embeds[] = array(
