@@ -158,6 +158,11 @@ class Organic {
     private $affiliateDomain = null;
 
     /**
+     * @var MetadataCollector
+     */
+    private $metadataCollector;
+
+    /**
      * Main purpose is to allow access to the plugin instance from the `wp shell`:
      *  >>> $organic = Organic\Organic::getInstance()
      *  => Organic\Organic {#1829
@@ -283,6 +288,8 @@ class Organic {
 
         $this->affiliateEnabled = $this->getOption( 'organic::affiliate_enabled' );
         $this->affiliateDomain = $this->getOption( 'organic::affiliate_domain' );
+
+        $this->metadataCollector = new MetadataCollector( $this );
 
         /* Load up our sub-page configs */
         new AdminSettings( $this );
@@ -570,6 +577,8 @@ class Organic {
         $keywords = $this->getTagsFor( $post->ID );
         $category = $this->getCategoryForCurrentPage();
         $sections = null;
+        $title = $post->post_title;
+        $subtitle = $post->post_subtitle;
 
         $id = '';
         $gamId = '';
@@ -622,9 +631,25 @@ class Organic {
             'category' => $category,
             'gamPageId' => $gamPageId,
             'gamExternalId' => $gamExternalId,
+            'title' => $title,
+            'subtitle' => $subtitle,
         ];
     }
 
+    public function get_3rd_party_integrations() {
+        $opt_ga = get_option('options_google_analytics_opt_ga_enabled');
+        $opt_gtm = get_option('options_google_tag_manager_opt_gtm_enabled');
+        $opt_fb = get_option('options_facebook_targeting_pixel_enabled');
+        $opt_cb = get_option('options_chartbeat_opt_chartbeat_enabled');
+        $opt_qc = get_option('options_quantcast_tag_quantcast_tag_enabled');
+        return [
+            'has_google_analytics' => ($opt_ga == '1'),
+            'has_google_tag_manager' => ($opt_gtm == '1'),
+            'has_facebook_targeting' => ($opt_fb == '1'),
+            'has_chart_beat' => ($opt_cb == '1'),
+            'has_quant_cast' => ($opt_qc == '1'),
+        ];
+    }
     /**
      * Get the article's primary category/all categories
      *
@@ -814,34 +839,28 @@ class Organic {
             );
         }
 
-        $third_party_integrations = array();
-        if ( function_exists( 'wp_get_post_get_third_party_integrations' ) ) {
-            foreach ( wp_get_post_get_third_party_integrations( $post->ID ) as $third_party_integration_id ) {
-                $third_party_integration = get_third_party_integration( $third_party_integration_id );
-                $third_party_integrations[] = array(
-                    'externalId' => (string) $third_party_integration->term_id,
-                    'site_guid' => $third_party_integration->site_guid,
-                    'has_google_analytics' => $third_party_integration->has_google_analytics,
-                    'has_google_tag_manager' => $third_party_integration->has_google_tag_manager,
-                    'has_facebook_targeting_pixel' => $third_party_integration->has_facebook_targeting_pixel,
-                    'has_google_ads_targeting_pixel' => $third_party_integration->has_google_ads_targeting_pixel,
-                    'has_openweb' => $third_party_integration->has_openweb,
-                );
-            }
+        $third_party_integrations = array(
+            'externalId' => $external_id,
+            'site_guid' => $this->site_id,
+        );
+        foreach ( $this->get_3rd_party_integrations() as $name => $value ) {
+            $third_party_integrations[$name] = $value;
         }
         $third_party_integrations =
             \apply_filters( 'organic_post_third_party_integrations', $third_party_integrations, $post->ID );
 
         $seo_schema_tags = array();
-        if ( function_exists( 'wp_get_post_get_seo_schema_tags' ) ) {
-            foreach ( wp_get_post_get_seo_schema_tags( $post->ID ) as $seo_schema_tag_id ) {
-                $seo_schema_tag = get_seo_schema_tag( $seo_schema_tag_id );
-                $seo_schema_tags[] = array(
-                    'externalId' => (string) $seo_schema_tag->term_id,
-                    'site_guid' => $seo_schema_tag->site_guid,
-                    'schema_type' => (string) $seo_schema_tag->schema_type,
-                    'schema_content' => (string) $seo_schema_tag->schema_content,
-                );
+        if (function_exists('YoastSEO')) {
+            $seo_schema = YoastSEO()->meta->for_current_page()->schema;
+            if ($seo_schema and $seo_schema['@graph']) {
+                foreach ($seo_schema['@graph'] as $seo_schema_tag) {
+                    $seo_schema_tags[] = array(
+                        'externalId' => (string)$seo_schema_tag['@id'],
+                        'site_guid' => $this->site_id,
+                        'schema_type' => (string)$seo_schema_tag['@type'],
+                        'schema_content' => $seo_schema_tag,
+                    );
+                }
             }
         }
         $seo_schema_tags =
@@ -869,24 +888,22 @@ class Organic {
                 $custom_metadata[] = array(
                     'externalId' => (string) $custom_metadatapoint->term_id,
                     'site_guid' => $custom_metadatapoint->site_guid,
-                    'twitter_meta' => (string) $custom_metadatapoint->twitter_meta,
-                    'opengraph_meta' => (string) $custom_metadatapoint->opengraph_meta,
+                    'schema_type' => (string) $custom_metadatapoint->schema_type,
+                    'schema_content' => (string) $custom_metadatapoint->schema_content,
                 );
             }
         }
         $custom_metadata = \apply_filters( 'organic_post_custom_metadata', $custom_metadata, $post->ID );
 
+        $meta_tag_data = $this->metadataCollector->getMetaTagData();
         $meta_tags = array();
-        if ( function_exists( 'wp_get_post_get_meta_tag' ) ) {
-            foreach ( wp_get_post_get_meta_tag( $post->ID ) as $meta_tag_id ) {
-                $meta_tag = get_meta_tag( $meta_tag_id );
-                $meta_tags[] = array(
-                    'externalId' => (string) $meta_tag->term_id,
-                    'site_guid' => $meta_tag->site_guid,
-                    'schema_type' => (string) $meta_tag->schema_type,
-                    'schema_content' => (string) $meta_tag->schema_content,
-                );
-            }
+        foreach ( $meta_tag_data as $meta_type => $meta_value ) {
+            $meta_tags[] = array(
+                'externalId' => $external_id,
+                'site_guid' => $this->site_id,
+                'meta_type' => $meta_type,
+                'meta_value' => $meta_value,
+            );
         }
         $meta_tags = \apply_filters( 'organic_post_meta_tags', $meta_tags, $post->ID );
 

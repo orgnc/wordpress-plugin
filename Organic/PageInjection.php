@@ -44,9 +44,12 @@ class PageInjection {
         }
 
         add_action( 'wp_head', array( $this, 'injectPixel' ) );
+        add_action( 'wp_head', array( $this, 'injectMetadata' ) );
         add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
         add_action( 'rss2_item', array( $this, 'injectRssImage' ) );
         add_action( 'rss2_ns', array( $this, 'injectRssNs' ) );
+        //add_filter( 'wpseo_schema_article', [ $this, 'recordArticleSchema' ] );
+        //add_filter( 'wpseo_opengraph_type', [ $this, 'recordOgType' ], 10, 2 );
 
         if ( $this->organic->useAdsSlotsPrefill() ) {
             $this->setupAdsSlotsPrefill();
@@ -267,6 +270,8 @@ class PageInjection {
             $sections = $targeting['sections'];
             $gamPageId = $targeting['gamPageId'];
             $gamExternalId = $targeting['gamExternalId'];
+            $title = $targeting['title'];
+            $subtitle = $targeting['subtitle'];
 
             if ( ! empty( $sections ) ) {
                 $sectionString = esc_html( implode( ',', $sections ) );
@@ -330,11 +335,11 @@ class PageInjection {
                         section: '<?php echo $sectionString; ?>',
                         disableSectionReporting: false,
                         tests: BVTests.getTargetingValue(),
+                        title: '<?php echo $title; ?>',
+                        subtitle: '<?php echo $subtitle; ?>',
                     }
-
                     googletag.cmd = googletag.cmd || [];
                     pbjs.que = pbjs.que || [];
-
                     var loadDelay = 2000;
 
                 (function() {
@@ -360,6 +365,43 @@ class PageInjection {
             <?php
         }
     }
+
+    public function injectMetadata() {
+        // If Organic isn't enabled, then don't bother injecting anything
+        if ( ! $this->organic->isEnabled() ) {
+            return;
+        }
+        $integ_3rd_party = $this->organic->get_3rd_party_integrations();
+        ?>
+        <script>
+            window.empire = window.empire || {};
+            window.empire.apps = window.empire.apps || {};
+            window.empire.apps.content = window.empire.apps.content || {};
+            window.empire.apps.content.metadata = window.empire.apps.content.metadata || {};
+            window.empire.apps.content.metadata.third_party_integrations = {
+        <?php
+        foreach ( $integ_3rd_party as $name => $value ) {
+                    echo $name; ?>: '<?php echo boolval($value); ?>',
+        <?php
+        }
+        ?>
+            };
+        <?php
+            /*
+            $option_fields = get_fields( 'options' );
+            foreach( $option_fields as $name => $value ) {
+            ?>
+            window.option_fields['<?php echo $name; ?>']='<?php var_dump($value); ?>';
+            <?php } ?>
+
+            //var $articleSchemas = '<?php var_dump($this->articleSchemas); ?>';
+            */
+            ?>
+
+        </script>
+    <?php
+    }
+
 
     /**
      * Adds in media URLs to the RSS feed to allow outstream players to rely on the feed for slideshows
