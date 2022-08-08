@@ -371,7 +371,7 @@ class PageInjection {
         if ( ! $this->organic->isEnabled() ) {
             return;
         }
-        $integ_3rd_party = $this->organic->get_3rd_party_integrations();
+        $integ_3rd_party = $this->organic->getThirdPartyIntegrations();
         ?>
         <script>
             window.empire = window.empire || {};
@@ -381,23 +381,11 @@ class PageInjection {
             window.empire.apps.content.metadata.third_party_integrations = {
         <?php
         foreach ( $integ_3rd_party as $name => $value ) {
-                    echo $name; ?>: '<?php echo boolval($value); ?>',
+                    echo $name; ?>: <?php echo $value ? 'true' : 'false'; ?>,
         <?php
         }
         ?>
             };
-        <?php
-            /*
-            $option_fields = get_fields( 'options' );
-            foreach( $option_fields as $name => $value ) {
-            ?>
-            window.option_fields['<?php echo $name; ?>']='<?php var_dump($value); ?>';
-            <?php } ?>
-
-            //var $articleSchemas = '<?php var_dump($this->articleSchemas); ?>';
-            */
-            ?>
-
         </script>
     <?php
     }

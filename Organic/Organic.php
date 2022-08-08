@@ -636,20 +636,6 @@ class Organic {
         ];
     }
 
-    public function get_3rd_party_integrations() {
-        $opt_ga = get_option('options_google_analytics_opt_ga_enabled');
-        $opt_gtm = get_option('options_google_tag_manager_opt_gtm_enabled');
-        $opt_fb = get_option('options_facebook_targeting_pixel_enabled');
-        $opt_cb = get_option('options_chartbeat_opt_chartbeat_enabled');
-        $opt_qc = get_option('options_quantcast_tag_quantcast_tag_enabled');
-        return [
-            'has_google_analytics' => ($opt_ga == '1'),
-            'has_google_tag_manager' => ($opt_gtm == '1'),
-            'has_facebook_targeting' => ($opt_fb == '1'),
-            'has_chart_beat' => ($opt_cb == '1'),
-            'has_quant_cast' => ($opt_qc == '1'),
-        ];
-    }
     /**
      * Get the article's primary category/all categories
      *
@@ -843,41 +829,35 @@ class Organic {
             'externalId' => $external_id,
             'site_guid' => $this->site_id,
         );
-        foreach ( $this->get_3rd_party_integrations() as $name => $value ) {
+        foreach ( $this->getThirdPartyIntegrations() as $name => $value ) {
             $third_party_integrations[$name] = $value;
         }
         $third_party_integrations =
             \apply_filters( 'organic_post_third_party_integrations', $third_party_integrations, $post->ID );
 
         $seo_schema_tags = array();
-        if (function_exists('YoastSEO')) {
-            $seo_schema = YoastSEO()->meta->for_current_page()->schema;
-            if ($seo_schema and $seo_schema['@graph']) {
-                foreach ($seo_schema['@graph'] as $seo_schema_tag) {
-                    $seo_schema_tags[] = array(
-                        'externalId' => (string)$seo_schema_tag['@id'],
-                        'site_guid' => $this->site_id,
-                        'schema_type' => (string)$seo_schema_tag['@type'],
-                        'schema_content' => $seo_schema_tag,
-                    );
-                }
-            }
+        $seo_schema_data = $this->metadataCollector->getSeoSchemaData($post->ID);
+        foreach ($seo_schema_data as $seo_schema_tag) {
+            $seo_schema_tags[] = array(
+                'externalId' => (string)$seo_schema_tag['@id'],
+                'site_guid' => $this->site_id,
+                'schema_type' => (string)$seo_schema_tag['@type'],
+                'schema_content' => $seo_schema_tag,
+            );
         }
         $seo_schema_tags =
             \apply_filters( 'organic_post_seo_schema_tags', $seo_schema_tags, $post->ID );
 
         $seo_data = array();
-        if ( function_exists( 'wp_get_post_get_seo_data' ) ) {
-            foreach ( wp_get_post_get_seo_data( $post->ID ) as $seo_datapoint_id ) {
-                $seo_datapoint = get_seo_datapoint( $seo_datapoint_id );
-                $seo_data[] = array(
-                    'externalId' => (string) $seo_datapoint->term_id,
-                    'site_guid' => $seo_datapoint->site_guid,
-                    'seo_title' => (string) $seo_datapoint->seo_title,
-                    'seo_description' => (string) $seo_datapoint->seo_description,
-                    'seo_image_url' => (string) $seo_datapoint->seo_image_url,
-                );
-            }
+        $post_seo_data = $this->metadataCollector->getSeoData( $post->ID );
+        if (!empty($post_seo_data)) {
+            $seo_data = array(
+                'externalId' => $external_id,
+                'site_guid' => $this->site_id,
+                'seo_title' => $post_seo_data->seo_title,
+                'seo_description' => $post_seo_data->seo_description,
+                'seo_image_url' => $post_seo_data->seo_image_url,
+            );
         }
         $seo_data = \apply_filters( 'organic_post_seo_data', $seo_data, $post->ID );
 
@@ -908,41 +888,42 @@ class Organic {
         $meta_tags = \apply_filters( 'organic_post_meta_tags', $meta_tags, $post->ID );
 
         $rich_content_images = array();
-        if ( function_exists( 'wp_get_post_get_rich_content_image' ) ) {
-            foreach ( wp_get_post_get_rich_content_image( $post->ID ) as $rich_content_image_id ) {
-                $rich_content_image = get_rich_content_image( $rich_content_image_id );
-                $rich_content_images[] = array(
-                    'externalId' => (string) $rich_content_image->term_id,
-                    'site_guid' => $rich_content_image->site_guid,
-                    'image_url' => (string) $rich_content_image->image_url,
-                );
-            }
+        $attachments = get_attached_media(['image'], $post->ID);
+        foreach ( $attachments as $image_obj ) {
+            $rich_content_images[] = array(
+                'externalId' => (string) $image_obj->ID,
+                'site_guid' => $this->site_id,
+                'embed_type' => 'IMG',
+                'embed_url' => $image_obj->guid,
+            );
         }
         $rich_content_images = \apply_filters( 'organic_post_rich_content_images', $rich_content_images, $post->ID );
 
         $rich_content_videos = array();
-        if ( function_exists( 'wp_get_post_get_rich_content_video' ) ) {
-            foreach ( wp_get_post_get_rich_content_video( $post->ID ) as $rich_content_video_id ) {
-                $rich_content_video = get_rich_content_video( $rich_content_video_id );
-                $rich_content_videos[] = array(
-                    'externalId' => (string) $rich_content_video->term_id,
-                    'site_guid' => $rich_content_video->site_guid,
-                    'image_url' => (string) $rich_content_video->video_url,
-                );
-            }
+        $attachments = get_attached_media(['video'], $post->ID);
+        foreach ( $attachments as $video_obj ) {
+            $rich_content_videos[] = array(
+                'externalId' => (string) $video_obj->ID,
+                'site_guid' => $this->site_id,
+                'embed_type' => 'VID',
+                'embed_url' => $video_obj->guid,
+            );
         }
         $rich_content_videos = \apply_filters( 'organic_post_rich_content_videos', $rich_content_videos, $post->ID );
 
+        $allowed_mime_types = get_allowed_mime_types();
+        $mime_types = array_filter($allowed_mime_types, function($item) {
+            return !(str_starts_with($item, 'image') or str_starts_with($item, 'video'));
+        });
+        $attachments = get_attached_media($mime_types, $post->ID);
         $rich_content_embeds = array();
-        if ( function_exists( 'wp_get_post_get_rich_content_embed' ) ) {
-            foreach ( wp_get_post_get_rich_content_embed( $post->ID ) as $rich_content_embed_id ) {
-                $rich_content_embed = get_rich_content_embed( $rich_content_embed_id );
-                $rich_content_embeds[] = array(
-                    'externalId' => (string) $rich_content_embed->term_id,
-                    'site_guid' => $rich_content_embed->site_guid,
-                    'image_url' => (string) $rich_content_embed->embed_url,
-                );
-            }
+        foreach ( $attachments as $embed_obj ) {
+            $rich_content_embeds[] = array(
+                'externalId' => (string) $embed_obj->ID,
+                'site_guid' => $this->site_id,
+                'embed_type' => 'EMB',
+                'embed_url' => $embed_obj->guid,
+            );
         }
         $rich_content_embeds = \apply_filters( 'organic_post_rich_content_embeds', $rich_content_embeds, $post->ID );
 
@@ -1003,6 +984,13 @@ class Organic {
 
         // Mark the post as synchronized to exclude from the next batch
         update_post_meta( $post->ID, SYNC_META_KEY, 'synced' );
+    }
+
+    /**
+     * @return array|bool[]
+     */
+    public function getThirdPartyIntegrations() {
+        return $this->metadataCollector->getThirdPartyIntegrations();
     }
 
     /**
