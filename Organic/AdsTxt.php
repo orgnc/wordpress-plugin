@@ -9,6 +9,7 @@ namespace Organic;
  */
 class AdsTxt {
 
+    const ADS_TXT_URL_TEMPLATE = 'https://api.organiccdn.io/sdk/adstxt/%s';
 
     /**
      * @var Organic
@@ -22,7 +23,7 @@ class AdsTxt {
     }
 
     public function get() {
-         return $this->organic->getOption( 'organic::ads_txt' );
+        return sprintf( self::ADS_TXT_URL_TEMPLATE, $this->organic->getSiteId() );
     }
 
     public function show() {
@@ -30,16 +31,10 @@ class AdsTxt {
             $enabled = $this->organic->getOption( 'organic::enabled' );
 
             if ( $enabled ) {
-                $adsTxt = $this->organic->getOption( 'organic::ads_txt' );
-                header( 'content-type: text/plain; charset=UTF-8' );
-                header( 'cache-control: public, max-age=86400' );
-                echo $adsTxt;
+                header( 'Location: ' . $this->get() );
                 exit;
             }
         }
     }
-
-    public function update( string $content ) {
-        $this->organic->updateOption( 'organic::ads_txt', $content );
-    }
 }
+
