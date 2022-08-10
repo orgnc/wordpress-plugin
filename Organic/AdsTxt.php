@@ -22,7 +22,7 @@ class AdsTxt {
         add_action( 'init', array( $this, 'show' ) );
     }
 
-    public function get() {
+    public function getAdsTxtUrl() {
         return sprintf( self::ADS_TXT_URL_TEMPLATE, $this->organic->getSiteId() );
     }
 
@@ -31,7 +31,14 @@ class AdsTxt {
             $enabled = $this->organic->getOption( 'organic::enabled' );
 
             if ( $enabled ) {
-                header( 'Location: ' . $this->get() );
+                /*
+                 * Only one redirect is allowed for /ads.txt per Ads.txt specification:
+                 *
+                 * Only a single HTTP redirect to a destination outside the original
+                 * root domain is allowed to facilitate one-hop delegation of
+                 * authority to a third party's web server domain.
+                 */
+                header( 'Location: ' . $this->getAdsTxtUrl() );
                 exit;
             }
         }
