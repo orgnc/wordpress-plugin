@@ -22,8 +22,16 @@ class AdsTxt {
         add_action( 'init', array( $this, 'show' ) );
     }
 
+    public function get() {
+        return $this->organic->getOption( 'organic::ads_txt' );
+    }
+
     public function getAdsTxtUrl() {
         return sprintf( self::ADS_TXT_URL_TEMPLATE, $this->organic->getSiteId() );
+    }
+
+    public function enableAdsTxtRedirect( $enable = false ) {
+        $this->organic->updateOption( 'organic::ads_txt_redirect_enabled', $enable );
     }
 
     public function show() {
@@ -31,17 +39,30 @@ class AdsTxt {
             $enabled = $this->organic->getOption( 'organic::enabled' );
 
             if ( $enabled ) {
-                /*
-                 * Only one redirect is allowed for /ads.txt per Ads.txt specification:
-                 *
-                 * Only a single HTTP redirect to a destination outside the original
-                 * root domain is allowed to facilitate one-hop delegation of
-                 * authority to a third party's web server domain.
-                 */
-                header( 'Location: ' . $this->getAdsTxtUrl() );
+                $adsTxtRedirect = $this->organic->getOption( 'organic::ads_txt_redirect_enabled' );
+                if ( $adsTxtRedirect ) {
+                    /*
+                     * Only one redirect is allowed for /ads.txt per Ads.txt specification:
+                     *
+                     * Only a single HTTP redirect to a destination outside the original
+                     * root domain is allowed to facilitate one-hop delegation of
+                     * authority to a third party's web server domain.
+                     */
+                    header( 'Location: ' . $this->getAdsTxtUrl() );
+                    exit;
+                }
+                $adsTxt = $this->organic->getOption( 'organic::ads_txt' );
+                header( 'content-type: text/plain; charset=UTF-8' );
+                header( 'cache-control: public, max-age=86400' );
+                echo $adsTxt;
                 exit;
             }
         }
     }
+
+    public function update( string $content ) {
+        $this->organic->updateOption( 'organic::ads_txt', $content );
+    }
+
 }
 

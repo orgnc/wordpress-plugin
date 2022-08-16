@@ -284,6 +284,7 @@ class Organic {
         new ContentSyncCommand( $this );
         new ContentIdMapSyncCommand( $this );
         new AdConfigSyncCommand( $this );
+        new AdsTxtSyncCommand( $this );
         new AffiliateConfigSyncCommand( $this );
 
         // Set up our GraphQL hooks to expose settings
@@ -1262,6 +1263,46 @@ class Organic {
             'updated' => true,
         );
     }
+
+    public function syncAdsTxt() {
+        $ads_txt_content = $this->sdk->queryAdsTxt();
+        $old_ads_txt = $this->getAdsTxtManager()->get();
+
+        // Make sure there was actually a change
+        if ( $old_ads_txt == $ads_txt_content ) {
+            return [
+                'updated' => false,
+                'cache_purged' => false,
+            ];
+        }
+
+        // If there was a change then trigger the update
+        $this->getAdsTxtManager()->update( $ads_txt_content );
+
+        // and clear CDN (only Fastly supported so far)
+        if (
+            ! is_plugin_active( 'fastly/purgely.php' ) ||
+            ! class_exists( 'Purgely_Purge' )
+        ) {
+            return [
+                'updated' => true,
+                'cache_purged' => false,
+            ];
+        }
+
+        // This fails silently for now since we don't have much control over the user's config
+        $purgely = new \Purgely_Purge();
+        $purgely->purge( \Purgely_Purge::URL, get_home_url( null, '/ads.txt' ) );
+
+        // Add in a hook that can be used to purge more complex caches
+        do_action( 'organic_ads_txt_changed' );
+
+        return [
+            'updated' => true,
+            'cache_purged' => true,
+        ];
+    }
+
 
     public function syncAffiliateConfig() {
         try {
