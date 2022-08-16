@@ -112,11 +112,16 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         if ( ! $psid ) {
             return;
         }
+        $base = AMP_BREAKPOINT::MD;
+        $smallMedia = AMP_BREAKPOINT::maxWidth( $base - 1 );
+        $largeMedia = AMP_BREAKPOINT::minWidth( $base );
 
-        $player = $this->createConnatixPlayer( $psid );
+        $smallPlayer = $this->createConnatixPlayer( $psid, $smallMedia, 4, 3 );
+        $largePlayer = $this->createConnatixPlayer( $psid, $largeMedia, 16, 9 );
+        $players = "${smallPlayer}\n${largePlayer}";
 
         try {
-            $count = $this->adsInjector->injectAds( $player, $relative, $selectors, $limit );
+            $count = $this->adsInjector->injectAds( $players, $relative, $selectors, $limit );
             $this->connatixInjected += $count;
             return $count;
         } catch ( \Exception $e ) {
@@ -125,9 +130,11 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         return 0;
     }
 
-    private function createConnatixPlayer( string $psid ) {
-        if ( isset( $this->connatixPlayers[ $psid ] ) ) {
-            return $this->connatixPlayers[ $psid ];
+    private function createConnatixPlayer( string $psid, string $media = '', int $width = 16, int $height = 9 ) {
+        $key = "${psid}_${media}_${width}_${height}";
+
+        if ( isset( $this->connatixPlayers[ $key ] ) ) {
+            return $this->connatixPlayers[ $key ];
         }
 
         $targeting = $this->targeting;
@@ -156,12 +163,17 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             'UTF-8'
         );
 
+        $mediaAttr = $media
+            ? "media=\"$media\""
+            : '';
+
         $player = "
             <amp-connatix-player
+                $mediaAttr,
                 data-player-id=\"ps_$psid\"
                 layout=\"responsive\"
-                width=\"16\"
-                height=\"9\"
+                width=\"$width\"
+                height=\"$height\"
                 data-param-custom-param1=\"$gamPageId\"
                 data-param-custom-param2=\"$section\"
                 data-param-custom-param3=\"$keywords\"
@@ -169,7 +181,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             >
             </amp-connatix-player>";
 
-        $this->connatixPlayers[ $psid ] = $player;
+        $this->connatixPlayers[ $key ] = $player;
 
         return $player;
     }
