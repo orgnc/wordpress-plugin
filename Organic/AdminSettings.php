@@ -32,7 +32,12 @@ class AdminSettings {
     public function adminSettings() {
         // Save any setting updates
         if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
-            if ( isset( $_POST['organic_post_types'] ) ) {
+            if ( isset( $_POST['organic_sync_ads_txt'] ) ) {
+                $this->organic->syncAdsTxt();
+            } else if ( isset( $_POST['organic_ads_txt_redirect'] ) ) {
+                $val = isset( $_POST['organic_enable_ads_txt_redirect'] );
+                $this->organic->getAdsTxtManager()->enableAdsTxtRedirect( $val );
+            } else if ( isset( $_POST['organic_post_types'] ) ) {
                 $this->organic->updateOption( 'organic::post_types', $_POST['organic_post_types'], false );
                 $this->organic->setPostTypes( $_POST['organic_post_types'] );
             } else if ( isset( $_POST['organic_content_sync'] ) ) {
@@ -89,6 +94,9 @@ class AdminSettings {
         if ( $_SERVER['REQUEST_METHOD'] != 'POST' ) {
             return;
         }
+        if ( ! isset( $_POST['organic_update'] ) ) {
+            return;
+        }
         switch ( $_POST['organic_update'] ) {
             case 'Update and sync':
                 $result = $this->organic->syncAdConfig();
@@ -142,6 +150,8 @@ class AdminSettings {
         $one_trust_id = $this->organic->getOption( 'organic::one_trust_id' );
         $sdk_key = $this->organic->getOption( 'organic::sdk_key' );
         $site_id = $this->organic->getOption( 'organic::site_id' );
+        $ads_txt = $this->organic->getOption( 'organic::ads_txt' );
+        $ads_txt_redirect = $this->organic->getOption( 'organic::ads_txt_redirect_enabled' );
         $organic_test = $this->organic->getOption( 'organic::percent_test' );
         $organic_value = $this->organic->getOption( 'organic::test_value' );
         $amp_ads_enabled = $this->organic->getOption( 'organic::amp_ads_enabled' );
@@ -304,6 +314,43 @@ class AdminSettings {
                 </p>
             </form>
 
+            <h2>Ads.txt</h2>
+            <p>
+            <form method="post">
+                <label>
+                    <input
+                            type="checkbox"
+                            name="organic_enable_ads_txt_redirect"
+                            id="organic_enable_ads_txt_redirect"
+                        <?php echo $ads_txt_redirect ? 'checked' : ''; ?>
+                    />
+                    Redirect to API-centric <strong>ads.txt URL</strong>
+                </label>
+                <input type="hidden" name="organic_ads_txt_redirect" id="organic_ads_txt_redirect" value="true" />
+                <p><input type="submit" value="Save"/></p>
+            </form>
+            </p>
+            <div id="cont_organic_sync_ads_txt"  style="display: <?php echo ( $ads_txt_redirect ? 'none' : 'block' ); ?>;">
+            <form method="post">
+                <label>ads.txt
+                    <textarea
+                            name="organic_ads_txt"
+                            id="organic_ads_txt"
+                            style="width:650px; height: 500px; display: block;"
+                            readonly
+                    ><?php echo $ads_txt; ?></textarea>
+                </label>
+                <input type="hidden" name="organic_sync_ads_txt" id="organic_sync_ads_txt" value="true" />
+                <p><input type="submit" value="Sync ads.txt"/></p>
+            </form>
+            </div>
+            <script>
+                const adsTxtCheckbox = document.getElementById('organic_enable_ads_txt_redirect');
+                const adsTxtContainer = document.getElementById('cont_organic_sync_ads_txt');
+                adsTxtCheckbox.onchange = () => {
+                    adsTxtContainer.style.display = adsTxtCheckbox.checked ? 'none' : 'block';
+                };
+            </script>
             <hr />
             <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
             <p>Recently Updated Posts (unsynced): <?php echo number_format( $total_synced_posts ); ?></p>
