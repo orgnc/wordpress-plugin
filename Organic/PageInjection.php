@@ -412,7 +412,13 @@ class PageInjection {
                 }();
             </script>
             <script>
-                <?php if ( $this->organic->getOrganicPixelTestValue() && $this->organic->getOrganicPixelTestPercent() ) { ?>
+                <?php
+                if (
+                        $this->organic->getOrganicPixelTestValue() &&
+                        $this->organic->getOrganicPixelTestPercent() != '' &&
+                        $this->organic->getOrganicPixelTestPercent() != null
+                ) {
+                    ?>
                 window.organicTestKey = "<?php echo $this->organic->getOrganicPixelTestValue(); ?>";
                 BVTests.create('<?php echo $this->organic->getOrganicPixelTestValue(); ?>', {
                     enabled: <?php echo $this->organic->getOrganicPixelTestPercent(); ?>,
@@ -428,7 +434,11 @@ class PageInjection {
                 ) {
                     if ( window.loadAdThrive && typeof window.loadAdThrive === 'function' )
                         window.loadAdThrive(window, document);
-                } else {
+                }
+                else if ( window.organicTestKey && BVTests.getValue(window.organicTestKey) === 'control' ) {
+                    // Do nothing here, but rely on third party code to detect the use case and load the ads their way
+                }
+                else {
                     /* Loading GPT script */
                     utils.loadScript(document, 'gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js', null, {async:true});
 
