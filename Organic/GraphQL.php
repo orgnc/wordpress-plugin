@@ -120,6 +120,10 @@ class GraphQL {
                     'type' => 'String',
                     'description' => $this->organic->t( 'JSON of the raw Ads rules', 'organic' ),
                 ],
+                'sdkVersion' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( 'SDK version', 'organic' ),
+                ],
             ],
         ];
     }
@@ -160,6 +164,7 @@ class GraphQL {
                             : '[]',
                         'siteDomain' => $this->organic->siteDomain,
                         'siteId' => $this->organic->getSiteId(),
+                        'sdkVersion' => $this->organic->getSdkVersion(),
                         'adsRawData' => $this->organic->getAdsConfig()->raw
                             ? json_encode( $this->organic->getAdsConfig()->raw )
                             : '[]',
