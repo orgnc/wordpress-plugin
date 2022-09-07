@@ -362,6 +362,7 @@ class OrganicSdk {
                                         ( new Query( 'amazon' ) )->setSelectionSet(
                                             array(
                                                 'enabled',
+                                                'deals',
                                                 'pubId',
                                             )
                                         ),
