@@ -407,6 +407,12 @@ class OrganicSdk {
                                                 'mode',
                                             )
                                         ),
+                                        ( new Query( 'consent' ) )->setSelectionSet(
+                                            array(
+                                                'gdpr',
+                                                'ccpa',
+                                            )
+                                        ),
                                         'pixelSettings',
                                     )
                                 ),
