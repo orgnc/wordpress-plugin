@@ -362,6 +362,7 @@ class OrganicSdk {
                                         ( new Query( 'amazon' ) )->setSelectionSet(
                                             array(
                                                 'enabled',
+                                                'deals',
                                                 'pubId',
                                             )
                                         ),
@@ -405,6 +406,12 @@ class OrganicSdk {
                                         ( new Query( 'fbia' ) )->setSelectionSet(
                                             array(
                                                 'mode',
+                                            )
+                                        ),
+                                        ( new Query( 'consent' ) )->setSelectionSet(
+                                            array(
+                                                'gdpr',
+                                                'ccpa',
                                             )
                                         ),
                                         'pixelSettings',
