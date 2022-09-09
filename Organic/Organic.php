@@ -712,7 +712,8 @@ class Organic {
             $cat_data = &$cat_id_map[ $cat->term_id ];
             if ( $cat->parent == 0 ) {
                 array_push( $trees, $cat_data );
-            } else {
+	foreach ( $categories as &$cat ) {
+            if ( $cat->parent != 0 ) {
                 $parent = &$cat_id_map[ $cat->parent ];
                 $children = &$parent['children'];
                 array_push( $children, $cat_data );
