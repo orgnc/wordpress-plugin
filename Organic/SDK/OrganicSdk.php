@@ -357,6 +357,7 @@ class OrganicSdk {
                                 ( new Query( 'adSettings' ) )->setSelectionSet(
                                     array(
                                         'enableRefresh',
+                                        'adsRefreshRate',
                                         'tabletBreakpointMin',
                                         'desktopBreakpointMin',
                                         ( new Query( 'amazon' ) )->setSelectionSet(
