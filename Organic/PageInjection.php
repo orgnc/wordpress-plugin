@@ -415,8 +415,7 @@ class PageInjection {
                 <?php
                 if (
                         $this->organic->getOrganicPixelTestValue() &&
-                        $this->organic->getOrganicPixelTestPercent() != '' &&
-                        $this->organic->getOrganicPixelTestPercent() != null
+                        $this->organic->getOrganicPixelTestPercent() !== null
                 ) {
                     ?>
                 window.organicTestKey = "<?php echo $this->organic->getOrganicPixelTestValue(); ?>";
@@ -426,16 +425,8 @@ class PageInjection {
                 <?php } ?></script>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
             <script>
-                /* The below condition is a very specific case setup for Ads AB testing */
-                if (
-                    window.organicTestKey &&
-                    window.organicTestKey.indexOf('organic_adthrive') > -1 &&
-                    BVTests.getValue(window.organicTestKey) === 'control'
-                ) {
-                    if ( window.loadAdThrive && typeof window.loadAdThrive === 'function' )
-                        window.loadAdThrive(window, document);
-                }
-                else if ( window.organicTestKey && BVTests.getValue(window.organicTestKey) === 'control' ) {
+                if ( window.organicTestKey && BVTests.getValue(window.organicTestKey) === 'control' ) {
+                    // The below condition is a very specific case setup for Ads AB testing
                     // Do nothing here, but rely on third party code to detect the use case and load the ads their way
                 }
                 else {
