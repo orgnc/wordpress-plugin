@@ -1,6 +1,13 @@
 name: Build Plugin Zip and Push to S3
 
 on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
   release:
     types:
       - published
@@ -50,19 +57,19 @@ jobs:
           secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       # Push zip to GitHub Release Archive
-      - name: Upload the artifacts to GitHub
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: 'build/organic.zip'
+      # - name: Upload the artifacts to GitHub
+      #   uses: skx/github-action-publish-binaries@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     args: 'build/organic.zip'
 
       # Push zip to S3 for easy integration with Organic Platform
       - name: Deploy
         run: |
           aws sts get-caller-identity
-          s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
-          s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
+      #    s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
+      #    s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
 
       # Pre-configured step to send notification on build success
       - name: Notify slack success
