@@ -71,6 +71,8 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             AWS_DEFAULT_REGION: us-west-2
         run: |
+          echo $AWS_ACCESS_KEY_ID
+          echo ${{ env.AWS_ACCESS_KEY_ID }}
           aws sts get-caller-identity
       #    s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
       #    s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
