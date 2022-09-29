@@ -531,6 +531,48 @@ class OrganicSdk {
         return $result['data']['appAds']['sites'][0];
     }
 
+    public function queryAdsRefreshRates() {
+        $gql = new Query( 'adsRefreshRates' );
+        $gql->setArguments(
+            array(
+                'siteGuids' => array( $this->siteGuid ),
+            )
+        );
+        $gql->setSelectionSet(
+            array(
+                'guid',
+                'targetType',
+                'targetGuid',
+                'value',
+                ( new Query( 'restrictions' ) )->setSelectionSet(
+                    array(
+                        ( new Query( 'devices' ) )->setSelectionSet(
+                            array(
+                                'deviceType',
+                                'os',
+                            )
+                        ),
+                        ( new Query( 'timeRanges' ) )->setSelectionSet(
+                            array(
+                                'start',
+                                'end',
+                            )
+                        ),
+                        ( new Query( 'placements' ) )->setSelectionSet(
+                            array(
+                                'guid',
+                                'name',
+                                'key',
+                            )
+                        ),
+                    )
+                ),
+            )
+        );
+        $result = $this->runQuery( $gql );
+        return $result['data']['adsRefreshRates'];
+    }
+
     public function queryAdsTxt(): string {
         $gql = ( new Query( 'adsTxt' ) );
         $gql->setArguments(

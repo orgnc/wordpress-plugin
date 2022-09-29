@@ -483,7 +483,8 @@ class Organic {
         }
 
         $rawAdsConfig = $this->getOption( 'organic::ad_settings', [] );
-        $this->adsConfig = new AdsConfig( $rawAdsConfig );
+        $rawAdsRefreshRates = $this->getOption( 'organic::ads_refresh_rates', [] );
+        $this->adsConfig = new AdsConfig( $rawAdsConfig, $rawAdsRefreshRates );
 
         return $this->adsConfig;
     }
@@ -1274,9 +1275,18 @@ class Organic {
         $this->debug( 'Got FBIA Config: ', $config['fbiaConfig'] );
         $this->updateOption( 'organic::ad_fbia_config', $config['fbiaConfig'], false );
 
+        $this->syncAdsRefreshRates();
+
         return array(
             'updated' => true,
         );
+    }
+
+    public function syncAdsRefreshRates() {
+        $rates = $this->sdk->queryAdsRefreshRates();
+
+        $this->debug( 'Got ads refresh rates for: ' . $rates['targetType'] . ':' . $rates['targetGuid'] );
+        $this->updateOption( 'organic::ads_refresh_rates', $rates, false );
     }
 
     public function syncAdsTxt() {
