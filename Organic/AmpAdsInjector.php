@@ -74,23 +74,18 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             // if placement's ad_type is set to 'outstream_video':
             // inject connatix player instead of generic amp template
             if ( $placement['adType'] == AD_TYPE::OUTSTREAM_VIDEO ) {
-
-                // get playspaceId from placement's 'connatixId'
-                $connatixId = trim( $placement['connatixId'] ) ?: '';
-                $psid = is_valid_uuid( $connatixId ) ? $connatixId : '';
-
-                $this->injectConnatix(
-                    $psid,
-                    $relative,
-                    $selectors,
-                    $limit
-                );
-                continue;
+                $adHtml = $this->applyConnatixParams( $amp['html'], $this->targeting );
+            } else if ( $placement['adType'] == AD_TYPE::DEFAULT ) {
+                $adHtml = $this->applyAdTargeting( $amp['html'], $this->targeting );
+            } else {
+                $adHtml = $amp['html'];
             }
 
-            $adHtml = $this->applyTargeting( $amp['html'], $this->targeting );
             try {
-                $this->adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
+                $count = $this->adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
+                if ( $placement['adType'] == AD_TYPE::OUTSTREAM_VIDEO ) {
+                    $this->connatixInjected += $count;
+                }
             } catch ( \Exception $e ) {
                 \Organic\Organic::captureException( $e );
             }
@@ -99,7 +94,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         // if no connatix players were injected by placements settings,
         // try to inject one into default position
         if ( $this->connatixEnabled && $this->connatixInjected === 0 ) {
-            $this->injectConnatix(
+            $this->deprecatedInjectConnatix(
                 $this->connatix->getPlayspaceId(),
                 ConnatixConfig::DEFAULT_AMP_RELATIVE,
                 ConnatixConfig::DEFAULT_AMP_SELECTORS
@@ -108,7 +103,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
 
     }
 
-    private function injectConnatix( string $psid, string $relative, array $selectors, $limit = 1 ) {
+    private function deprecatedInjectConnatix( string $psid, string $relative, array $selectors, $limit = 1 ) {
         if ( ! $psid ) {
             return;
         }
@@ -116,8 +111,8 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         $smallMedia = AMP_BREAKPOINT::maxWidth( $base - 1 );
         $largeMedia = AMP_BREAKPOINT::minWidth( $base );
 
-        $smallPlayer = $this->createConnatixPlayer( $psid, $smallMedia, 4, 3 );
-        $largePlayer = $this->createConnatixPlayer( $psid, $largeMedia, 16, 9 );
+        $smallPlayer = $this->deprecatedCreateConnatixPlayer( $psid, $smallMedia, 4, 3 );
+        $largePlayer = $this->deprecatedCreateConnatixPlayer( $psid, $largeMedia, 16, 9 );
         $players = "${smallPlayer}\n${largePlayer}";
 
         try {
@@ -130,14 +125,35 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         return 0;
     }
 
-    private function createConnatixPlayer( string $psid, string $media = '', int $width = 16, int $height = 9 ) {
+    private function deprecatedCreateConnatixPlayer( string $psid, string $media = '', int $width = 16, int $height = 9 ) {
         $key = "${psid}_${media}_${width}_${height}";
 
         if ( isset( $this->connatixPlayers[ $key ] ) ) {
             return $this->connatixPlayers[ $key ];
         }
 
-        $targeting = $this->targeting;
+        $dataParams = $this->getConnatixParams( $this->targeting );
+        $mediaAttr = $media
+            ? "media=\"$media\""
+            : '';
+
+        $player = "
+            <amp-connatix-player
+                $mediaAttr
+                data-player-id=\"ps_$psid\"
+                layout=\"responsive\"
+                width=\"$width\"
+                height=\"$height\"
+                $dataParams
+            >
+            </amp-connatix-player>";
+
+        $this->connatixPlayers[ $key ] = $player;
+
+        return $player;
+    }
+
+    public function getConnatixParams( $targeting ) {
         $section = implode( ',', $targeting['sections'] ?: [] );
         $keywords = implode( ',', $targeting['keywords'] ?: [] );
         $gamPageId = $targeting['gamPageId'];
@@ -163,31 +179,20 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             'UTF-8'
         );
 
-        $mediaAttr = $media
-            ? "media=\"$media\""
-            : '';
-
-        $player = "
-            <amp-connatix-player
-                $mediaAttr,
-                data-player-id=\"ps_$psid\"
-                layout=\"responsive\"
-                width=\"$width\"
-                height=\"$height\"
-                data-param-custom-param1=\"$gamPageId\"
-                data-param-custom-param2=\"$section\"
-                data-param-custom-param3=\"$keywords\"
-                data-param-macros=\"$macros\"
-            >
-            </amp-connatix-player>";
-
-        $this->connatixPlayers[ $key ] = $player;
-
-        return $player;
+        return "
+            data-param-custom-param1=\"$gamPageId\"
+            data-param-custom-param2=\"$section\"
+            data-param-custom-param3=\"$keywords\"
+            data-param-macros=\"$macros\"
+        ";
     }
 
+    public function applyConnatixParams( $html, $targeting ) {
+        $dataParams = $this->getConnatixParams( $targeting );
+        return str_replace( 'data-param="{}"', $dataParams, $html );
+    }
 
-    public function applyTargeting( $html, $values ) {
+    public function applyAdTargeting( $html, $values ) {
         $targeting = [
             'amp' => 1,
             'site' => $values['siteDomain'],
