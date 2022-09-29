@@ -25,23 +25,30 @@ class AdsConfig extends BaseConfig {
      */
     public $forPlacement;
 
+    public $adsRefreshRates;
+
     private $fallbackUrl;
     private $prebidUrl;
 
-    public function __construct( array $raw ) {
-        parent::__construct( $raw );
+    public function __construct( array $rawAdsConfig, array $rawAdsRefreshRates ) {
+        parent::__construct( $rawAdsConfig );
 
         $this->fallbackUrl = Organic::getInstance()->sdk->getFallbackPrebidBuildUrl();
 
-        if ( empty( $raw ) ) {
+        $this->adsRefreshRates = $rawAdsRefreshRates;
+        if ( ! empty( $rawAdsRefreshRates ) ) {
+            $this->raw['adsRefreshRates'] = $rawAdsRefreshRates;
+        }
+        if ( empty( $rawAdsConfig ) ) {
             $this->adRules = [];
+            $this->adsRefreshRates = [];
             $this->prebidUrl = $this->fallbackUrl;
             return;
         }
 
-        $this->adRules = $raw['adRules'];
+        $this->adRules = $rawAdsConfig['adRules'];
 
-        $prebid = $this->raw['prebid'] ?? [];
+        $prebid = $this->rawAdsConfig['prebid'] ?? [];
         $this->prebidUrl = $prebid['useBuild'] ?? $this->fallbackUrl;
     }
 
