@@ -47,6 +47,13 @@ class GraphQL {
                     'type' => 'Boolean',
                     'description' => $this->organic->t( 'Are we running with Organic Ads?', 'organic' ),
                 ],
+                'testModeEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t(
+                        'Should ad tags be directly on the page or dynamically loaded via JavaScript?',
+                        'organic'
+                    ),
+                ],
                 'adsTestEnabled' => [
                     'type' => 'Boolean',
                     'description' => $this->organic->t(
