@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Organic;
 
 /**
@@ -281,7 +280,9 @@ class PageInjection {
             if ( ! empty( $keywords ) ) {
                 $keywordString = esc_html( implode( ',', $keywords ) );
             }
-            ?>
+
+            if ( $this->organic->isTestMode() ) {
+                ?>
             <script>
                 var utils = {
                     queryString: {},
@@ -491,7 +492,20 @@ class PageInjection {
                     })();
                 }
             </script>
-            <?php
+                <?php
+            } else {
+                // If we are not in test mode then we need to be loading up our ad stack as quickly as possible, which
+                // means that we should do it with <script> tags directly.
+
+                // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+                echo '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
+
+                // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+                echo '<script async src="' . $this->organic->getAdsConfig()->getPrebidBuildUrl() . '"></script>';
+
+                // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+                echo '<script async src="' . $this->organic->sdk->getSdkUrl() . '"></script>';
+            }
         }
     }
 

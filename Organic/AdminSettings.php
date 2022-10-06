@@ -63,6 +63,7 @@ class AdminSettings {
                 }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
+                $this->organic->updateOption( 'organic::test_mode', isset( $_POST['organic_test_mode'] ) ? true : false, false );
                 $this->organic->updateOption( 'organic::sdk_version', $_POST['organic_sdk_version'] ?: $this->organic->sdk::SDK_V1, false );
                 $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
                 $this->organic->updateOption( 'organic::test_value', $_POST['organic_value'], false );
@@ -142,6 +143,7 @@ class AdminSettings {
 
     public function showSettings() {
         $enabled = $this->organic->getOption( 'organic::enabled' );
+        $test_mode = $this->organic->getOption( 'organic::test_mode' );
         $sdk_version = $this->organic->getSdkVersion();
         $connatix_enabled = $this->organic->getOption( 'organic::connatix_enabled' );
         $connatix_playspace_id = $this->organic->getOption( 'organic::connatix_playspace_id' );
@@ -237,8 +239,6 @@ class AdminSettings {
                     document.getElementById("organic_connatix_enabled").onclick = hideShowConnatix;
                     document.getElementById("organic_connatix_enabled").onkeypress = hideShowConnatix;
                 </script>
-                <p><label>% of ads on Organic Ads: <input type="text" name="organic_percent" id="organic_percent" value="<?php echo $organic_test; ?>" /></label></p>
-                <p><label>Key-Value for Split Test: <input type="text" name="organic_value" id="organic_value" value="<?php echo $organic_value; ?>" /></label></p>
 
                 <p>
                     <label>
@@ -306,6 +306,14 @@ class AdminSettings {
                         Affiliate Application is enabled on the Platform (Requires SDK V2)
                     </label>
                 </p>
+
+                <hr />
+                <p><label><input type="checkbox" name="organic_test_mode"
+                                 id="organic_test_mode" <?php echo $test_mode ? 'checked' : ''; ?>> Test Mode Enabled
+                    </label></p>
+                <p><label>% of ads on Organic Ads: <input type="text" name="organic_percent" id="organic_percent" value="<?php echo $organic_test; ?>" /></label></p>
+                <p><label>Key-Value for Split Test: <input type="text" name="organic_value" id="organic_value" value="<?php echo $organic_value; ?>" /></label></p>
+
                 <p>
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;

@@ -26,6 +26,11 @@ class Organic {
     private $isEnabled = false;
 
     /**
+     * @var bool True if we need to load via JavaScript
+     */
+    private $isTestMode = false;
+
+    /**
      * @var AdsTxt
      */
     private $adsTxt;
@@ -255,6 +260,7 @@ class Organic {
         $this->adsTxt = new AdsTxt( $this );
 
         $this->isEnabled = $this->getOption( 'organic::enabled' );
+        $this->isTestMode = $this->getOption( 'organic::test_mode' );
         $this->ampAdsEnabled = $this->getOption( 'organic::amp_ads_enabled' );
         $this->injectAdsConfig = $this->getOption( 'organic::inject_ads_config' );
         $this->adSlotsPrefillEnabled = $this->getOption( 'organic::ad_slots_prefill_enabled' );
@@ -304,6 +310,15 @@ class Organic {
      */
     public function isEnabled() : bool {
         return $this->isEnabled;
+    }
+
+    /**
+     * Returns true if we need to load the SDK via JavaScript for a split test
+     *
+     * @return bool
+     */
+    public function isTestMode() : bool {
+        return $this->isTestMode;
     }
 
     /**
