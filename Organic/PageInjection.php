@@ -289,6 +289,41 @@ class PageInjection {
             <link rel="dns-prefetch" href="https://securepubads.g.doubleclick.net/">
             <link rel="preconnect" href="https://c.amazon-adsystem.com/" crossorigin>
             <link rel="dns-prefetch" href="https://c.amazon-adsystem.com/">
+
+            <script>
+                var googletag = googletag || {};
+                var pbjs = pbjs || {};
+
+                /* TrackADM Config - to be phased out */
+                window.__trackadm_usp_cookie = 'ne-opt-out';
+                window.tadmPageId = '<?php echo $gamPageId; ?>';
+                window.tadmKeywords = '<?php echo $keywordString; ?>';
+                window.tadmSection = '<?php echo $sectionString; ?>';
+                window.trackADMData = window.trackADMData || {};
+
+                /* Organic Config - to be phased in */
+                window.__organic_usp_cookie = 'ne-opt-out';
+                window.empire = window.empire || {};
+                window.empire.apps = window.empire.apps || {};
+                window.empire.apps.ads = window.empire.apps.ads || {};
+                window.empire.apps.ads.config = window.empire.apps.ads.config || {};
+                <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
+                window.empire.apps.ads.config.siteDomain = "<?php echo $this->organic->siteDomain; ?>";
+                window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
+                <?php } ?>
+
+                window.empire.apps.ads.targeting = {
+                    pageId: '<?php echo $gamPageId; ?>',
+                    externalId: '<?php echo $gamExternalId; ?>',
+                    keywords: '<?php echo $keywordString; ?>',
+                    disableKeywordReporting: false,
+                    section: '<?php echo $sectionString; ?>',
+                    disableSectionReporting: false
+                }
+
+                googletag.cmd = googletag.cmd || [];
+                pbjs.que = pbjs.que || [];
+            </script>
             <?php
 
             if ( $this->organic->isTestMode() ) {
@@ -421,8 +456,7 @@ class PageInjection {
                         getTargetingValue: t
                     }
                 }();
-            </script>
-            <script>
+
                 <?php
                 if (
                         $this->organic->getOrganicPixelTestValue() &&
@@ -433,7 +467,9 @@ class PageInjection {
                 BVTests.create('<?php echo $this->organic->getOrganicPixelTestValue(); ?>', {
                     enabled: <?php echo $this->organic->getOrganicPixelTestPercent(); ?>,
                 });
-                <?php } ?></script>
+
+                <?php } ?>
+            </script>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
             <script>
                 if ( window.organicTestKey && BVTests.getValue(window.organicTestKey) === 'control' ) {
@@ -441,48 +477,14 @@ class PageInjection {
                     // Do nothing here, but rely on third party code to detect the use case and load the ads their way
                 }
                 else {
+                    window.trackADMData.tests = BVTests.getTargetingValue();
+                    window.empire.apps.ads.targeting.tests = BVTests.getTargetingValue();
+
                     /* Loading GPT script */
                     utils.loadScript(document, 'gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js', null, {async:true});
-
-                    var googletag = googletag || {};
-                    var pbjs = pbjs || {};
-
-                    /* TrackADM Config - to be phased out */
-                    window.__trackadm_usp_cookie = 'ne-opt-out';
-                    window.tadmPageId = '<?php echo $gamPageId; ?>';
-                    window.tadmKeywords = '<?php echo $keywordString; ?>';
-                    window.tadmSection = '<?php echo $sectionString; ?>';
-                    window.trackADMData = window.trackADMData || {};
-                    window.trackADMData.tests = BVTests.getTargetingValue();
-
-                    /* Organic Config - to be phased in */
-                    window.__organic_usp_cookie = 'ne-opt-out';
-                    window.empire = window.empire || {};
-                    window.empire.apps = window.empire.apps || {};
-                    window.empire.apps.ads = window.empire.apps.ads || {};
-                    window.empire.apps.ads.config = window.empire.apps.ads.config || {};
-                    <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
-
-                    window.empire.apps.ads.config.siteDomain = "<?php echo $this->organic->siteDomain; ?>";
-                    window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
-                    <?php } ?>
-
-                    window.empire.apps.ads.targeting = {
-                        pageId: '<?php echo $gamPageId; ?>',
-                        externalId: '<?php echo $gamExternalId; ?>',
-                        keywords: '<?php echo $keywordString; ?>',
-                        disableKeywordReporting: false,
-                        section: '<?php echo $sectionString; ?>',
-                        disableSectionReporting: false,
-                        tests: BVTests.getTargetingValue(),
-                    }
-
-                    googletag.cmd = googletag.cmd || [];
-                    pbjs.que = pbjs.que || [];
-
                     var loadDelay = 1000;
 
-                (function() {
+                    (function() {
                         function loadAds() {
                             utils.loadScript(document, 'prebid-library', "<?php echo $this->organic->getAdsConfig()->getPrebidBuildUrl(); ?>");
                     <?php if ( $this->organic->getSdkVersion() == $this->organic->sdk::SDK_V1 ) { ?>
