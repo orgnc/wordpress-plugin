@@ -281,6 +281,16 @@ class PageInjection {
                 $keywordString = esc_html( implode( ',', $keywords ) );
             }
 
+            // No matter what, we want to add prefetch headers
+            ?>
+            <link rel="preconnect" href="https://organiccdn.io/" crossorigin>
+            <link rel="dns-prefetch" href="https://organiccdn.io/">
+            <link rel="preconnect" href="https://securepubads.g.doubleclick.net/" crossorigin>
+            <link rel="dns-prefetch" href="https://securepubads.g.doubleclick.net/">
+            <link rel="preconnect" href="https://c.amazon-adsystem.com/" crossorigin>
+            <link rel="dns-prefetch" href="https://c.amazon-adsystem.com/">
+            <?php
+
             if ( $this->organic->isTestMode() ) {
                 ?>
             <script>
