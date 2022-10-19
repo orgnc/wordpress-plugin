@@ -54,6 +54,9 @@ class AdsTxt {
                 $adsTxt = $this->organic->getOption( 'organic::ads_txt' );
                 header( 'content-type: text/plain; charset=UTF-8' );
                 header( 'cache-control: public, max-age=86400' );
+                if ( defined( 'WP_ENV' ) && WP_ENV !== 'production' ) {
+                    header( 'x-robots-tag: noindex, nofollow' );
+                }
                 echo $adsTxt;
                 exit;
             }
