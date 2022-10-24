@@ -48,7 +48,7 @@ class AdsConfig extends BaseConfig {
 
         $this->adRules = $rawAdsConfig['adRules'];
 
-        $prebid = $this->rawAdsConfig['prebid'] ?? [];
+        $prebid = $rawAdsConfig['prebid'] ?? [];
         $this->prebidUrl = $prebid['useBuild'] ?? $this->fallbackUrl;
     }
 
