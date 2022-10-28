@@ -7,15 +7,18 @@ import {
   CardBody,
   CardDivider,
   CheckboxControl,
-  Toolbar,
   IconButton,
+  Toolbar,
+  TextControl,
 } from '@wordpress/components';
 import {
   createRef,
-  useState,
-  useEffect,
   useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from '@wordpress/element';
+import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 
 import ProductSearchModal from '../ProductSearchModal';
@@ -36,6 +39,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     attributes.productGuid,
     attributes.displayImage,
     attributes.displayDescription,
+    attributes.bannerText,
   ]);
   const [showModal, setShowModal] = useState(!attributes.productGuid);
   const hideModal = useCallback(
@@ -46,6 +50,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     () => setShowModal(true),
     [setShowModal],
   );
+
   const onProductSelect = useCallback(
     (newProduct) => {
       setAttributes({ productGuid: newProduct.guid });
@@ -53,6 +58,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     },
     [setAttributes, hideModal],
   );
+
   const setDisplayImage = useCallback(
     (displayImage) => setAttributes({ displayImage }),
     [setAttributes],
@@ -61,6 +67,20 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     (displayDescription) => setAttributes({ displayDescription }),
     [setAttributes],
   );
+
+  const [bannerTextValue, setBannerTextValue] = useState(attributes.bannerText);
+  const debouncedSetBannerText = useMemo(
+    () => debounce((bannerText) => setAttributes({ bannerText }), 400),
+    [setAttributes],
+  );
+  const setBannerText = useCallback(
+    (bannerText) => {
+      setBannerTextValue(bannerText);
+      debouncedSetBannerText(bannerText);
+    },
+    [debouncedSetBannerText],
+  );
+
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <div {...useBlockProps()}>
@@ -98,11 +118,18 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 label="Display Description"
                 onChange={setDisplayDescription}
               />
+              <TextControl
+                help="Text for product card banner/award"
+                label="Banner Text"
+                onChange={setBannerText}
+                value={bannerTextValue}
+              />
             </CardBody>
             <CardDivider />
             <CardBody>
               <ProductCard
                 ref={productCardRef}
+                bannerText={attributes.bannerText}
                 displayDescription={attributes.displayDescription}
                 displayImage={attributes.displayImage}
                 productGuid={attributes.productGuid}

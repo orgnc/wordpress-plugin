@@ -26,12 +26,17 @@ registerBlockType('organic/affiliate-product-card', {
       type: 'boolean',
       default: false,
     },
+    bannerText: {
+      type: 'string',
+      default: '',
+    },
   },
   example: {
     attributes: {
       productGuid: '964805c4-6bf7-4418-a112-a58f1565a72d',
       displayImage: true,
       displayDescription: false,
+      bannerText: '',
     },
   },
   icon: OrganicIcon,

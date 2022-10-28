@@ -10,6 +10,7 @@ const Save = ({ attributes }) => {
       {attributes?.productGuid
         && (
         <ProductCard
+          bannerText={attributes.bannerText}
           displayDescription={attributes.displayDescription}
           displayImage={attributes.displayImage}
           productGuid={attributes.productGuid}
