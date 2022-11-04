@@ -713,8 +713,7 @@ class Organic {
      *  @return void|null
      */
     public function syncCategories() {
-
-        $categories = get_terms( [ 'category' ] );
+        $categories = get_categories( [ 'hide_empty' => false ] );
         $cat_id_map = array();
         $trees = array();
         foreach ( $categories as $cat ) {
