@@ -35,4 +35,4 @@ function add_organic_block_category( $categories ) {
     );
 }
 
-add_action( 'block_categories_all', 'add_organic_block_category', PHP_INT_MAX );
+add_action( 'block_categories_all', 'add_organic_block_category', PHP_INT_MAX - 1 );
