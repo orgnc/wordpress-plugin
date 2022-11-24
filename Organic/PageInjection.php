@@ -189,6 +189,9 @@ class PageInjection {
         $injectionPoint = strpos( $content, '</p>' );
         $injectionPointOffset = 4;
         if ( $injectionPoint === false || $injectionPoint > 1000 ) {
+            if ( strlen( $content ) <= 200 ) {
+                return $content;
+            }
             $spanInjectionPoint = strpos( $content, '</span>', 200 );
             if ( $spanInjectionPoint === false ) {
                 return $content;
