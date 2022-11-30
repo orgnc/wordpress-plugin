@@ -1,35 +1,16 @@
-import './productSearchModal.scss';
-
-import { Modal } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
+import IntegrationModal from './components/IntegrationModal';
+
 const ProductSearchModal = ({ onClose, onProductSelect, productSearchPageUrl }) => {
-  useEffect(() => {
-    const handler = (event) => {
-      const data = JSON.parse(event.data);
-      if (data?.type === 'organic/affiliate-select-product') {
-        onProductSelect(data.product, data.offerUrl);
-      }
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, [onProductSelect]);
   return (
-    <Modal
-      className="product-search-modal"
-      onRequestClose={onClose}
-      shouldCloseOnClickOutside={false}
+    <IntegrationModal
+      iframeURL={productSearchPageUrl}
+      integrationMessageType="organic/affiliate-select-product"
+      onClose={onClose}
+      onIntegrationSelect={onProductSelect}
       title="Product Search"
-      isFullScreen
-    >
-      <iframe
-        height="100%"
-        src={productSearchPageUrl}
-        title="Product Search"
-        width="100%"
-      />
-    </Modal>
+    />
   );
 };
 
