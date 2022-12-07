@@ -1,15 +1,20 @@
 {
-	"name": "affiliate-product-card",
+	"name": "affiliate-product-integrations",
 	"version": "0.0.1",
 	"description": "Affiliate Product Card Block",
 	"author": "Organic Team",
-	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build",
+		"build": "wp-scripts build blocks/productCard/src/index.js --output-path=blocks/productCard/build/ && wp-scripts build blocks/productCarousel/src/index.js --output-path=blocks/productCarousel/build/",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
 		"packages-update": "wp-scripts packages-update",
-		"start": "wp-scripts start"
+		"start": "wp-scripts start",
+		"start:product-card": "wp-scripts start blocks/productCard/src/index.js --output-path=blocks/productCard/build/",
+		"build:product-card": "wp-scripts build blocks/productCard/src/index.js --output-path=blocks/productCard/build/",
+		"start:product-carousel": "wp-scripts start blocks/productCarousel/src/index.js --output-path=blocks/productCarousel/build/",
+		"build:product-carousel": "wp-scripts build blocks/productCarousel/src/index.js --output-path=blocks/productCarousel/build/",
+		"start:hero": "wp-scripts start blocks/hero/src/index.js --output-path=blocks/hero/build/",
+		"build:hero": "wp-scripts build blocks/hero/src/index.js --output-path=blocks/hero/build/"
 	},
 	"devDependencies": {
 		"@babel/core": "7.18.0",

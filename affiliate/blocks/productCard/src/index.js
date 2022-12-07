@@ -3,8 +3,8 @@ import { registerBlockType } from '@wordpress/blocks';
 
 import './style.scss';
 
-import { register } from './insertLink/InsertAffiliateLink';
 import Edit from './Edit';
+import { register } from './insertLink/InsertAffiliateLink';
 import OrganicIcon from './OrganicIcon';
 import Save from './Save';
 
