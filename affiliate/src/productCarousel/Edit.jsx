@@ -30,8 +30,11 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
   );
 
   const onCarouselSelect = useCallback(
-    (productCarouselSnippet) => {
-      setAttributes({ productCarouselSnippet });
+    ({
+      productCarouselSnippet,
+      productCarouselURL,
+    }) => {
+      setAttributes({ productCarouselSnippet, productCarouselURL });
       hideModal();
       // @todo does this work with the product carousel?
       if (productCarouselRef.current) {

@@ -24,7 +24,7 @@ class Affiliate {
             [ 'organic-sdk' ]
         );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
-        $product_carousel_creation_url = $this->organic->getPlatformUrl() . 'apps/affiliate/integrations/product-carousel';
+        $product_carousel_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-carousel';
         wp_localize_script(
             'organic-affiliate',
             'organic_affiliate_config',

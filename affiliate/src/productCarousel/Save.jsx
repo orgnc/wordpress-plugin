@@ -1,7 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
-import { AttributesType } from './propTypes';
 import ProductCarousel from './ProductCarousel';
+import { AttributesType } from './propTypes';
 
 const Save = ({ attributes }) => (
   // eslint-disable-next-line react/jsx-props-no-spreading

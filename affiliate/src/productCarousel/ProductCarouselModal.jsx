@@ -9,7 +9,7 @@ const ProductCarouselModal = ({
 }) => (
   <IntegrationModal
     iframeURL={productCarouselCreationURL}
-    integrationMessageType="organic/affiliate-product-carousel"
+    integrationMessageType="organic/affiliate-select-product-carousel"
     onClose={onClose}
     onIntegrationSelect={onCarouselSelect}
     title="Product Carousel Creation"
