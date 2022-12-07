@@ -8,7 +8,7 @@ import Edit from './Edit';
 import OrganicIcon from './OrganicIcon';
 import Save from './Save';
 
-register(organic_affiliate_config.productSearchPageUrl);
+register(organic_affiliate_config_product_card.productSearchPageUrl);
 
 registerBlockType('organic/affiliate-product-card', {
   attributes: {
@@ -43,7 +43,7 @@ registerBlockType('organic/affiliate-product-card', {
   edit: (props) => (
     <Edit
       {...props}
-      productSearchPageUrl={organic_affiliate_config.productSearchPageUrl}
+      productSearchPageUrl={organic_affiliate_config_product_card.productSearchPageUrl}
     />
   ),
   save: Save,

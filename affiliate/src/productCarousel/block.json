@@ -10,7 +10,7 @@
     "html": false
   },
   "textdomain": "affiliate-product-carousel",
-  "editorScript": "file:./index.js",
+  "editorScript": "organic-affiliate-product-carousel",
   "editorStyle": "file:./index.css",
   "style": "file:./style-index.css"
 }

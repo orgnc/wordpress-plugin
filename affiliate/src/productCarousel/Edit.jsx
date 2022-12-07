@@ -19,7 +19,7 @@ import { AttributesType } from './propTypes';
 const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
   const productCarouselRef = createRef();
 
-  const [showModal, setShowModal] = useState(!attributes.productGuid);
+  const [showModal, setShowModal] = useState(false);
   const hideModal = useCallback(
     () => setShowModal(false),
     [setShowModal],

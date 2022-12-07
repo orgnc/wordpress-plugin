@@ -18,7 +18,7 @@ registerBlockType('organic/affiliate-product-carousel', {
   edit: (props) => (
     <Edit
       {...props}
-      productCarouselCreationURL={organic_affiliate_config.productCarouselCreationURL}
+      productCarouselCreationURL={organic_affiliate_config_product_carousel.productCarouselCreationURL}
     />
   ),
   save: Save,
