@@ -40,6 +40,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     attributes.displayImage,
     attributes.displayDescription,
     attributes.bannerText,
+    attributes.description,
   ]);
   const [showModal, setShowModal] = useState(!attributes.productGuid);
   const hideModal = useCallback(
@@ -79,6 +80,19 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
       debouncedSetBannerText(bannerText);
     },
     [debouncedSetBannerText],
+  );
+
+  const [descriptionValue, setDescriptionValue] = useState(attributes.description);
+  const debouncedSetDescriptionText = useMemo(
+    () => debounce((descriptionText) => setAttributes({ descriptionText }), 400),
+    [setAttributes],
+  );
+  const setDescriptionText = useCallback(
+    (descriptionText) => {
+      setDescriptionValue(descriptionText);
+      debouncedSetDescriptionText(descriptionText);
+    },
+    [debouncedSetDescriptionText],
   );
 
   return (
@@ -124,6 +138,12 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 onChange={setBannerText}
                 value={bannerTextValue}
               />
+              <TextControl
+                help="Text for product card description"
+                label="Description Text"
+                onChange={setDescriptionText}
+                value={descriptionValue}
+              />
             </CardBody>
             <CardDivider />
             <CardBody>
@@ -133,6 +153,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 displayDescription={attributes.displayDescription}
                 displayImage={attributes.displayImage}
                 productGuid={attributes.productGuid}
+                description={attributes.description}
               />
             </CardBody>
           </>

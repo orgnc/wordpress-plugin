@@ -10,6 +10,7 @@ const ProductCard = forwardRef(({
   displayImage,
   displayDescription,
   bannerText,
+  description,
 }, ref) => {
   if (!productGuid) {
     return null;
@@ -23,6 +24,7 @@ const ProductCard = forwardRef(({
       data-organic-affiliate-integration-banner-text={bannerText}
       data-organic-affiliate-integration-options={options}
       data-organic-affiliate-product-guid={productGuid}
+      data-organic-affiliate-integration-description={description}
     />
   );
 });
@@ -32,6 +34,7 @@ ProductCard.propTypes = {
   displayImage: PropTypes.bool,
   displayDescription: PropTypes.bool,
   bannerText: PropTypes.string,
+  description: PropTypes.string,
 };
 
 ProductCard.defaultProps = {
@@ -39,6 +42,7 @@ ProductCard.defaultProps = {
   displayImage: true,
   displayDescription: false,
   bannerText: '',
+  description: '',
 };
 
 export default ProductCard;
