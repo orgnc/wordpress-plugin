@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import IntegrationModal from '../components/IntegrationModal';
+import IntegrationModal from './components/IntegrationModal';
 
 const ProductSearchModal = ({ onClose, onProductSelect, productSearchPageUrl }) => {
   return (

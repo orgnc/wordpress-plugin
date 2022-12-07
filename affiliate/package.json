@@ -25,6 +25,7 @@
 		"@wordpress/blocks": "^11.21.0",
 		"@wordpress/components": "^22.1.0",
 		"@wordpress/element": "^4.18.0",
+		"@wordpress/rich-text": "^5.20.0",
 		"@wordpress/scripts": "23.0.0",
 		"lodash": "^4.17.21",
 		"prop-types": "15.8.1"

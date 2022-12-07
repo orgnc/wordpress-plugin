@@ -52,7 +52,7 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
         <ProductCarouselModal
           onCarouselSelect={onCarouselSelect}
           onClose={hideModal}
-          productCarouselCreationURL={productCarouselCreationURL}
+          productCarouselCreationURL={attributes.productCarouselURL || productCarouselCreationURL}
         />
       )}
       <BlockControls>
