@@ -567,8 +567,11 @@ class Organic {
     public function getTargeting() {
         $post = get_post();
 
+        $keywords = [];
+        if ( $post ) {
+            $keywords = $this->getTagsFor( $post->ID );
+        }
         $url = $this->getCurrentUrl();
-        $keywords = $this->getTagsFor( $post->ID );
         $category = $this->getCategoryForCurrentPage();
         $sections = null;
 
