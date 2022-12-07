@@ -21,7 +21,7 @@ import {
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 
-import ProductSearchModal from '../ProductSearchModal';
+import ProductSearchModal from './ProductSearchModal';
 import ProductCard from './ProductCard';
 import { AttributesType } from './propTypes';
 

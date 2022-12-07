@@ -7,10 +7,10 @@
   "category": "organic-blocks",
   "description": "Affiliate Product Card Tool",
   "supports": {
-      "html": false
+    "html": false
   },
   "textdomain": "affiliate-product-card",
   "editorScript": "organic-affiliate",
-  "editorStyle": "file:./index.css",
+  "editorStyle": "file:./style-index.scss",
   "style": "file:./style-index.css"
 }

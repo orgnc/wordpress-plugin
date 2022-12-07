@@ -8,8 +8,15 @@
 .wp-block-organic-affiliate-product-card {
   width: 100%;
 }
+.wp-block-organic-affiliate-product-carousel {
+  width: 100%;
+}
 
 [data-organic-affiliate-integration="product-card"] {
   min-height: 540px;
+  font-size: 0;
+}
+[data-organic-affiliate-integration="product-carousel"] {
+  min-height: 580px;
   font-size: 0;
 }

@@ -24,18 +24,23 @@ class Affiliate {
             [ 'organic-sdk' ]
         );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
+        $product_carousel_creation_url = $this->organic->getPlatformUrl() . 'apps/affiliate/integrations/product-carousel';
         wp_localize_script(
             'organic-affiliate',
             'organic_affiliate_config',
             [
                 'productSearchPageUrl' => $product_search_page_url . '?siteGuid=' . $siteId,
+                'productCarouselCreationURL' => $product_carousel_creation_url . '?siteGuid=' . $siteId,
             ]
         );
     }
 
     public function register_gutenberg_block() {
         register_block_type(
-            plugin_dir_path( __DIR__ ) . 'affiliate/build/'
+            plugin_dir_path( __DIR__ ) . 'affiliate/build/productCard'
+        );
+        register_block_type(
+            plugin_dir_path( __DIR__ ) . 'affiliate/build/productCarousel'
         );
     }
 }

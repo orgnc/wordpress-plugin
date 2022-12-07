@@ -3,10 +3,10 @@ import { registerBlockType } from '@wordpress/blocks';
 
 import './style.scss';
 
-import { register } from './insertLink/InsertAffiliateLink';
+import { register } from '../insertLink/InsertAffiliateLink';
+import Edit from './Edit';
 import OrganicIcon from './OrganicIcon';
-import Edit from './productCard/Edit';
-import Save from './productCard/Save';
+import Save from './Save';
 
 register(organic_affiliate_config.productSearchPageUrl);
 
