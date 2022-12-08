@@ -24,7 +24,7 @@ const IntegrationModal = ({
 
   return (
     <Modal
-      className="integration-modal changed-up0"
+      className="integration-modal"
       onRequestClose={onClose}
       shouldCloseOnClickOutside={false}
       title={title}

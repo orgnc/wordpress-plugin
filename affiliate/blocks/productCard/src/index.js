@@ -4,8 +4,8 @@ import { registerBlockType } from '@wordpress/blocks';
 import './style.scss';
 
 import OrganicIcon from '../../shared/OrganicIcon';
-import Edit from './Edit';
 import { register } from '../insertLink/InsertAffiliateLink';
+import Edit from './Edit';
 import Save from './Save';
 
 register(organic_affiliate_config_product_card.productSearchPageUrl);

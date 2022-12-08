@@ -41,7 +41,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     attributes.displayDescription,
     attributes.bannerText,
   ]);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(!attributes.productGuid);
   const hideModal = useCallback(
     () => setShowModal(false),
     [setShowModal],

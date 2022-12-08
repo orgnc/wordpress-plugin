@@ -20,7 +20,7 @@ import { AttributesType } from './propTypes';
 const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
   const productCarouselRef = createRef();
 
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(!attributes.productCarouselSnippet);
   const hideModal = useCallback(
     () => setShowModal(false),
     [setShowModal],
@@ -75,7 +75,7 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
               productCarouselSnippet={attributes.productCarouselSnippet}
             />
           ) : (
-            <h3>Product Carousel is not created</h3>
+            <h3>Product Carousel is unfinished.</h3>
           )}
         </CardBody>
       </Card>

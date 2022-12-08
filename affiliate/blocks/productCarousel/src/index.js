@@ -16,7 +16,6 @@ registerBlockType('organic/affiliate-product-carousel', {
       type: 'string',
     },
   },
-  example: {}, // @todo can you add a picture as an example?
   icon: OrganicIcon,
   edit: (props) => (
     <Edit
