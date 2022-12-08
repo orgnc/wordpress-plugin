@@ -2,6 +2,7 @@ import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import {
   Card,
   CardBody,
+  CardHeader,
   IconButton,
   Toolbar,
 } from '@wordpress/components';
@@ -32,11 +33,10 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
   const onCarouselSelect = useCallback(
     ({
       productCarouselSnippet,
-      productCarouselURL,
+      productCarouselEditURL,
     }) => {
-      setAttributes({ productCarouselSnippet, productCarouselURL });
+      setAttributes({ productCarouselSnippet, productCarouselEditURL });
       hideModal();
-      // @todo does this work with the product carousel?
       if (productCarouselRef.current) {
         productCarouselRef.current.removeAttribute('data-organic-affiliate-processed');
       }
@@ -52,7 +52,7 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
         <ProductCarouselModal
           onCarouselSelect={onCarouselSelect}
           onClose={hideModal}
-          productCarouselCreationURL={attributes.productCarouselURL || productCarouselCreationURL}
+          productCarouselCreationURL={attributes.productCarouselEditURL || productCarouselCreationURL}
         />
       )}
       <BlockControls>
@@ -65,18 +65,19 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
         </Toolbar>
       </BlockControls>
       <Card>
-        {attributes.productCarouselSnippet ? (
-          <CardBody>
+        <CardHeader>
+          Product Carousel
+        </CardHeader>
+        <CardBody>
+          {attributes.productCarouselSnippet ? (
             <ProductCarousel
               ref={productCarouselRef}
               productCarouselSnippet={attributes.productCarouselSnippet}
             />
-          </CardBody>
-        ) : (
-          <CardBody>
+          ) : (
             <h3>Product Carousel is not created</h3>
-          </CardBody>
-        )}
+          )}
+        </CardBody>
       </Card>
     </div>
   );

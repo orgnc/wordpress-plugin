@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
 export const AttributesType = PropTypes.shape({
-  productCarouselURL: PropTypes.string.isRequired,
+  productCarouselEditURL: PropTypes.string,
   productCarouselSnippet: PropTypes.bool.isRequired,
 });

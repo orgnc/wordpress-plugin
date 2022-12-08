@@ -9,6 +9,9 @@ import Save from './Save';
 
 registerBlockType('organic/affiliate-product-carousel', {
   attributes: {
+    productCarouselEditURL: {
+      type: 'string',
+    },
     productCarouselSnippet: {
       type: 'string',
     },

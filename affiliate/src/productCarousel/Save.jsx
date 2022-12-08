@@ -8,6 +8,7 @@ const Save = ({ attributes }) => (
   <div {...useBlockProps.save()}>
     {attributes?.productCarouselSnippet && (
       <ProductCarousel
+        productCarouselEditURL={attributes.productCarouselEditURL}
         productCarouselSnippet={attributes.productCarouselSnippet}
       />
     )}
