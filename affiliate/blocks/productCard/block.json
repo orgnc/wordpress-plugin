@@ -11,6 +11,6 @@
   },
   "textdomain": "affiliate-product-card",
   "editorScript": "organic-affiliate-product-card",
-  "editorStyle": "file:./style-index.scss",
+  "editorStyle": "file:./index.css",
   "style": "file:./style-index.css"
 }

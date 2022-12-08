@@ -12,7 +12,8 @@ cp composer.lock build/organic/
 cp -r vendor build/organic/
 (cd affiliate/ && npm install && npm run build)
 mkdir -p build/organic/affiliate/
-cp -r affiliate/build build/organic/affiliate/
+cp -r affiliate/blocks/productCard/build build/organic/affiliate/
+cp -r affiliate/blocks/productCarousel/build build/organic/affiliate/
 cd build
 zip -r organic-${BUILD_NUMBER}.zip organic
 cp organic-${BUILD_NUMBER}.zip organic.zip

@@ -1,9 +1,9 @@
 /* eslint-disable camelcase, no-undef, react/jsx-filename-extension, react/jsx-props-no-spreading */
 import { registerBlockType } from '@wordpress/blocks';
 
-import './style-index.scss';
+import './style.scss';
 
-import OrganicIcon from './components/OrganicIcon';
+import OrganicIcon from '../../shared/OrganicIcon';
 import Edit from './Edit';
 import Save from './Save';
 

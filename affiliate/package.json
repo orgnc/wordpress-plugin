@@ -1,11 +1,10 @@
 {
-	"name": "affiliate-product-card",
+	"name": "affiliate-product-integrations",
 	"version": "0.0.1",
-	"description": "Affiliate Product Card Block",
+	"description": "Organic Affiliate Integrations",
 	"author": "Organic Team",
-	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build",
+		"build": "wp-scripts build blocks/productCard/src/index.js --output-path=blocks/productCard/build/ && wp-scripts build blocks/productCarousel/src/index.js --output-path=blocks/productCarousel/build",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
 		"packages-update": "wp-scripts packages-update",

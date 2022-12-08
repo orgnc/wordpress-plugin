@@ -20,12 +20,12 @@ class Affiliate {
         wp_enqueue_script( 'organic-sdk', $sdk_url, [], null );
         wp_register_script(
             'organic-affiliate-product-card',
-            plugins_url( 'affiliate/build/productCard/index.js', __DIR__ ),
+            plugins_url( 'affiliate/blocks/productCard/build/index.js', __DIR__ ),
             [ 'organic-sdk' ]
         );
         wp_register_script(
             'organic-affiliate-product-carousel',
-            plugins_url( 'affiliate/build/productCarousel/index.js', __DIR__ ),
+            plugins_url( 'affiliate/blocks/productCarousel/build/index.js', __DIR__ ),
             [ 'organic-sdk' ]
         );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
@@ -48,10 +48,10 @@ class Affiliate {
 
     public function register_gutenberg_block() {
         register_block_type(
-            plugin_dir_path( __DIR__ ) . 'affiliate/build/productCard'
+            plugin_dir_path( __DIR__ ) . 'affiliate/blocks/productCard'
         );
         register_block_type(
-            plugin_dir_path( __DIR__ ) . 'affiliate/build/productCarousel'
+            plugin_dir_path( __DIR__ ) . 'affiliate/blocks/productCarousel'
         );
     }
 }

@@ -12,8 +12,8 @@ import {
 } from '@wordpress/rich-text';
 import PropTypes from 'prop-types';
 
-import OrganicIcon from '../OrganicIcon';
-import ProductSearchModal from '../ProductSearchModal';
+import OrganicIcon from '../../shared/OrganicIcon';
+import ProductSearchModal from '../src/ProductSearchModal';
 
 const FORMAT_NAME = 'organic/affiliate-product-link';
 
