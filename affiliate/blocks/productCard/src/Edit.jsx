@@ -21,8 +21,8 @@ import {
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 
-import ProductSearchModal from '../ProductSearchModal';
 import ProductCard from './ProductCard';
+import ProductSearchModal from './ProductSearchModal';
 import { AttributesType } from './propTypes';
 
 const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
@@ -52,8 +52,8 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
   );
 
   const onProductSelect = useCallback(
-    (newProduct) => {
-      setAttributes({ productGuid: newProduct.guid });
+    ({ product }) => {
+      setAttributes({ productGuid: product.guid });
       hideModal();
     },
     [setAttributes, hideModal],

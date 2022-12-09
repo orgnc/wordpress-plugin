@@ -3,12 +3,17 @@ import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarDropdownMenu } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import {
-  toggleFormat, registerFormatType, removeFormat, create, insert, applyFormat,
+  toggleFormat,
+  registerFormatType,
+  removeFormat,
+  create,
+  insert,
+  applyFormat,
 } from '@wordpress/rich-text';
 import PropTypes from 'prop-types';
 
-import OrganicIcon from '../OrganicIcon';
-import ProductSearchModal from '../ProductSearchModal';
+import OrganicIcon from '../../shared/OrganicIcon';
+import ProductSearchModal from '../src/ProductSearchModal';
 
 const FORMAT_NAME = 'organic/affiliate-product-link';
 

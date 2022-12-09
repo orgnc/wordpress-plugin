@@ -3,12 +3,12 @@ import { registerBlockType } from '@wordpress/blocks';
 
 import './style.scss';
 
-import { register } from './insertLink/InsertAffiliateLink';
-import OrganicIcon from './OrganicIcon';
-import Edit from './productCard/Edit';
-import Save from './productCard/Save';
+import OrganicIcon from '../../shared/OrganicIcon';
+import { register } from '../insertLink/InsertAffiliateLink';
+import Edit from './Edit';
+import Save from './Save';
 
-register(organic_affiliate_config.productSearchPageUrl);
+register(organic_affiliate_config_product_card.productSearchPageUrl);
 
 registerBlockType('organic/affiliate-product-card', {
   attributes: {
@@ -43,7 +43,7 @@ registerBlockType('organic/affiliate-product-card', {
   edit: (props) => (
     <Edit
       {...props}
-      productSearchPageUrl={organic_affiliate_config.productSearchPageUrl}
+      productSearchPageUrl={organic_affiliate_config_product_card.productSearchPageUrl}
     />
   ),
   save: Save,
