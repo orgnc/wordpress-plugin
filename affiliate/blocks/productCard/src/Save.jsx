@@ -11,10 +11,10 @@ const Save = ({ attributes }) => {
         && (
         <ProductCard
           bannerText={attributes.bannerText}
+          description={attributes.description}
           displayDescription={attributes.displayDescription}
           displayImage={attributes.displayImage}
           productGuid={attributes.productGuid}
-          description={attributes.description}
         />
         )}
     </div>

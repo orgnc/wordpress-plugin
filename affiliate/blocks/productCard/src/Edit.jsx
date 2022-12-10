@@ -70,14 +70,14 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
   );
 
   const debouncedSetBannerText = useMemo(
-      () => debounce((bannerText) => setAttributes( { bannerText} ), 400),
-      [setAttributes],
-  )
+    () => debounce((bannerText) => setAttributes({ bannerText }), 400),
+    [setAttributes],
+  );
 
   const debouncedSetDescriptionText = useMemo(
-      () => debounce((description) => setAttributes( { description} ), 400),
-      [setAttributes],
-  )
+    () => debounce((description) => setAttributes({ description }), 400),
+    [setAttributes],
+  );
 
   const [bannerTextValue, setBannerTextValue] = useState(attributes.bannerText);
   const setBannerText = useCallback(
@@ -90,11 +90,11 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
 
   const [descriptionValue, setDescriptionValue] = useState(attributes.description);
   const setDescriptionText = useCallback(
-      (description) => {
-        setDescriptionValue(description);
-        debouncedSetDescriptionText(description);
-      },
-      [debouncedSetDescriptionText],
+    (description) => {
+      setDescriptionValue(description);
+      debouncedSetDescriptionText(description);
+    },
+    [debouncedSetDescriptionText],
   );
 
   return (
@@ -134,32 +134,32 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 label="Display Description"
                 onChange={setDisplayDescription}
               />
-              {attributes.displayImage &&
+              {attributes.displayImage && (
                 <TextControl
-                    help="Text for product card banner/award"
-                    label="Banner Text"
-                    onChange={setBannerText}
-                    value={bannerTextValue}
+                  help="Text for product card banner/award"
+                  label="Banner Text"
+                  onChange={setBannerText}
+                  value={bannerTextValue}
                 />
-              }
-              {attributes.displayDescription &&
+              )}
+              {attributes.displayDescription && (
                 <TextControl
-                    help="Text to display instead of the default descriptoion"
-                    label="Description Text"
-                    onChange={setDescriptionText}
-                    value={descriptionValue}
+                  help="Text to display instead of the default descriptoion"
+                  label="Description Text"
+                  onChange={setDescriptionText}
+                  value={descriptionValue}
                 />
-              }
+              )}
             </CardBody>
             <CardDivider />
             <CardBody>
               <ProductCard
                 ref={productCardRef}
                 bannerText={attributes.bannerText}
+                description={attributes.description}
                 displayDescription={attributes.displayDescription}
                 displayImage={attributes.displayImage}
                 productGuid={attributes.productGuid}
-                description={attributes.description}
               />
             </CardBody>
           </>

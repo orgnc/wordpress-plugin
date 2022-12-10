@@ -2,17 +2,17 @@ import { forwardRef } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
 function serializeOptions(
-    displayDescription,
-    displayImage,
-    description,
+  displayDescription,
+  displayImage,
+  description,
 ) {
   const filteredOptions = { displayDescription, displayImage };
   if (displayDescription) {
     filteredOptions.description = description;
   }
   return Object.entries(filteredOptions)
-      .filter(([, value]) => (value !== '' && value != null))
-      .map(([key, value]) => `${key}=${value}`).join(',');
+    .filter(([, value]) => (value !== '' && value != null))
+    .map(([key, value]) => `${key}=${value}`).join(',');
 }
 
 const ProductCard = forwardRef(({
