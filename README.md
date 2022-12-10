@@ -42,16 +42,17 @@ add_filter( 'organic_post_title', 'get_custom_post_title', 10, 2);
 ```
 ## Organic Affiliate Features Development
 The Wordpress Plugin includes the following Affiliate App features:
-* Insert Product Card: is implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
-* Insert Affiliate Link: is implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/).
+* Insert Product Card: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
+* Insert Product Carousel: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
+* Insert Affiliate Link: implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/).
 
 ### Building
-The source code is in the [affiliate/src](https://github.com/orgnc/wordpress-plugin/tree/master/affiliate/src) directory.
+The source code is in the [affiliate/](https://github.com/orgnc/wordpress-plugin/tree/master/affiliate/src) directory.
 To build the code you'll need npm. SWP container doesn't include it by default. To install it run:
 ```sh
 apt update && apt install -y npm
 ```
-To build the code, run (in the affiliate/src directory):
+To build the code, run (in the affiliate/ directory):
 ```sh
 npm install
 npm run build
@@ -60,3 +61,13 @@ npm run build
 Wordpress doesn't support symlinks. If you develop the WP plugin by creating a symlink in the
 mu-plugins directory, the Gutenberg Block won't work. Instead, you'll need to copy the code inside the
 mu-plugins/wordpress-plugin directory.
+
+## Building the zip file
+build-zip.sh builds a zipped and unzipped version of the plugin in wordpress-plugin/build/.
+(In other words, the wordpress-plugin/build/organic directory should be a copy of (most of) the wordpress-plugin directory, with the same file structure.)
+With this in mind, to test the build locally--for instance, if you need to confirm that changes made in build-zip.sh are correct--you can:
+* Delete the wordpress-plugin/build directory (if it exists).
+* Run build-zip.sh in the container.
+* Copy wordpress-plugin/organic (newly built) into the parent mu-plugins directory.
+* Temporarily remove the wordpress-plugin directory from this mu-plugins directory. You can restore this after testing.
+* Rename the organic directory (now in mu-plugins) to wordpress-plugin. Now you can test in your local SWP editor.
