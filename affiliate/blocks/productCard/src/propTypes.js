@@ -1,4 +1,4 @@
-import PropTypes, {checkPropTypes} from 'prop-types';
+import PropTypes from 'prop-types';
 
 export const AttributesType = PropTypes.shape({
   bannerText: PropTypes.string.isRequired,
