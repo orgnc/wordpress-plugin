@@ -61,6 +61,7 @@ npm run build
 Wordpress doesn't support symlinks. If you develop the WP plugin by creating a symlink in the
 mu-plugins directory, the Gutenberg Block won't work. Instead, you'll need to copy the code inside the
 mu-plugins/wordpress-plugin directory.
+
 ## Building the zip file
 build-zip.sh builds a zipped and unzipped version of the plugin in wordpress-plugin/build/.
 (In other words, the wordpress-plugin/build/organic directory should be a copy of (most of) the wordpress-plugin directory, with the same file structure.)
