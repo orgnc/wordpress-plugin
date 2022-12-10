@@ -57,6 +57,11 @@ To build the code, run (in the affiliate/ directory):
 npm install
 npm run build
 ```
+### NOTE
+Wordpress doesn't support symlinks. If you develop the WP plugin by creating a symlink in the
+mu-plugins directory, the Gutenberg Block won't work. Instead, you'll need to copy the code inside the
+mu-plugins/wordpress-plugin directory.
+## Building the zip file
 build-zip.sh builds a zipped and unzipped version of the plugin in wordpress-plugin/build/.
 (In other words, the wordpress-plugin/build/organic directory should be a copy of (most of) the wordpress-plugin directory, with the same file structure.)
 With this in mind, to test the build locally--for instance, if you need to confirm that changes made in build-zip.sh are correct--you can:
@@ -65,7 +70,3 @@ With this in mind, to test the build locally--for instance, if you need to confi
 * Copy wordpress-plugin/organic (newly built) into the parent mu-plugins directory.
 * Temporarily remove the wordpress-plugin directory from this mu-plugins directory. You can restore this after testing.
 * Rename the organic directory (now in mu-plugins) to wordpress-plugin. Now you can test in your local SWP editor.
-### NOTE
-Wordpress doesn't support symlinks. If you develop the WP plugin by creating a symlink in the
-mu-plugins directory, the Gutenberg Block won't work. Instead, you'll need to copy the code inside the
-mu-plugins/wordpress-plugin directory.
