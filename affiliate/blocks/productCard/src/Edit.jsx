@@ -40,6 +40,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     attributes.displayImage,
     attributes.displayDescription,
     attributes.bannerText,
+    attributes.description, // description override
   ]);
   const [showModal, setShowModal] = useState(!attributes.productGuid);
   const hideModal = useCallback(
@@ -68,17 +69,32 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
     [setAttributes],
   );
 
-  const [bannerTextValue, setBannerTextValue] = useState(attributes.bannerText);
   const debouncedSetBannerText = useMemo(
-    () => debounce((bannerText) => setAttributes({ bannerText }), 400),
-    [setAttributes],
-  );
+      () => debounce((bannerText) => setAttributes( { bannerText} ), 400),
+      [setAttributes],
+  )
+
+  const debouncedSetDescriptionText = useMemo(
+      () => debounce((description) => setAttributes( { description} ), 400),
+      [setAttributes],
+  )
+
+  const [bannerTextValue, setBannerTextValue] = useState(attributes.bannerText);
   const setBannerText = useCallback(
     (bannerText) => {
       setBannerTextValue(bannerText);
       debouncedSetBannerText(bannerText);
     },
     [debouncedSetBannerText],
+  );
+
+  const [descriptionValue, setDescriptionValue] = useState(attributes.description);
+  const setDescriptionText = useCallback(
+      (description) => {
+        setDescriptionValue(description);
+        debouncedSetDescriptionText(description);
+      },
+      [debouncedSetDescriptionText],
   );
 
   return (
@@ -118,12 +134,22 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 label="Display Description"
                 onChange={setDisplayDescription}
               />
-              <TextControl
-                help="Text for product card banner/award"
-                label="Banner Text"
-                onChange={setBannerText}
-                value={bannerTextValue}
-              />
+              {attributes.displayImage &&
+                <TextControl
+                    help="Text for product card banner/award"
+                    label="Banner Text"
+                    onChange={setBannerText}
+                    value={bannerTextValue}
+                />
+              }
+              {attributes.displayDescription &&
+                <TextControl
+                    help="Text to display instead of the default descriptoion"
+                    label="Description Text"
+                    onChange={setDescriptionText}
+                    value={descriptionValue}
+                />
+              }
             </CardBody>
             <CardDivider />
             <CardBody>
@@ -133,6 +159,7 @@ const Edit = ({ attributes, setAttributes, productSearchPageUrl }) => {
                 displayDescription={attributes.displayDescription}
                 displayImage={attributes.displayImage}
                 productGuid={attributes.productGuid}
+                description={attributes.description}
               />
             </CardBody>
           </>

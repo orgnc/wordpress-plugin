@@ -14,6 +14,7 @@ const Save = ({ attributes }) => {
           displayDescription={attributes.displayDescription}
           displayImage={attributes.displayImage}
           productGuid={attributes.productGuid}
+          description={attributes.description}
         />
         )}
     </div>
