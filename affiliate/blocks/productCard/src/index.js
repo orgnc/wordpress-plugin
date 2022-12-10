@@ -30,13 +30,18 @@ registerBlockType('organic/affiliate-product-card', {
       type: 'string',
       default: '',
     },
+    description: {
+      type: 'string',
+      default: '',
+    },
   },
   example: {
     attributes: {
       productGuid: '964805c4-6bf7-4418-a112-a58f1565a72d',
       displayImage: true,
       displayDescription: false,
-      bannerText: '',
+      bannerText: 'Best Value',
+      description: 'Made from 100% recycled materials',
     },
   },
   icon: OrganicIcon,

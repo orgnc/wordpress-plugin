@@ -5,4 +5,5 @@ export const AttributesType = PropTypes.shape({
   displayImage: PropTypes.bool.isRequired,
   displayDescription: PropTypes.bool.isRequired,
   productGuid: PropTypes.string.isRequired,
+  description: PropTypes.string,
 });
