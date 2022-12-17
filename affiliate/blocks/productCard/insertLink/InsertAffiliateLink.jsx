@@ -35,8 +35,9 @@ const InsertAffiliateLink = ({
     () => setShowModal(true),
     [setShowModal],
   );
-  const onProductSelect = useCallback((product, offerUrl) => {
+  const onProductSelect = useCallback((productInfo) => {
     const { start, end } = value;
+    const { offerUrl, product } = productInfo;
     const format = {
       type: FORMAT_NAME,
       attributes: { url: offerUrl },
