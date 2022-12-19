@@ -30,6 +30,7 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
     [setShowModal],
   );
 
+  // format of arguments is based on data received from postMessage event in orgnc/platform file IntegrationProductCarousel.tsx
   const onCarouselSelect = useCallback(
     ({
       productCarouselSnippet,

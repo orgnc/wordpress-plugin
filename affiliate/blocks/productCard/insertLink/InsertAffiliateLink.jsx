@@ -35,7 +35,8 @@ const InsertAffiliateLink = ({
     () => setShowModal(true),
     [setShowModal],
   );
-  const onProductSelect = useCallback((product, offerUrl) => {
+  // format of arguments is based on data received from postMessage event in orgnc/platform file IntegrationProductSearch.jsx
+  const onProductSelect = useCallback(({ product, offerUrl }) => {
     const { start, end } = value;
     const format = {
       type: FORMAT_NAME,
