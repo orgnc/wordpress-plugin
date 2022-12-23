@@ -26,7 +26,7 @@ class AdminNotice {
             <div class=\"notice notice-{$notice['type']} {$is_dismissible}'>
             <p>{$notice['message']}</p>
             </div>";
-            echo $div;
+            echo esc_html( $div );
         }
     }
 

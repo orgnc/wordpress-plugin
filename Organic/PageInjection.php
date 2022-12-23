@@ -48,10 +48,10 @@ class PageInjection {
             return;
         }
 
-        add_action( 'wp_head', array( $this, 'injectPixel' ) );
-        add_filter( 'the_content', array( $this, 'injectConnatixPlayer' ), 1 );
-        add_action( 'rss2_item', array( $this, 'injectRssImage' ) );
-        add_action( 'rss2_ns', array( $this, 'injectRssNs' ) );
+        add_action( 'wp_head', [ $this, 'injectPixel' ] );
+        add_filter( 'the_content', [ $this, 'injectConnatixPlayer' ], 1 );
+        add_action( 'rss2_item', [ $this, 'injectRssImage' ] );
+        add_action( 'rss2_ns', [ $this, 'injectRssNs' ] );
 
         if ( $this->organic->useAdsSlotsPrefill() ) {
             $this->setupAdsSlotsPrefill();
@@ -255,7 +255,7 @@ class PageInjection {
             # TODO: support disabling parts of sdkv2
 
             // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-            echo '<script src="' . $this->organic->sdk->getSdkV2Url() . '"></script>';
+            echo '<script src="' . esc_url( $this->organic->sdk->getSdkV2Url() ) . '"></script>';
         }
 
         // Checks if this is a page using a template without ads.
@@ -299,9 +299,9 @@ class PageInjection {
 
                 /* TrackADM Config - to be phased out */
                 window.__trackadm_usp_cookie = 'ne-opt-out';
-                window.tadmPageId = '<?php echo $gamPageId; ?>';
-                window.tadmKeywords = '<?php echo $keywordString; ?>';
-                window.tadmSection = '<?php echo $sectionString; ?>';
+                window.tadmPageId = '<?php echo esc_js( $gamPageId ); ?>';
+                window.tadmKeywords = '<?php echo esc_js( $keywordString ); ?>';
+                window.tadmSection = '<?php echo esc_js( $sectionString ); ?>';
                 window.trackADMData = window.trackADMData || {};
 
                 /* Organic Config - to be phased in */
@@ -311,16 +311,16 @@ class PageInjection {
                 window.empire.apps.ads = window.empire.apps.ads || {};
                 window.empire.apps.ads.config = window.empire.apps.ads.config || {};
                 <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
-                window.empire.apps.ads.config.siteDomain = "<?php echo $this->organic->siteDomain; ?>";
-                window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
+                window.empire.apps.ads.config.siteDomain = "<?php echo esc_js( $this->organic->siteDomain ); ?>";
+                window.empire.apps.ads.config.adConfig = <?php echo esc_js( json_encode( $this->organic->getAdsConfig()->raw ) ); ?>;
                 <?php } ?>
 
                 window.empire.apps.ads.targeting = {
-                    pageId: '<?php echo $gamPageId; ?>',
-                    externalId: '<?php echo $gamExternalId; ?>',
-                    keywords: '<?php echo $keywordString; ?>',
+                    pageId: '<?php echo esc_js( $gamPageId ); ?>',
+                    externalId: '<?php echo esc_js( $gamExternalId ); ?>',
+                    keywords: '<?php echo esc_js( $keywordString ); ?>',
                     disableKeywordReporting: false,
-                    section: '<?php echo $sectionString; ?>',
+                    section: '<?php echo esc_js( $sectionString ); ?>',
                     disableSectionReporting: false
                 }
 
@@ -466,9 +466,9 @@ class PageInjection {
                         $this->organic->getOrganicPixelTestPercent() !== null
                 ) {
                     ?>
-                window.organicTestKey = "<?php echo $this->organic->getOrganicPixelTestValue(); ?>";
-                BVTests.create('<?php echo $this->organic->getOrganicPixelTestValue(); ?>', {
-                    enabled: <?php echo $this->organic->getOrganicPixelTestPercent(); ?>,
+                window.organicTestKey = "<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>";
+                BVTests.create('<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>', {
+                    enabled: <?php echo esc_js( $this->organic->getOrganicPixelTestPercent() ); ?>,
                 });
 
                 <?php } ?>
@@ -489,12 +489,12 @@ class PageInjection {
 
                     (function() {
                         function loadAds() {
-                            utils.loadScript(document, 'prebid-library', "<?php echo $this->organic->getAdsConfig()->getPrebidBuildUrl(); ?>");
+                            utils.loadScript(document, 'prebid-library', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
                     <?php if ( $this->organic->getSdkVersion() == $this->organic->sdk::SDK_V1 ) { ?>
                         <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
-                            utils.loadScript(document, 'organic-sdk', "<?php echo $this->organic->sdk->getSdkUrl(); ?>");
+                            utils.loadScript(document, 'organic-sdk', "<?php echo esc_url( $this->organic->sdk->getSdkUrl() ); ?>");
                         <?php } else { ?>
-                                utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo $this->organic->getPixelPublishedUrl(); ?>");
+                                utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo esc_url( $this->organic->getPixelPublishedUrl() ); ?>");
                         <?php } ?>
                     <?php } ?>
                         }
@@ -516,10 +516,10 @@ class PageInjection {
                 echo '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
 
                 // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-                echo '<script async src="' . $this->organic->getAdsConfig()->getPrebidBuildUrl() . '"></script>';
+                echo '<script async src="' . esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ) . '"></script>';
 
                 // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-                echo '<script async src="' . $this->organic->sdk->getSdkUrl() . '"></script>';
+                echo '<script async src="' . esc_url( $this->organic->sdk->getSdkUrl() ) . '"></script>';
             }
         }
     }
@@ -531,7 +531,7 @@ class PageInjection {
      */
     public function injectRssImage() {
         if ( $this->organic->getFeedImages() && has_post_thumbnail() ) {
-            echo '<media:content url="' . get_the_post_thumbnail_url( null, 'medium' ) . '" medium="image" />';
+            echo '<media:content url="' . esc_url( get_the_post_thumbnail_url( null, 'medium' ) ) . '" medium="image" />';
         }
     }
 

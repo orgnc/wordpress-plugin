@@ -25,16 +25,16 @@ class AffiliateConfigSyncCommand {
         add_filter(
             'cron_schedules',
             function ( $schedules ) {
-                $schedules['organic_every10minutes'] = array(
+                $schedules['organic_every10minutes'] = [
                     'interval' => 600,
                     'display' => __( 'Every 10 minutes' ),
-                );
+                ];
                 return $schedules;
             }
         );
 
         // Include this command in cron schedule every hour
-        add_action( self::CRON_SYNC_COMMAND, array( $this, 'run' ) );
+        add_action( self::CRON_SYNC_COMMAND, [ $this, 'run' ] );
         if ( ! wp_next_scheduled( self::CRON_SYNC_COMMAND ) ) {
             wp_schedule_event( time(), 'organic_every10minutes', self::CRON_SYNC_COMMAND );
         }
@@ -44,7 +44,7 @@ class AffiliateConfigSyncCommand {
      * Wrapper for __invoke with no args to make it cron friendly
      */
     public function run() {
-        $this->__invoke( array() );
+        $this->__invoke( [] );
     }
 
     /**

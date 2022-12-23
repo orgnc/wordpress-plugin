@@ -18,7 +18,7 @@ class ContentSyncCommand {
         }
 
         // Include this command in cron schedule every minute
-        add_action( 'organic_cron_sync_content', array( $this, 'run' ) );
+        add_action( 'organic_cron_sync_content', [ $this, 'run' ] );
         if ( ! wp_next_scheduled( 'organic_cron_sync_content' ) ) {
             wp_schedule_event( time(), 'hourly', 'organic_cron_sync_content' );
         }
@@ -28,7 +28,7 @@ class ContentSyncCommand {
      * Wrapper for __invoke with no args to make it cron friendly
      */
     public function run() {
-         $this->__invoke( array(), array() );
+         $this->__invoke( [], [] );
     }
 
     /**

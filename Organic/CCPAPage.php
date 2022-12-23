@@ -21,11 +21,11 @@ class CCPAPage {
         $this->organic = $organic;
 
         if ( $this->organic->getCmp() ) {
-            add_action( 'init', array( $this, 'show' ) );
-            add_action( 'wp_head', array( $this, 'head' ), 100 );
-            add_action( 'wp_footer', array( $this, 'footer' ), 100 );
-            add_action( 'footer_extra_nav', array( $this, 'footerExtraNav' ), 100 );
-            add_filter( 'wp_get_nav_menu_items', array( $this, 'addFooterMenuItem' ), 20, 2 );
+            add_action( 'init', [ $this, 'show' ] );
+            add_action( 'wp_head', [ $this, 'head' ], 100 );
+            add_action( 'wp_footer', [ $this, 'footer' ], 100 );
+            add_action( 'footer_extra_nav', [ $this, 'footerExtraNav' ], 100 );
+            add_filter( 'wp_get_nav_menu_items', [ $this, 'addFooterMenuItem' ], 20, 2 );
         }
     }
 
@@ -59,7 +59,7 @@ class CCPAPage {
             // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
             echo '<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"'
                . ' type="text/javascript" charset="UTF-8" data-domain-script="'
-               . $this->organic->getOneTrustId()
+               . esc_attr( $this->organic->getOneTrustId() )
                . '" ></script><script type="text/javascript">function OptanonWrapper(){}</script>';
         }
     }
@@ -104,7 +104,7 @@ class CCPAPage {
         $item->type = '';
         $item->object = '';
         $item->object_id = '';
-        $item->classes = array();
+        $item->classes = [];
         $item->target = '';
         $item->attr_title = '';
         $item->description = '';
@@ -187,7 +187,7 @@ class CCPAPage {
 </html>
 EOF;
 
-                echo $contents;
+                echo esc_html( $contents );
                 exit;
             }
         }

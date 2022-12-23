@@ -18,7 +18,7 @@ class ContentIdMapSyncCommand {
         }
 
         // Include this command in cron schedule every hour
-        add_action( 'organic_cron_sync_content_id_map', array( $this, 'run' ) );
+        add_action( 'organic_cron_sync_content_id_map', [ $this, 'run' ] );
         if ( ! wp_next_scheduled( 'organic_cron_sync_content_id_map' ) ) {
             wp_schedule_event( time(), 'hourly', 'organic_cron_sync_content_id_map' );
         }
@@ -28,7 +28,7 @@ class ContentIdMapSyncCommand {
      * Wrapper for __invoke with no args to make it cron friendly
      */
     public function run() {
-         $this->__invoke( array() );
+         $this->__invoke( [] );
     }
 
     /**
