@@ -31,7 +31,7 @@ class AdminSettings {
 
     public function adminSettings() {
         // Save any setting updates
-        if ( $_SERVER['REQUEST_METHOD'] == 'POST' && check_admin_referer() ) {
+        if ( $_SERVER['REQUEST_METHOD'] == 'POST' && check_admin_referer( 'organic_settings' ) ) {
             if ( isset( $_POST['organic_sync_ads_txt'] ) ) {
                 $this->organic->syncAdsTxt();
             } else if ( isset( $_POST['organic_ads_txt_redirect'] ) ) {
@@ -92,10 +92,7 @@ class AdminSettings {
     }
 
     protected function syncSettings() {
-        if ( $_SERVER['REQUEST_METHOD'] != 'POST' ) {
-            return;
-        }
-        if ( ! check_admin_referer() ) {
+        if ( $_SERVER['REQUEST_METHOD'] != 'POST' || ! check_admin_referer( 'organic_settings' ) ) {
             return;
         }
         if ( ! isset( $_POST['organic_update'] ) ) {
@@ -186,7 +183,7 @@ class AdminSettings {
         <div class="wrap">
             <h2>Organic Settings</h2>
             <form method="post">
-                <?php wp_nonce_field(); ?>
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <p><label><input type="checkbox" name="organic_enabled"
                                  id="organic_enabled" <?php echo $enabled ? 'checked' : ''; ?>> Organic Integration
                         Enabled</label></p>
@@ -330,6 +327,7 @@ class AdminSettings {
             <h2>Ads.txt</h2>
             <p>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <label>
                     <input
                             type="checkbox"
@@ -345,6 +343,7 @@ class AdminSettings {
             </p>
             <div id="cont_organic_sync_ads_txt"  style="display: <?php echo ( $ads_txt_redirect ? 'none' : 'block' ); ?>;">
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <label>ads.txt
                     <textarea
                             name="organic_ads_txt"
@@ -373,6 +372,7 @@ class AdminSettings {
             <p>Which post types from your CMS should be treated as Content for synchronization with
                 the Organic Platform and eligible for Ads to be injected?</p>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <ul>
                     <?php
                     $post_types = get_post_types(
@@ -388,25 +388,34 @@ class AdminSettings {
                         if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
                             $checked = 'checked="checked"';
                         }
-
-                        echo esc_html( '<li><label>' );
-                        echo esc_html( "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> " );
-                        echo esc_html( $post_type );
-                        echo esc_html( "</label></li>\n" );
+                        ?>
+                        <li>
+                            <label>
+                            <input type="checkbox" <?php echo esc_attr( $checked ); ?>
+                                   name="organic_post_types[]"
+                                   value="<?php echo esc_attr( $post_type ); ?>"
+                            />
+                            <?php echo esc_html( $post_type ); ?>
+                            </label>
+                        </li>
+                        <?php
                     }
                     ?>
                 </ul>
                 <p><input type="submit" value="Save" />
             </form>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <input type="hidden" name="organic_content_sync" value="1" />
                 <input type="submit" value="Sync Content Batch" />
             </form>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <input type="hidden" name="organic_content_id_sync" value="1" />
                 <input type="submit" value="Sync Content IDs" />
             </form>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <input type="hidden" name="organic_category_sync" value="1" />
                 <input type="submit" value="Sync Categories" />
             </form>
