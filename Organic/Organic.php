@@ -20,7 +20,7 @@ const SYNC_META_KEY = 'empire_sync';
  * Client Plugin for the Organic Platform
  */
 class Organic {
-    public $version = '1.0.62';
+    public $version = ORGANIC_PLUGIN_VERSION;
 
     const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
 

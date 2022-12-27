@@ -11,6 +11,8 @@
     <exclude-pattern>/vendor/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
 
+    <exclude-pattern>affiliate/*</exclude-pattern>
+
     <!-- Scan only PHP files -->
     <arg name="extensions" value="php"/>
 

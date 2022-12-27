@@ -4,13 +4,15 @@
  * Plugin Name: Organic
  * Plugin URI: http://github.com/orgnc/wordpress-plugin
  * Description: Ads, Analytics & Affiliate Management
- * Version: VERSION
+ * Version: ORGANIC_PLUGIN_VERSION_VALUE
  * Author: Organic Ventures Inc
  * Author URI: https://organic.ly
  */
 require __DIR__ . '/vendor/autoload.php';
 
 use Organic\Organic;
+
+define( 'ORGANIC_PLUGIN_VERSION', 'ORGANIC_PLUGIN_VERSION_VALUE' );
 
 $environment = getenv( 'ORGANIC_ENVIRONMENT' ) ?: getenv( 'EMPIRE_ENVIRONMENT' );
 if ( ! $environment ) {
