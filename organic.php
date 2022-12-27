@@ -12,7 +12,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Organic\Organic;
 
-define( 'ORGANIC_PLUGIN_VERSION', 'ORGANIC_PLUGIN_VERSION_VALUE' );
+define( 'Organic\ORGANIC_PLUGIN_VERSION', 'ORGANIC_PLUGIN_VERSION_VALUE' );
 
 $environment = getenv( 'ORGANIC_ENVIRONMENT' ) ?: getenv( 'EMPIRE_ENVIRONMENT' );
 if ( ! $environment ) {
