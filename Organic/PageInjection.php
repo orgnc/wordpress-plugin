@@ -312,7 +312,7 @@ class PageInjection {
                 window.empire.apps.ads.config = window.empire.apps.ads.config || {};
                 <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
                 window.empire.apps.ads.config.siteDomain = "<?php echo esc_js( $this->organic->siteDomain ); ?>";
-                window.empire.apps.ads.config.adConfig = <?php echo esc_js( json_encode( $this->organic->getAdsConfig()->raw ) ); ?>;
+                window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
                 <?php } ?>
 
                 window.empire.apps.ads.targeting = {
