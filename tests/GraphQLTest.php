@@ -2,6 +2,8 @@
 
 namespace Organic;
 
+define( 'Organic\ORGANIC_PLUGIN_VERSION', 'version' );
+
 use PHPUnit\Framework\TestCase;
 
 class GraphQLTest extends TestCase {
