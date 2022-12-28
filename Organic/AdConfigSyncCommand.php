@@ -20,16 +20,16 @@ class AdConfigSyncCommand {
         add_filter(
             'cron_schedules',
             function ( $schedules ) {
-                $schedules['organic_every10minutes'] = array(
+                $schedules['organic_every10minutes'] = [
                     'interval' => 600,
                     'display' => __( 'Every 10 minutes' ),
-                );
+                ];
                 return $schedules;
             }
         );
 
         // Include this command in cron schedule every hour
-        add_action( 'organic_cron_sync_ad_config', array( $this, 'run' ) );
+        add_action( 'organic_cron_sync_ad_config', [ $this, 'run' ] );
         if ( ! wp_next_scheduled( 'organic_cron_sync_ad_config' ) ) {
             wp_schedule_event( time(), 'organic_every10minutes', 'organic_cron_sync_ad_config' );
         }
@@ -39,7 +39,7 @@ class AdConfigSyncCommand {
      * Wrapper for __invoke with no args to make it cron friendly
      */
     public function run() {
-        $this->__invoke( array() );
+        $this->__invoke( [] );
     }
 
     /**

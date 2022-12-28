@@ -73,7 +73,7 @@ class OrganicSdk {
         }
         $this->cdnUrl = $cdnUrl;
 
-        $params = array();
+        $params = [];
         if ( $token ) {
             $params['x-api-key'] = $token;
         }
@@ -129,7 +129,7 @@ class OrganicSdk {
     public function categoryTreeUpdate( array $categoryTree ) {
         $mutation = ( new NestedArgsMutation( 'categoryUpdate' ) );
         $mutation->setArguments( $categoryTree );
-        $mutation->setSelectionSet( array( 'ok' ) );
+        $mutation->setSelectionSet( [ 'ok' ] );
 
         return $this->runQuery( $mutation );
     }
@@ -183,13 +183,13 @@ class OrganicSdk {
     protected function metaUpdate( string $mutationName, string $externalId, string $name ) {
         $mutation = ( new Mutation( $mutationName ) );
         $mutation->setArguments(
-            array(
+            [
                 'externalId' => $externalId,
                 'name' => $name,
                 'siteGuid' => $this->siteGuid,
-            )
+            ]
         );
-        $mutation->setSelectionSet( array( 'ok' ) );
+        $mutation->setSelectionSet( [ 'ok' ] );
         return $this->runQuery( $mutation );
     }
 
@@ -238,17 +238,17 @@ class OrganicSdk {
         DateTime $publishedDate,
         DateTime $modifiedDate,
         string $content,
-        array $authors = array(),
-        array $categories = array(),
-        array $tags = array(),
-        array $third_party_integrations = array(),
-        array $seo_schema_tags = array(),
-        array $seo_data = array(),
-        array $custom_metadata = array(),
-        array $meta_tags = array(),
-        array $rich_content_images = array(),
-        array $rich_content_videos = array(),
-        array $rich_content_embeds = array(),
+        array $authors = [],
+        array $categories = [],
+        array $tags = [],
+        array $third_party_integrations = [],
+        array $seo_schema_tags = [],
+        array $seo_data = [],
+        array $custom_metadata = [],
+        array $meta_tags = [],
+        array $rich_content_images = [],
+        array $rich_content_videos = [],
+        array $rich_content_embeds = [],
         string $campaign_asset_guid = null
     ) {
         // Validate the structure of the referenced metadata
@@ -265,12 +265,12 @@ class OrganicSdk {
         $rich_content_embeds = $this->metaArrayToObjects( $rich_content_embeds, 'rich_content_embeds' );
 
         $mutation = ( new Mutation( 'contentCreateOrUpdate' ) );
-        $mutation->setVariables( array( new Variable( 'input', 'CreateOrUpdateContentInput', true ) ) );
-        $mutation->setArguments( array( 'input' => '$input' ) );
-        $mutation->setSelectionSet( array( 'ok', 'gamId' ) );
+        $mutation->setVariables( [ new Variable( 'input', 'CreateOrUpdateContentInput', true ) ] );
+        $mutation->setArguments( [ 'input' => '$input' ] );
+        $mutation->setSelectionSet( [ 'ok', 'gamId' ] );
 
-        $variables = array(
-            'input' => array(
+        $variables = [
+            'input' => [
                 'authors' => $authors,
                 'canonicalUrl' => $canonicalUrl,
                 'categories' => $categories,
@@ -289,8 +289,8 @@ class OrganicSdk {
                 'metaTags' => $meta_tags,
                 'richContentIndex' => array_merge( $rich_content_images, $rich_content_videos, $rich_content_embeds ),
                 'campaignAssetGuid' => $campaign_asset_guid,
-            ),
-        );
+            ],
+        ];
         if ( $subtitle ) {
             $variables['input']['subtitle'] = $subtitle;
         }
@@ -311,30 +311,30 @@ class OrganicSdk {
     public function queryContentIdMap( $first, $skip ) {
         $gql = ( new Query( 'contentIdMap' ) );
         $gql->setArguments(
-            array(
+            [
                 'siteGuid' => $this->siteGuid,
                 'first' => $first,
                 'skip' => $skip,
-            )
+            ]
         );
         $gql->setSelectionSet(
-            array(
+            [
                 ( new Query( 'edges' ) )->setSelectionSet(
-                    array(
+                    [
                         ( new Query( 'node' ) )->setSelectionSet(
-                            array(
+                            [
                                 'externalId',
                                 'gamId',
-                            )
+                            ]
                         ),
-                    )
+                    ]
                 ),
                 ( new Query( 'pageInfo' ) )->setSelectionSet(
-                    array(
+                    [
                         'totalObjects',
-                    )
+                    ]
                 ),
-            )
+            ]
         );
         $result = $this->runQuery( $gql );
         return $result['data']['contentIdMap'];
@@ -343,93 +343,93 @@ class OrganicSdk {
     public function queryAdConfig() {
         $gql = ( new Query( 'appAds' ) );
         $gql->setArguments(
-            array(
-                'siteGuids' => array( $this->siteGuid ),
-            )
+            [
+                'siteGuids' => [ $this->siteGuid ],
+            ]
         );
         $gql->setSelectionSet(
-            array(
+            [
                 ( new Query( 'sites' ) )->setSelectionSet(
-                    array(
+                    [
                         'domain',
                         ( new Query( 'settings' ) )->setSelectionSet(
-                            array(
+                            [
                                 ( new Query( 'adSettings' ) )->setSelectionSet(
-                                    array(
+                                    [
                                         'enableRefresh',
                                         'adsRefreshRate',
                                         'tabletBreakpointMin',
                                         'desktopBreakpointMin',
                                         ( new Query( 'amazon' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'enabled',
                                                 'deals',
                                                 'pubId',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'audigent' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'partnerId',
                                                 'tagEnabled',
                                                 'gamEnabled',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'outbrain' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'enabled',
                                                 'selectors',
                                                 'relative',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'indexServer' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'enabled',
                                                 'tag',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'nonRefresh' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'advertiserIds',
                                                 'lineitemIds',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'lazyload' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'marginMobile',
                                                 'marginDesktop',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'adpulse' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'enabled',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'fbia' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'mode',
-                                            )
+                                            ]
                                         ),
                                         ( new Query( 'consent' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'gdpr',
                                                 'ccpa',
-                                            )
+                                            ]
                                         ),
                                         'pixelSettings',
-                                    )
+                                    ]
                                 ),
                                 ( new Query( 'adRules' ) )->setSelectionSet(
-                                    array(
+                                    [
                                         'guid',
                                         'component',
                                         'comparator',
                                         'value',
                                         'enabled',
                                         'placementKeys',
-                                    )
+                                    ]
                                 ),
                                 ( new Query( 'placements' ) )->setSelectionSet(
-                                    array(
+                                    [
                                         'guid',
                                         'key',
                                         'name',
@@ -467,65 +467,65 @@ class OrganicSdk {
                                                 'dividerColor',
                                             ]
                                         ),
-                                    )
+                                    ]
                                 ),
                                 ( new Query( 'prebid' ) )->setSelectionSet(
-                                    array(
+                                    [
                                         'enabled',
                                         'timeout',
                                         'loadBySdk',
                                         'useBuild',
                                         ( new Query( 'bidders' ) )->setSelectionSet(
-                                            array(
+                                            [
                                                 'key',
                                                 'name',
                                                 'enabled',
                                                 'placementSettings',
                                                 'bidAssignment',
                                                 'bidCpmAdjustment',
-                                            )
+                                            ]
                                         ),
-                                    )
+                                    ]
                                 ),
-                            )
+                            ]
                         ),
                         ( new Query( 'ampConfig' ) )->setSelectionSet(
-                            array(
+                            [
                                 ( new Query( 'placements' ) )->setSelectionSet(
-                                    array(
+                                    [
                                         'key',
                                         'html',
-                                    )
+                                    ]
                                 ),
                                 'requiredScripts',
-                            )
+                            ]
                         ),
                         ( new Query( 'prefillConfig' ) )->setSelectionSet(
-                            array(
+                            [
                                 ( new Query( 'placements' ) )->setSelectionSet(
-                                    array(
+                                    [
                                         'key',
                                         'html',
                                         'css',
-                                    )
+                                    ]
                                 ),
-                            )
+                            ]
                         ),
                         ( new Query( 'fbiaConfig' ) )->setSelectionSet(
-                            array(
+                            [
                                 ( new Query( 'placements' ) )->setSelectionSet(
-                                    array(
+                                    [
                                         'key',
                                         'html',
-                                    )
+                                    ]
                                 ),
                                 'enabled',
                                 'mode',
-                            )
+                            ]
                         ),
-                    )
+                    ]
                 ),
-            )
+            ]
         );
         $result = $this->runQuery( $gql );
         return $result['data']['appAds']['sites'][0];
@@ -534,40 +534,40 @@ class OrganicSdk {
     public function queryAdsRefreshRates() {
         $gql = new Query( 'adsRefreshRates' );
         $gql->setArguments(
-            array(
-                'siteGuids' => array( $this->siteGuid ),
-            )
+            [
+                'siteGuids' => [ $this->siteGuid ],
+            ]
         );
         $gql->setSelectionSet(
-            array(
+            [
                 'guid',
                 'targetType',
                 'targetGuid',
                 'value',
                 ( new Query( 'restrictions' ) )->setSelectionSet(
-                    array(
+                    [
                         ( new Query( 'devices' ) )->setSelectionSet(
-                            array(
+                            [
                                 'deviceType',
                                 'os',
-                            )
+                            ]
                         ),
                         ( new Query( 'timeRanges' ) )->setSelectionSet(
-                            array(
+                            [
                                 'start',
                                 'end',
-                            )
+                            ]
                         ),
                         ( new Query( 'placements' ) )->setSelectionSet(
-                            array(
+                            [
                                 'guid',
                                 'name',
                                 'key',
-                            )
+                            ]
                         ),
-                    )
+                    ]
                 ),
-            )
+            ]
         );
         $result = $this->runQuery( $gql );
         return $result['data']['adsRefreshRates'];
@@ -576,14 +576,14 @@ class OrganicSdk {
     public function queryAdsTxt(): string {
         $gql = ( new Query( 'adsTxt' ) );
         $gql->setArguments(
-            array(
+            [
                 'siteGuid' => $this->siteGuid,
-            )
+            ]
         );
         $gql->setSelectionSet(
-            array(
+            [
                 'text',
-            )
+            ]
         );
         $result = $this->runQuery( $gql );
         return $result['data']['adsTxt']['text'];
@@ -614,7 +614,7 @@ class OrganicSdk {
      * @return array|object
      * @throws RuntimeException if API returns a failure code
      */
-    private function runQuery( $query, array $variables = array() ) {
+    private function runQuery( $query, array $variables = [] ) {
         try {
             $result = $this->client->runQuery( $query, true, $variables );
             $responseCode = $result->getResponseObject()->getStatusCode();
@@ -634,7 +634,7 @@ class OrganicSdk {
      * @param string|null $token
      */
     public function updateToken( $token ) {
-        $params = array();
+        $params = [];
         if ( $token ) {
             $params['x-api-key'] = $token;
         }
@@ -654,7 +654,7 @@ class OrganicSdk {
      * @throws InvalidArgumentException if a required value is missing
      */
     private function metaArrayToObjects( $array, $dataType ) {
-        $objects = array();
+        $objects = [];
 
         foreach ( $array as $value ) {
             if ( ! isset( $value['externalId'] ) || ! isset( $value['name'] ) ) {
@@ -669,51 +669,51 @@ class OrganicSdk {
     }
 
     public function queryAssets() {
-        $assets = array();
+        $assets = [];
         $first = 50;
         $skip = 0;
         do {
             $gql = ( new Query( 'appCampaigns' ) );
             $gql->setSelectionSet(
-                array(
+                [
                     ( new Query( 'assets' ) )->setArguments(
-                        array(
+                        [
                             'channel' => ( new RawObject( 'CONTENT' ) ),
                             'first' => $first,
                             'skip' => $skip,
-                            'siteGuids' => array( $this->siteGuid ),
-                        )
+                            'siteGuids' => [ $this->siteGuid ],
+                        ]
                     )->setSelectionSet(
-                        array(
+                        [
                             ( new Query( 'edges' ) )->setSelectionSet(
-                                array(
+                                [
                                     ( new Query( 'node' ) )->setSelectionSet(
-                                        array(
+                                        [
                                             'guid',
                                             'name',
                                             'externalId',
                                             'startDate',
                                             'endDate',
                                             ( new Query( 'campaign' ) )->setSelectionSet(
-                                                array(
+                                                [
                                                     'id',
                                                     'guid',
                                                     'status',
                                                     'name',
-                                                )
+                                                ]
                                             ),
-                                        )
+                                        ]
                                     ),
-                                )
+                                ]
                             ),
                             ( new Query( 'pageInfo' ) )->setSelectionSet(
-                                array(
+                                [
                                     'totalObjects',
-                                )
+                                ]
                             ),
-                        )
+                        ]
                     ),
-                )
+                ]
             );
             $result = $this->runQuery( $gql );
             $page_data = $result['data']['appCampaigns']['assets'];

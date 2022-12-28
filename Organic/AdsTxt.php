@@ -19,7 +19,7 @@ class AdsTxt {
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
 
-        add_action( 'init', array( $this, 'show' ) );
+        add_action( 'init', [ $this, 'show' ] );
     }
 
     public function get() {
@@ -57,7 +57,7 @@ class AdsTxt {
                 if ( defined( 'WP_ENV' ) && WP_ENV !== 'production' ) {
                     header( 'x-robots-tag: noindex, nofollow' );
                 }
-                echo $adsTxt;
+                echo esc_html( $adsTxt );
                 exit;
             }
         }

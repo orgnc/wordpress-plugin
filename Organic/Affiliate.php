@@ -17,16 +17,18 @@ class Affiliate {
     public function register_scripts() {
         $siteId = $this->organic->getSiteId();
         $sdk_url = $this->organic->sdk->getSdkV2Url();
-        wp_enqueue_script( 'organic-sdk', $sdk_url, [], null );
+        wp_enqueue_script( 'organic-sdk', $sdk_url, [], $this->organic->version );
         wp_register_script(
             'organic-affiliate-product-card',
             plugins_url( 'affiliate/blocks/productCard/build/index.js', __DIR__ ),
-            [ 'organic-sdk' ]
+            [ 'organic-sdk' ],
+            $this->organic->version
         );
         wp_register_script(
             'organic-affiliate-product-carousel',
             plugins_url( 'affiliate/blocks/productCarousel/build/index.js', __DIR__ ),
-            [ 'organic-sdk' ]
+            [ 'organic-sdk' ],
+            $this->organic->version
         );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
         $product_carousel_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-carousel';

@@ -11,6 +11,8 @@
     <exclude-pattern>/vendor/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
 
+    <exclude-pattern>affiliate/*</exclude-pattern>
+
     <!-- Scan only PHP files -->
     <arg name="extensions" value="php"/>
 
@@ -26,12 +28,8 @@
     </rule>
     <rule ref="WordPress-Extra">
         <exclude name="WordPress.PHP.DisallowShortTernary"/>
-        <exclude name="WordPress.WP.EnqueuedResourceParameters.MissingVersion"/>
         <exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
-        <!-- many false-positives -->
         <exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
-        <exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
-        <!-- TODO: fix/enable -->
         <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
         <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
         <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
@@ -39,13 +37,10 @@
         <exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
         <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase"/>
         <exclude name="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase"/>
-        <!-- TODO: fix security issues -->
-        <exclude name="WordPress.Security.NonceVerification.Missing"/>
-        <exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
-        <exclude name="WordPress.Security.EscapeOutput.UnsafePrintingFunction"/>
     </rule>
 
     <rule ref="PHPCompatibility" />
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax" />
 
     <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>
@@ -56,5 +51,5 @@
     <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 
     <config name="minimum_supported_wp_version" value="5.0" />
-    <config name="testVersion" value="7.0" />
+    <config name="testVersion" value="7.4" />
 </ruleset>

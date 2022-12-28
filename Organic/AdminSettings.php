@@ -13,9 +13,9 @@ class AdminSettings {
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
 
-        add_filter( 'plugin_action_links_organic/organic.php', array( $this, 'pluginSettingsLink' ) );
-        add_action( 'admin_menu', array( $this, 'adminMenu' ) );
-        add_action( 'save_post', array( $this, 'handleSavePostHook' ), 10, 3 );
+        add_filter( 'plugin_action_links_organic/organic.php', [ $this, 'pluginSettingsLink' ] );
+        add_action( 'admin_menu', [ $this, 'adminMenu' ] );
+        add_action( 'save_post', [ $this, 'handleSavePostHook' ], 10, 3 );
     }
 
     public function adminMenu() {
@@ -25,13 +25,13 @@ class AdminSettings {
             'Organic Settings ',            // Menu title.
             'manage_options',               // Capability.
             __FILE__,                       // Slug.
-            array( $this, 'adminSettings' ) // Function to call.
+            [ $this, 'adminSettings' ] // Function to call.
         );
     }
 
     public function adminSettings() {
         // Save any setting updates
-        if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
+        if ( $_SERVER['REQUEST_METHOD'] == 'POST' && check_admin_referer( 'organic_settings' ) ) {
             if ( isset( $_POST['organic_sync_ads_txt'] ) ) {
                 $this->organic->syncAdsTxt();
             } else if ( isset( $_POST['organic_ads_txt_redirect'] ) ) {
@@ -44,22 +44,22 @@ class AdminSettings {
                 try {
                     $this->organic->syncContent( 100 );
                 } catch ( \Exception $e ) {
-                    echo 'Error: ' . $e->getMessage();
-                    echo $e->getTraceAsString();
+                    echo esc_html( 'Error: ' . $e->getMessage() );
+                    echo esc_html( $e->getTraceAsString() );
                 }
             } else if ( isset( $_POST['organic_content_id_sync'] ) ) {
                 try {
                     $this->organic->syncContentIdMap();
                 } catch ( \Exception $e ) {
-                    echo 'Error: ' . $e->getMessage();
-                    echo $e->getTraceAsString();
+                    echo esc_html( 'Error: ' . $e->getMessage() );
+                    echo esc_html( $e->getTraceAsString() );
                 }
             } else if ( isset( $_POST['organic_category_sync'] ) ) {
                 try {
                     $this->organic->syncCategories();
                 } catch ( \Exception $e ) {
-                    echo 'Error: ' . $e->getMessage();
-                    echo $e->getTraceAsString();
+                    echo esc_html( 'Error: ' . $e->getMessage() );
+                    echo esc_html( $e->getTraceAsString() );
                 }
             } else {
                 $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
@@ -92,12 +92,13 @@ class AdminSettings {
     }
 
     protected function syncSettings() {
-        if ( $_SERVER['REQUEST_METHOD'] != 'POST' ) {
+        if ( $_SERVER['REQUEST_METHOD'] != 'POST' || ! check_admin_referer( 'organic_settings' ) ) {
             return;
         }
         if ( ! isset( $_POST['organic_update'] ) ) {
             return;
         }
+
         switch ( $_POST['organic_update'] ) {
             case 'Update and sync':
                 $result = $this->organic->syncAdConfig();
@@ -182,6 +183,7 @@ class AdminSettings {
         <div class="wrap">
             <h2>Organic Settings</h2>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <p><label><input type="checkbox" name="organic_enabled"
                                  id="organic_enabled" <?php echo $enabled ? 'checked' : ''; ?>> Organic Integration
                         Enabled</label></p>
@@ -190,21 +192,21 @@ class AdminSettings {
                 <h3>Organic Settings</h3>
                 <p><label>SDK version:
                     <select id="organic_sdk_version" name="organic_sdk_version">
-                        <option value="<?php echo $this->organic->sdk::SDK_V1; ?>" <?php echo ( $sdk_version == $this->organic->sdk::SDK_V1 ? 'selected="selected"' : '' ); ?>>v1</option>
-                        <option value="<?php echo $this->organic->sdk::SDK_V2; ?>" <?php echo ( $sdk_version == $this->organic->sdk::SDK_V2 ? 'selected="selected"' : '' ); ?>>v2 (breaks ads)</option>
+                        <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V1 ); ?>" <?php echo esc_html( ( $sdk_version == $this->organic->sdk::SDK_V1 ? 'selected="selected"' : '' ) ); ?>>v1</option>
+                        <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V2 ); ?>" <?php echo esc_html( ( $sdk_version == $this->organic->sdk::SDK_V2 ? 'selected="selected"' : '' ) ); ?>>v2 (breaks ads)</option>
                     </select>
                 </label></p>
-                <p><label>Organic API Key: <input type="text" name="organic_sdk_key" style="width: 355px;" value="<?php echo $sdk_key; ?>" /></label></p>
-                <p><label>Organic Site ID: <input type="text" name="organic_site_id" style="width: 355px;" value="<?php echo $site_id; ?>" /></label></p>
+                <p><label>Organic API Key: <input type="text" name="organic_sdk_key" style="width: 355px;" value="<?php echo esc_attr( $sdk_key ); ?>" /></label></p>
+                <p><label>Organic Site ID: <input type="text" name="organic_site_id" style="width: 355px;" value="<?php echo esc_attr( $site_id ); ?>" /></label></p>
                 <p><label>Consent Management:
                         <select id="organic_cmp" name="organic_cmp">
                             <option value="">None (WARNING: DO NOT USE IN PRODUCTION)</option>
-                            <option value="built-in" <?php echo ( $cmp == 'built-in' ? 'selected="selected"' : '' ); ?>>Built In</option>
-                            <option value="one-trust" <?php echo ( $cmp == 'one-trust' ? 'selected="selected"' : '' ); ?>>One Trust</option>
+                            <option value="built-in" <?php echo esc_html( ( $cmp == 'built-in' ? 'selected="selected"' : '' ) ); ?>>Built In</option>
+                            <option value="one-trust" <?php echo esc_html( ( $cmp == 'one-trust' ? 'selected="selected"' : '' ) ); ?>>One Trust</option>
                         </select>
                     </label></p>
                 <p id="one-trust-config" style="display: <?php echo ( $cmp == 'one-trust' ? 'block' : 'none' ); ?>;">
-                    <label>One Trust ID: <input type="text" name="organic_one_trust_id" style="width: 355px;" value="<?php echo $one_trust_id; ?>" /></label>
+                    <label>One Trust ID: <input type="text" name="organic_one_trust_id" style="width: 355px;" value="<?php echo esc_attr( $one_trust_id ); ?>" /></label>
                 </p>
                 <script>
                     var hideShowOneTrust = function() {
@@ -221,8 +223,8 @@ class AdminSettings {
                 <p><label><input type="checkbox" name="organic_connatix_enabled"
                                  id="organic_connatix_enabled" <?php echo $connatix_enabled ? 'checked' : ''; ?>> Connatix Ads
                         Enabled</label></p>
-                <p id="connatix-config" style="display: <?php echo ( $connatix_enabled ? 'block' : 'none' ); ?>;">
-                    <label>Playspace Player ID: <input type="text" name="organic_connatix_playspace_id" style="width: 355px;" value="<?php echo $connatix_playspace_id; ?>" /></label>
+                <p id="connatix-config" style="display: <?php echo esc_attr( $connatix_enabled ? 'block' : 'none' ); ?>;">
+                    <label>Playspace Player ID: <input type="text" name="organic_connatix_playspace_id" style="width: 355px;" value="<?php echo esc_attr( $connatix_playspace_id ); ?>" /></label>
                 </p>
                 <p>
                     <label>Inject Images into RSS Feed: <input type="checkbox" name="organic_feed_images" <?php echo $feed_images ? 'checked' : ''; ?> /></label>
@@ -311,20 +313,21 @@ class AdminSettings {
                 <p><label><input type="checkbox" name="organic_test_mode"
                                  id="organic_test_mode" <?php echo $test_mode ? 'checked' : ''; ?>> Test Mode Enabled
                     </label></p>
-                <p><label>% of ads on Organic Ads: <input type="text" name="organic_percent" id="organic_percent" value="<?php echo $organic_test; ?>" /></label></p>
-                <p><label>Key-Value for Split Test: <input type="text" name="organic_value" id="organic_value" value="<?php echo $organic_value; ?>" /></label></p>
+                <p><label>% of ads on Organic Ads: <input type="text" name="organic_percent" id="organic_percent" value="<?php echo esc_attr( $organic_test ); ?>" /></label></p>
+                <p><label>Key-Value for Split Test: <input type="text" name="organic_value" id="organic_value" value="<?php echo esc_attr( $organic_value ); ?>" /></label></p>
 
                 <p>
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
                     <input id="update-and-sync-submit" type="submit" name="organic_update" value="Update and sync" />
-                    <?php echo $update_status; ?>
+                    <?php echo esc_html( $update_status ); ?>
                 </p>
             </form>
 
             <h2>Ads.txt</h2>
             <p>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <label>
                     <input
                             type="checkbox"
@@ -340,13 +343,14 @@ class AdminSettings {
             </p>
             <div id="cont_organic_sync_ads_txt"  style="display: <?php echo ( $ads_txt_redirect ? 'none' : 'block' ); ?>;">
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <label>ads.txt
                     <textarea
                             name="organic_ads_txt"
                             id="organic_ads_txt"
                             style="width:650px; height: 500px; display: block;"
                             readonly
-                    ><?php echo $ads_txt; ?></textarea>
+                    ><?php echo esc_textarea( $ads_txt ); ?></textarea>
                 </label>
                 <input type="hidden" name="organic_sync_ads_txt" id="organic_sync_ads_txt" value="true" />
                 <p><input type="submit" value="Sync ads.txt"/></p>
@@ -368,13 +372,14 @@ class AdminSettings {
             <p>Which post types from your CMS should be treated as Content for synchronization with
                 the Organic Platform and eligible for Ads to be injected?</p>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <ul>
                     <?php
                     $post_types = get_post_types(
-                        array(
+                        [
                             'public'   => true,
                             '_builtin' => false,
-                        )
+                        ]
                     );
                     $post_types[] = 'post';
                     $post_types[] = 'page';
@@ -383,25 +388,34 @@ class AdminSettings {
                         if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
                             $checked = 'checked="checked"';
                         }
-
-                        echo '<li><label>';
-                        echo "<input type='checkbox' $checked name='organic_post_types[]' value='" . $post_type . "' /> ";
-                        echo $post_type;
-                        echo "</label></li>\n";
+                        ?>
+                        <li>
+                            <label>
+                            <input type="checkbox" <?php echo esc_attr( $checked ); ?>
+                                   name="organic_post_types[]"
+                                   value="<?php echo esc_attr( $post_type ); ?>"
+                            />
+                            <?php echo esc_html( $post_type ); ?>
+                            </label>
+                        </li>
+                        <?php
                     }
                     ?>
                 </ul>
                 <p><input type="submit" value="Save" />
             </form>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <input type="hidden" name="organic_content_sync" value="1" />
                 <input type="submit" value="Sync Content Batch" />
             </form>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <input type="hidden" name="organic_content_id_sync" value="1" />
                 <input type="submit" value="Sync Content IDs" />
             </form>
             <form method="post">
+                <?php wp_nonce_field( 'organic_settings' ); ?>
                 <input type="hidden" name="organic_category_sync" value="1" />
                 <input type="submit" value="Sync Categories" />
             </form>

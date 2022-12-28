@@ -22,7 +22,7 @@ class AdsTxtSyncCommand {
         }
 
         // Include this command in cron schedule every hour
-        add_action( 'organic_cron_sync_ads_txt', array( $this, 'run' ) );
+        add_action( 'organic_cron_sync_ads_txt', [ $this, 'run' ] );
         if ( ! wp_next_scheduled( 'organic_cron_sync_ads_txt' ) ) {
             wp_schedule_event( time(), 'hourly', 'organic_cron_sync_ads_txt' );
         }
@@ -32,7 +32,7 @@ class AdsTxtSyncCommand {
      * Wrapper for __invoke with no args to make it cron friendly
      */
     public function run() {
-         $this->__invoke( array() );
+         $this->__invoke( [] );
     }
 
     /**
