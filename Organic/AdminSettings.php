@@ -16,6 +16,58 @@ class AdminSettings {
         add_filter( 'plugin_action_links_organic/organic.php', [ $this, 'pluginSettingsLink' ] );
         add_action( 'admin_menu', [ $this, 'adminMenu' ] );
         add_action( 'save_post', [ $this, 'handleSavePostHook' ], 10, 3 );
+        add_action( 'admin_print_scripts', [ $this, 'adminInlineJS' ] );
+        add_action( 'admin_print_styles', [ $this, 'adminInlineCSS' ] );
+    }
+
+    public function adminInlineJS() { ?>
+        <script>
+            (function (){
+            'use strict';
+            document.addEventListener('DOMContentLoaded', function () {
+                // OneTrust
+                var hideShowOneTrust = function () {
+                    var isOneTrust = document.getElementById('organic_cmp').value === 'one-trust';
+                    document.getElementById('one-trust-config').style.display = isOneTrust ? 'block' : 'none';
+                };
+                var oneTrustCheckbox = document.getElementById('organic_cmp');
+                ['change', 'click', 'keypress'].forEach(function (event) {
+                    oneTrustCheckbox.addEventListener(event, hideShowOneTrust);
+                });
+
+                // Connatix
+                var hideShowConnatix = function() {
+                    var checked = document.getElementById('organic_connatix_enabled').checked;
+                    document.getElementById('connatix-config').style.display = checked ? 'block' : 'none';
+                };
+                var connatixCheckbox = document.getElementById('organic_connatix_enabled');
+                ['change', 'click', 'keypress'].forEach(function (event) {
+                    connatixCheckbox.addEventListener(event, hideShowConnatix);
+                });
+
+                // Ads Redirect
+                var adsTxtCheckbox = document.getElementById('organic_enable_ads_txt_redirect');
+                adsTxtCheckbox.addEventListener('change', function() {
+                    var adsTxtContainer = document.getElementById('cont_organic_sync_ads_txt');
+                    adsTxtContainer.style.display = adsTxtCheckbox.checked ? 'none' : 'block';
+                });
+            });
+            }());
+        </script>
+        <?php
+    }
+
+    public function adminInlineCSS() {
+        ?>
+        <style>
+            #organic_host {
+                width: 400px;
+            }
+            .update_success {
+                color: darkgreen;
+            }
+        </style>
+        <?php
     }
 
     public function adminMenu() {
@@ -172,14 +224,6 @@ class AdminSettings {
             $update_status = '';
         }
         ?>
-        <style>
-            #organic_host {
-                width: 400px;
-            }
-            .update_success {
-                color: darkgreen;
-            }
-        </style>
         <div class="wrap">
             <h2>Organic Settings</h2>
             <form method="post">
@@ -208,18 +252,6 @@ class AdminSettings {
                 <p id="one-trust-config" style="display: <?php echo ( $cmp == 'one-trust' ? 'block' : 'none' ); ?>;">
                     <label>One Trust ID: <input type="text" name="organic_one_trust_id" style="width: 355px;" value="<?php echo esc_attr( $one_trust_id ); ?>" /></label>
                 </p>
-                <script>
-                    var hideShowOneTrust = function() {
-                        if ( document.getElementById("organic_cmp").value === 'one-trust' ) {
-                            document.getElementById('one-trust-config').style.display = "block";
-                        } else {
-                            document.getElementById('one-trust-config').style.display = "none";
-                        }
-                    }
-                    document.getElementById("organic_cmp").onchange = hideShowOneTrust;
-                    document.getElementById("organic_cmp").onclick = hideShowOneTrust;
-                    document.getElementById("organic_cmp").onkeypress = hideShowOneTrust;
-                </script>
                 <p><label><input type="checkbox" name="organic_connatix_enabled"
                                  id="organic_connatix_enabled" <?php echo $connatix_enabled ? 'checked' : ''; ?>> Connatix Ads
                         Enabled</label></p>
@@ -229,19 +261,6 @@ class AdminSettings {
                 <p>
                     <label>Inject Images into RSS Feed: <input type="checkbox" name="organic_feed_images" <?php echo $feed_images ? 'checked' : ''; ?> /></label>
                 </p>
-                <script>
-                    var hideShowConnatix = function() {
-                        if ( document.getElementById("organic_connatix_enabled").checked ) {
-                            document.getElementById('connatix-config').style.display = "block";
-                        } else {
-                            document.getElementById('connatix-config').style.display = "none";
-                        }
-                    }
-                    document.getElementById("organic_connatix_enabled").onchange = hideShowConnatix;
-                    document.getElementById("organic_connatix_enabled").onclick = hideShowConnatix;
-                    document.getElementById("organic_connatix_enabled").onkeypress = hideShowConnatix;
-                </script>
-
                 <p>
                     <label>
                         <input
@@ -325,7 +344,7 @@ class AdminSettings {
             </form>
 
             <h2>Ads.txt</h2>
-            <p>
+            <div>
             <form method="post">
                 <?php wp_nonce_field( 'organic_settings' ); ?>
                 <label>
@@ -340,7 +359,7 @@ class AdminSettings {
                 <input type="hidden" name="organic_ads_txt_redirect" id="organic_ads_txt_redirect" value="true" />
                 <p><input type="submit" value="Save"/></p>
             </form>
-            </p>
+            </div>
             <div id="cont_organic_sync_ads_txt"  style="display: <?php echo ( $ads_txt_redirect ? 'none' : 'block' ); ?>;">
             <form method="post">
                 <?php wp_nonce_field( 'organic_settings' ); ?>
@@ -356,13 +375,6 @@ class AdminSettings {
                 <p><input type="submit" value="Sync ads.txt"/></p>
             </form>
             </div>
-            <script>
-                const adsTxtCheckbox = document.getElementById('organic_enable_ads_txt_redirect');
-                const adsTxtContainer = document.getElementById('cont_organic_sync_ads_txt');
-                adsTxtCheckbox.onchange = () => {
-                    adsTxtContainer.style.display = adsTxtCheckbox.checked ? 'none' : 'block';
-                };
-            </script>
             <hr />
             <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
             <p>Recently Updated Posts (unsynced): <?php echo number_format( $total_synced_posts ); ?></p>
