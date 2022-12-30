@@ -89,9 +89,14 @@ class AdminSettings {
             } else if ( isset( $_POST['organic_ads_txt_redirect'] ) ) {
                 $val = isset( $_POST['organic_enable_ads_txt_redirect'] );
                 $this->organic->getAdsTxtManager()->enableAdsTxtRedirect( $val );
-            } else if ( isset( $_POST['organic_post_types'] ) ) {
-                $this->organic->updateOption( 'organic::post_types', $_POST['organic_post_types'], false );
-                $this->organic->setPostTypes( $_POST['organic_post_types'] );
+            } else if ( ! empty( $_POST['organic_post_types'] ) ) {
+                $val = array_map( 'sanitize_text_field', $_POST['organic_post_types'] );
+                $this->organic->updateOption(
+                    'organic::post_types',
+                    $val,
+                    false
+                );
+                $this->organic->setPostTypes( $val );
             } else if ( isset( $_POST['organic_content_sync'] ) ) {
                 try {
                     $this->organic->syncContent( 100 );
@@ -114,26 +119,97 @@ class AdminSettings {
                     echo esc_html( $e->getTraceAsString() );
                 }
             } else {
-                $this->organic->updateOption( 'organic::enabled', isset( $_POST['organic_enabled'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::test_mode', isset( $_POST['organic_test_mode'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::sdk_version', $_POST['organic_sdk_version'] ?: $this->organic->sdk::SDK_V1, false );
-                $this->organic->updateOption( 'organic::percent_test', $_POST['organic_percent'], false );
-                $this->organic->updateOption( 'organic::test_value', $_POST['organic_value'], false );
-                $this->organic->updateOption( 'organic::connatix_enabled', isset( $_POST['organic_connatix_enabled'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::connatix_playspace_id', $_POST['organic_connatix_playspace_id'], false );
-                $this->organic->updateOption( 'organic::feed_images', isset( $_POST['organic_feed_images'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::cmp', $_POST['organic_cmp'] ?: '', false );
-                $this->organic->updateOption( 'organic::one_trust_id', $_POST['organic_one_trust_id'] ?: '', false );
-                $this->organic->updateOption( 'organic::sdk_key', $_POST['organic_sdk_key'] ?: '', false );
-                $this->organic->updateOption( 'organic::site_id', $_POST['organic_site_id'] ?: '', false );
-                $this->organic->updateOption( 'organic::amp_ads_enabled', isset( $_POST['organic_amp_ads_enabled'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::inject_ads_config', isset( $_POST['organic_inject_ads_config'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::ad_slots_prefill_enabled', isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::campaigns_enabled', isset( $_POST['organic_campaigns_enabled'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::content_foreground', isset( $_POST['organic_content_foreground'] ) ? true : false, false );
-                $this->organic->updateOption( 'organic::affiliate_enabled', isset( $_POST['organic_affiliate_enabled'] ) ? true : false, false );
-
-                $this->organic->sdk->updateToken( $_POST['organic_sdk_key'] );
+                $this->organic->updateOption(
+                    'organic::enabled',
+                    isset( $_POST['organic_enabled'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::test_mode',
+                    isset( $_POST['organic_test_mode'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::sdk_version',
+                    sanitize_text_field( $_POST['organic_sdk_version'] ) ?: $this->organic->sdk::SDK_V1,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::percent_test',
+                    sanitize_text_field( $_POST['organic_percent'] ),
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::test_value',
+                    sanitize_text_field( $_POST['organic_value'] ),
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::connatix_enabled',
+                    isset( $_POST['organic_connatix_enabled'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::connatix_playspace_id',
+                    sanitize_text_field( $_POST['organic_connatix_playspace_id'] ),
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::feed_images',
+                    isset( $_POST['organic_feed_images'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::cmp',
+                    sanitize_text_field( $_POST['organic_cmp'] ) ?: '',
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::one_trust_id',
+                    sanitize_text_field( $_POST['organic_one_trust_id'] ) ?: '',
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::sdk_key',
+                    sanitize_text_field( $_POST['organic_sdk_key'] ) ?: '',
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::site_id',
+                    sanitize_text_field( $_POST['organic_site_id'] ) ?: '',
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::amp_ads_enabled',
+                    isset( $_POST['organic_amp_ads_enabled'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::inject_ads_config',
+                    isset( $_POST['organic_inject_ads_config'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::ad_slots_prefill_enabled',
+                    isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::campaigns_enabled',
+                    isset( $_POST['organic_campaigns_enabled'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::content_foreground',
+                    isset( $_POST['organic_content_foreground'] ) ? true : false,
+                    false
+                );
+                $this->organic->updateOption(
+                    'organic::affiliate_enabled',
+                    isset( $_POST['organic_affiliate_enabled'] ) ? true : false,
+                    false
+                );
+                $this->organic->sdk->updateToken( sanitize_text_field( $_POST['organic_sdk_key'] ) );
                 $this->update_results[] = 'updated';
             }
         }
@@ -398,7 +474,7 @@ class AdminSettings {
                     foreach ( $post_types as $post_type ) {
                         $checked = '';
                         if ( in_array( $post_type, $this->organic->getPostTypes() ) ) {
-                            $checked = 'checked="checked"';
+                            $checked = 'checked';
                         }
                         ?>
                         <li>
