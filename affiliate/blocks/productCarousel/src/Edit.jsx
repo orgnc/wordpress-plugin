@@ -59,8 +59,8 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
       <BlockControls>
         <Toolbar>
           <IconButton
-            icon="search"
-            label="Select a product"
+            icon="edit"
+            label="Edit carousel"
             onClick={displayModal}
           />
         </Toolbar>
