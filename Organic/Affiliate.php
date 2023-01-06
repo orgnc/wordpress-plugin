@@ -31,12 +31,14 @@ class Affiliate {
             $this->organic->version
         );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
+        $product_card_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-card';
         $product_carousel_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-carousel';
         wp_localize_script(
             'organic-affiliate-product-card',
             'organic_affiliate_config_product_card',
             [
                 'productSearchPageUrl' => $product_search_page_url . '?siteGuid=' . $siteId,
+                'productCardCreationURL' => $product_card_creation_url . '?siteGuid=' . $siteId,
             ]
         );
         wp_localize_script(
