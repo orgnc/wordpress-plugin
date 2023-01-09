@@ -1,14 +1,13 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
-import ProductCarousel from './ProductCard';
+import ProductCard from './ProductCard';
 import { AttributesType } from './propTypes';
 
 const Save = ({ attributes }) => (
   // eslint-disable-next-line react/jsx-props-no-spreading
   <div {...useBlockProps.save()}>
-    {attributes?.productCarouselSnippet && (
-      <ProductCarousel
-        productCardEditURL={attributes.productCardEditURL}
+    {attributes?.productCardSnippet && (
+      <ProductCard
         productCardSnippet={attributes.productCardSnippet}
       />
     )}
