@@ -193,7 +193,7 @@ class AdminSettings {
                 <p><label>SDK version:
                     <select id="organic_sdk_version" name="organic_sdk_version">
                         <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V1 ); ?>" <?php echo esc_html( ( $sdk_version == $this->organic->sdk::SDK_V1 ? 'selected="selected"' : '' ) ); ?>>v1</option>
-                        <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V2 ); ?>" <?php echo esc_html( ( $sdk_version == $this->organic->sdk::SDK_V2 ? 'selected="selected"' : '' ) ); ?>>v2 (breaks ads)</option>
+                        <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V2 ); ?>" <?php echo esc_html( ( $sdk_version == $this->organic->sdk::SDK_V2 ? 'selected="selected"' : '' ) ); ?>>v2</option>
                     </select>
                 </label></p>
                 <p><label>Organic API Key: <input type="text" name="organic_sdk_key" style="width: 355px;" value="<?php echo esc_attr( $sdk_key ); ?>" /></label></p>
