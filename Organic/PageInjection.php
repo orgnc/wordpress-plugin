@@ -519,23 +519,19 @@ class PageInjection {
             } else {
                 // If we are not in test mode then we need to be loading up our ad stack as quickly as possible, which
                 // means that we should do it with <script> tags directly.
-
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                echo wp_get_script_tag(
+                wp_print_script_tag(
                     [
                         'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
                         'async' => true,
                     ]
                 );
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                echo wp_get_script_tag(
+                wp_print_script_tag(
                     [
                         'src' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
                         'async' => true,
                     ]
                 );
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                echo wp_get_script_tag(
+                wp_print_script_tag(
                     [
                         'src' => $this->organic->sdk->getSdkUrl(),
                         'async' => true,
