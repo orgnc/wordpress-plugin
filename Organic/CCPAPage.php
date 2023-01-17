@@ -22,10 +22,20 @@ class CCPAPage {
 
         if ( $this->organic->getCmp() ) {
             add_action( 'init', [ $this, 'show' ] );
-            add_action( 'wp_head', [ $this, 'head' ], 100 );
             add_action( 'wp_footer', [ $this, 'footer' ], 100 );
             add_action( 'footer_extra_nav', [ $this, 'footerExtraNav' ], 100 );
             add_filter( 'wp_get_nav_menu_items', [ $this, 'addFooterMenuItem' ], 20, 2 );
+
+            if ( $this->organic->useCmpOneTrust() ) {
+                add_filter( 'script_loader_tag', [ $this, 'oneTrustScriptKey' ], 10, 3 );
+                // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
+                wp_enqueue_script(
+                    'one-trust',
+                    'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js',
+                    [],
+                    null
+                );
+            }
         }
     }
 
@@ -50,18 +60,23 @@ class CCPAPage {
     }
 
     /**
-     * Injects One Trust JS snippets into the header if enabled and configured
-     *
-     * @return string
+     * @param $tag
+     * @param $handle
+     * @param $src
+     * @return mixed|string
      */
-    public function head() {
-        if ( $this->organic->useCmpOneTrust() ) {
-            // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-            echo '<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"'
-               . ' type="text/javascript" charset="UTF-8" data-domain-script="'
-               . esc_attr( $this->organic->getOneTrustId() )
-               . '" ></script><script type="text/javascript">function OptanonWrapper(){}</script>';
+    public function oneTrustScriptKey( $tag, $handle, $src ) {
+        if ( $handle === 'one-trust' ) {
+            $main_tag = wp_get_script_tag(
+                [
+                    'src' => $src,
+                    'data-domain-script' => $this->organic->getOneTrustId(),
+                ]
+            );
+            $inline_tag = wp_get_inline_script_tag( 'function OptanonWrapper(){}' );
+            return $main_tag . "\n" . $inline_tag;
         }
+        return $tag;
     }
 
     /**
@@ -120,8 +135,7 @@ class CCPAPage {
             if ( $this->organic->useCmpBuiltIn() && $enabled ) {
                 header( 'content-type: text/html; charset=UTF-8' );
                 header( 'cache-control: public, max-age=86400' );
-                $contents = <<<EOF
-
+                ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -185,9 +199,7 @@ class CCPAPage {
 </script>
 </body>
 </html>
-EOF;
-
-                echo esc_html( $contents );
+                <?php
                 exit;
             }
         }

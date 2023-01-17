@@ -66,16 +66,17 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
             $url .= '&amp;' . str_replace( ',', '&amp;', $options_str );
         }
         // placeholder attribute needed for AMP, ="" needed for valid XML
-        $amp_iframe_code = <<<HTML
-            <amp-iframe
+        $amp_iframe_code = sprintf(
+            '<amp-iframe
                 height="540px"
                 frameborder="0"
                 sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                src="$url"
+                src="%s"
             >
                 <p placeholder="">Loading iframe content</p>
-            </amp-iframe>
-HTML;
+            </amp-iframe>',
+            $url
+        );
         $product_card = $this->adsInjector->nodeFromHtml( $amp_iframe_code );
         $this->adsInjector->injectAd( $product_card, 'inside_start', $product_card_div );
         $product_card_div->setAttribute( 'data-organic-affiliate-processed', true );
