@@ -132,21 +132,26 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             return $this->connatixPlayers[ $key ];
         }
 
-        $dataParams = $this->getConnatixParams( $this->targeting );
         $mediaAttr = $media
-            ? "media=\"$media\""
+            ? 'media="' . esc_attr( $media ) . '"'
             : '';
 
-        $player = "
-            <amp-connatix-player
-                $mediaAttr
-                data-player-id=\"ps_$psid\"
-                layout=\"responsive\"
-                width=\"$width\"
-                height=\"$height\"
-                $dataParams
+        $player = sprintf(
+            '<amp-connatix-player
+                data-player-id="ps_%s"
+                layout="responsive"
+                width="%s"
+                height="%s"
+                %s
+                %s
             >
-            </amp-connatix-player>";
+            </amp-connatix-player>',
+            esc_attr( $psid ),
+            esc_attr( $width ),
+            esc_attr( $height ),
+            $mediaAttr,
+            $this->getConnatixParams( $this->targeting ),
+        );
 
         $this->connatixPlayers[ $key ] = $player;
 
@@ -179,12 +184,16 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             'UTF-8'
         );
 
-        return "
-            data-param-custom-param1=\"$gamPageId\"
-            data-param-custom-param2=\"$section\"
-            data-param-custom-param3=\"$keywords\"
-            data-param-macros=\"$macros\"
-        ";
+        return sprintf(
+            'data-param-custom-param1="%s"
+            data-param-custom-param2="%s"
+            data-param-custom-param3="%s"
+            data-param-macros="%s"',
+            esc_attr( $gamPageId ),
+            esc_attr( $section ),
+            esc_attr( $keywords ),
+            esc_attr( $macros ),
+        );
     }
 
     public function applyConnatixParams( $html, $targeting ) {

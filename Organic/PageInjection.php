@@ -205,8 +205,8 @@ class PageInjection {
 
         $this->connatixInjected = true;
 
-        $connatixPlayerCode = '<script id="404a5343b1434e25bf26b4e6356298bc">
-            var siteRootDomainParts = window.location.host.split(".");
+        $connatixPlayerCode = wp_get_inline_script_tag(
+            'var siteRootDomainParts = window.location.host.split(".");
             var siteRootDomain = window.location.host;
             if ( siteRootDomainParts.length >= 2 ) {
                 siteRootDomain = siteRootDomainParts[siteRootDomainParts.length - 2] + "." + 
@@ -233,7 +233,9 @@ class PageInjection {
                         }
                     }
                 }).render("404a5343b1434e25bf26b4e6356298bc");
-            });</script>';
+            });',
+            [ 'id' => '404a5343b1434e25bf26b4e6356298bc' ],
+        );
 
         $connatixPlayerCode = apply_filters( 'organic_video_outstream', $connatixPlayerCode );
 
@@ -253,9 +255,12 @@ class PageInjection {
             # There could be cases when we need to disable ads but enable affiliate
             # and vise versa.
             # TODO: support disabling parts of sdkv2
-
-            // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-            echo '<script src="' . esc_url( $this->organic->sdk->getSdkV2Url() ) . '"></script>';
+            wp_enqueue_script(
+                'organic-sdk',
+                $this->organic->sdk->getSdkV2Url(),
+                [],
+                $this->organic->version
+            );
         }
 
         // Checks if this is a page using a template without ads.
@@ -264,7 +269,10 @@ class PageInjection {
         }
 
         if ( $this->connatix->isEnabled() ) {
-            echo '<script>!function(n){if(!window.cnxps){window.cnxps={},window.cnxps.cmd=[];var t=n.createElement(\'iframe\');t.display=\'none\',t.onload=function(){var n=t.contentWindow.document,c=n.createElement(\'script\');c.src=\'//cd.connatix.com/connatix.playspace.js\',c.setAttribute(\'async\',\'1\'),c.setAttribute(\'type\',\'text/javascript\'),n.body.appendChild(c)},n.head.appendChild(t)}}(document);</script>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo wp_get_inline_script_tag(
+                "!function(n){if(!window.cnxps){window.cnxps={},window.cnxps.cmd=[];var t=n.createElement('iframe');t.display='none',t.onload=function(){var n=t.contentWindow.document,c=n.createElement('script');c.src='//cd.connatix.com/connatix.playspace.js',c.setAttribute('async','1'),c.setAttribute('type','text/javascript'),n.body.appendChild(c)},n.head.appendChild(t)}}(document);"
+            );
         }
 
         if ( $this->organic->getPixelPublishedUrl() || $this->organic->getSiteId() ) {
@@ -512,14 +520,27 @@ class PageInjection {
                 // If we are not in test mode then we need to be loading up our ad stack as quickly as possible, which
                 // means that we should do it with <script> tags directly.
 
-                // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-                echo '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
-
-                // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-                echo '<script async src="' . esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ) . '"></script>';
-
-                // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-                echo '<script async src="' . esc_url( $this->organic->sdk->getSdkUrl() ) . '"></script>';
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo wp_get_script_tag(
+                    [
+                        'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
+                        'async' => true,
+                    ]
+                );
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo wp_get_script_tag(
+                    [
+                        'src' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
+                        'async' => true,
+                    ]
+                );
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo wp_get_script_tag(
+                    [
+                        'src' => $this->organic->sdk->getSdkUrl(),
+                        'async' => true,
+                    ]
+                );
             }
         }
     }
