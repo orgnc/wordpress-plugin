@@ -30,6 +30,12 @@ class Affiliate {
             [ 'organic-sdk' ],
             $this->organic->version
         );
+        wp_enqueue_script(
+            'on-post-load-scripts',
+            plugins_url('affiliate/onPostLoadScripts.js', __DIR__),
+            [ 'organic-sdk' ],
+            $this->organic->version
+        );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
         $product_card_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-card';
         $product_carousel_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-carousel';
