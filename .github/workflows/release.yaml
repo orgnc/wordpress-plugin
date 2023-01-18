@@ -29,11 +29,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Install dependencies
-      - name: Composer (php-actions)
-        uses: php-actions/composer@v6
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          dev: no
+          php-version: '7.4'
 
       # Create a packaged up zip file
       - name: Set Version Number & Build Zip
