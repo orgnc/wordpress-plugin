@@ -10,7 +10,8 @@
         "fluentdom/selectors-symfony": "^4.0",
         "fluentdom/selectors-phpcss": "^2.0",
         "ext-json": "*",
-        "ext-dom": "*"
+        "ext-dom": "*",
+        "liborm85/composer-vendor-cleaner": "^1.7"
     },
     "authors": [
         {
@@ -53,7 +54,28 @@
     },
     "config": {
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "liborm85/composer-vendor-cleaner": true
+        },
+        "match-case": false
+    },
+    "extra": {
+        "dev-files": {
+            "/": [
+                ".github/",
+                "examples/",
+                "tests/",
+                ".editorconfig",
+                ".gitignore",
+                "*.md",
+                "Makefile",
+                "composer.json",
+                "composer.lock"
+            ],
+            "fluentdom/*": [
+                "phive.xml",
+                "tools/"
+            ]
         }
     }
 }
