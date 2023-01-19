@@ -12,7 +12,7 @@ class Affiliate {
         $this->organic = $organic;
         add_action( 'init', [ $this, 'register_gutenberg_block' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'register_scripts' ] );
-        add_action( 'admin_enqueue_scripts', [ $this, 'admin_post_page_enqueue' ]);
+        add_action( 'admin_enqueue_scripts', [ $this, 'admin_post_page_enqueue' ] );
     }
 
     public function register_scripts() {
@@ -60,14 +60,14 @@ class Affiliate {
         );
     }
 
-    function admin_post_page_enqueue($hook_suffix) {
+    public function admin_post_page_enqueue( $hook_suffix ) {
         // Scripts to enqueue only for WP Post pages.
-        if( 'post.php' != $hook_suffix && 'post-new.php' != $hook_suffix ) {
+        if ( 'post.php' != $hook_suffix && 'post-new.php' != $hook_suffix ) {
             return;
         }
         wp_enqueue_script(
             'on-post-load-scripts',
-            plugins_url('affiliate/initSDKOnPostLoad.js', __DIR__),
+            plugins_url( 'affiliate/initSDKOnPostLoad.js', __DIR__ ),
             [ 'organic-sdk' ],
             $this->organic->version
         );
