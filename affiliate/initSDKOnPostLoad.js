@@ -14,6 +14,6 @@ const handlePageLoad = () => {
       }
     }
   });
-}
+};
 
 window.addEventListener('load', handlePageLoad);
