@@ -28,15 +28,19 @@ class CCPAPage {
 
             if ( $this->organic->useCmpOneTrust() ) {
                 add_filter( 'script_loader_tag', [ $this, 'oneTrustScriptKey' ], 10, 3 );
-                // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
-                wp_enqueue_script(
-                    'one-trust',
-                    'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js',
-                    [],
-                    null
-                );
+                add_action( 'wp_enqueue_scripts', [ $this, 'enqueueOneTrust' ] );
             }
         }
+    }
+
+    public function enqueueOneTrust() {
+        // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
+        wp_enqueue_script(
+            'one-trust',
+            'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js',
+            [],
+            null
+        );
     }
 
     /**
@@ -74,7 +78,7 @@ class CCPAPage {
                 ]
             );
             $inline_tag = wp_get_inline_script_tag( 'function OptanonWrapper(){}' );
-            return $main_tag . "\n" . $inline_tag;
+            return $main_tag . $inline_tag;
         }
         return $tag;
     }
