@@ -6,7 +6,7 @@ const waitForPageLoadAndInitSDK = (oldBlocks, remainingTries) => {
   if (remainingTries < 1) {
     return;
   }
-  const newBlocks = document.querySelectorAll('[data-type]');
+  const newBlocks = document.querySelectorAll('[data-block]');
   if (newBlocks.length > 0 && newBlocks.length === oldBlocks.length) {
     const integrations = document.querySelectorAll('[data-organic-affiliate-integration]');
     if (integrations.length > 0) {
