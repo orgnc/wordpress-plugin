@@ -28,11 +28,11 @@ cd $ROOT_DIR
 
 # cp -r vendor build/organic/
 (cd affiliate/ && npm ci && npm run build)
-mkdir -p build/organic/affiliate/productCard build/organic/affiliate/productCarousel
-cp -r affiliate/blocks/productCard/build build/organic/affiliate/productCard/
-cp affiliate/blocks/productCard/block.json build/organic/affiliate/productCard/
-cp -r affiliate/blocks/productCarousel/build build/organic/affiliate/productCarousel/
-cp affiliate/blocks/productCarousel/block.json build/organic/affiliate/productCarousel/
+mkdir -p build/organic/affiliate/blocks/productCard build/organic/affiliate/blocks/productCarousel
+cp -r affiliate/blocks/productCard/build build/organic/affiliate/blocks/productCard/
+cp affiliate/blocks/productCard/block.json build/organic/affiliate/blocks/productCard/
+cp -r affiliate/blocks/productCarousel/build build/organic/affiliate/blocks/productCarousel/
+cp affiliate/blocks/productCarousel/block.json build/organic/affiliate/blocks/productCarousel/
 cd build
 zip -r organic-${BUILD_NUMBER}.zip organic
 cp organic-${BUILD_NUMBER}.zip organic.zip
