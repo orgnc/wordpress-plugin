@@ -23,7 +23,7 @@ class AdminSettings {
     public function adminInlineJS() {
         $screen = get_current_screen();
         if ( ! empty( $screen ) && str_contains( $screen->id, 'Organic/AdminSettings' ) ) {
-        ?>
+            ?>
         <script>
             (function (){
             'use strict';
@@ -57,14 +57,14 @@ class AdminSettings {
             });
             }());
         </script>
-        <?php
+            <?php
         }
     }
 
     public function adminInlineCSS() {
         $screen = get_current_screen();
-        if ( ! empty( $screen )  && str_contains( $screen->id, 'Organic/AdminSettings' ) ) {
-        ?>
+        if ( ! empty( $screen ) && str_contains( $screen->id, 'Organic/AdminSettings' ) ) {
+            ?>
         <style>
             #organic_host {
                 width: 400px;
@@ -73,7 +73,7 @@ class AdminSettings {
                 color: darkgreen;
             }
         </style>
-        <?php
+            <?php
         }
     }
 
