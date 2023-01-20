@@ -20,7 +20,10 @@ class AdminSettings {
         add_action( 'admin_print_styles', [ $this, 'adminInlineCSS' ] );
     }
 
-    public function adminInlineJS() { ?>
+    public function adminInlineJS() {
+        $screen = get_current_screen();
+        if ( ! empty( $screen ) && str_contains( $screen->id, 'Organic/AdminSettings' ) ) {
+        ?>
         <script>
             (function (){
             'use strict';
@@ -55,9 +58,12 @@ class AdminSettings {
             }());
         </script>
         <?php
+        }
     }
 
     public function adminInlineCSS() {
+        $screen = get_current_screen();
+        if ( ! empty( $screen )  && str_contains( $screen->id, 'Organic/AdminSettings' ) ) {
         ?>
         <style>
             #organic_host {
@@ -68,6 +74,7 @@ class AdminSettings {
             }
         </style>
         <?php
+        }
     }
 
     public function adminMenu() {
