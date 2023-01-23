@@ -62,14 +62,13 @@ class Affiliate {
 
     public function admin_post_page_enqueue( $hook_suffix ) {
         // Scripts to enqueue only for WP Post pages.
-        if ( 'post.php' != $hook_suffix && 'post-new.php' != $hook_suffix ) {
-            return;
+        if ( 'post.php' === $hook_suffix || 'post-new.php' === $hook_suffix ) {
+            wp_enqueue_script(
+                'on-post-load-scripts',
+                plugins_url('affiliate/initSDKOnPostLoad.js', __DIR__),
+                ['organic-sdk'],
+                $this->organic->version
+            );
         }
-        wp_enqueue_script(
-            'on-post-load-scripts',
-            plugins_url( 'affiliate/initSDKOnPostLoad.js', __DIR__ ),
-            [ 'organic-sdk' ],
-            $this->organic->version
-        );
     }
 }
