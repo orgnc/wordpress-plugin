@@ -65,8 +65,8 @@ class Affiliate {
         if ( 'post.php' === $hook_suffix || 'post-new.php' === $hook_suffix ) {
             wp_enqueue_script(
                 'on-post-load-scripts',
-                plugins_url('affiliate/initSDKOnPostLoad.js', __DIR__),
-                ['organic-sdk'],
+                plugins_url( 'affiliate/initSDKOnPostLoad.js', __DIR__ ),
+                [ 'organic-sdk' ],
                 $this->organic->version
             );
         }
