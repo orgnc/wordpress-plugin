@@ -11,10 +11,12 @@ class Affiliate {
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
         add_action( 'init', [ $this, 'register_gutenberg_block' ] );
-        add_action( 'admin_enqueue_scripts', [ $this, 'register_scripts' ] );
+        if ( is_admin() ) {
+            add_action( 'admin_enqueue_scripts', [ $this, 'register_scripts' ] );
+        }
     }
 
-    public function register_scripts() {
+    public function register_scripts( $hook_suffix ) {
         $siteId = $this->organic->getSiteId();
         $sdk_url = $this->organic->sdk->getSdkV2Url();
         wp_enqueue_script( 'organic-sdk', $sdk_url, [], $this->organic->version );
@@ -30,6 +32,15 @@ class Affiliate {
             [ 'organic-sdk' ],
             $this->organic->version
         );
+        if ( 'post.php' === $hook_suffix || 'post-new.php' === $hook_suffix ) {
+            // Script to run on Post-type admin page load
+            wp_enqueue_script(
+                'on-post-load-scripts',
+                plugins_url( 'affiliate/initSDKOnPostLoad.js', __DIR__ ),
+                [ 'organic-sdk' ],
+                $this->organic->version
+            );
+        }
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
         $product_card_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-card';
         $product_carousel_creation_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-carousel';
