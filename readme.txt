@@ -2,7 +2,7 @@
 Contributors: jdemaris
 Tags: ads affiliate organic platform publishing
 Requires at least: 5.0
-Tested up to: 5.9
+Tested up to: 6.1
 Stable tag: ORGANIC_PLUGIN_VERSION_VALUE
 Requires PHP: 7.0
 License: GPLv2 or later
@@ -61,6 +61,9 @@ add_filter( 'organic_post_title', 'get_custom_post_title', 10, 2);
 
 
 == Changelog ==
+
+= 1.0.67 =
+* Plugin refactoring to meet wordpress.org codestyle and rules
 
 = 1.0.15 =
 * Initial submission to wordpress.org with core functionality
