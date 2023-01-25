@@ -17,14 +17,6 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
      */
     private $adsInjector;
 
-    /**
-     * @var ConnatixConfig
-     */
-    private $connatix;
-    private $connatixEnabled = false;
-    private $connatixInjected = 0;
-    private $connatixPlayers = [];
-
     public function sanitize() {
         try {
             $this->adsInjector = new AdsInjector(
@@ -35,9 +27,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
                 }
             );
             $this->organic = Organic::getInstance();
-            $this->connatix = $this->organic->getConnatixConfig();
             $this->targeting = $this->organic->getTargeting();
-            $this->connatixEnabled = $this->connatix->isEnabled() && is_single();
             $this->handle();
         } catch ( \Exception $e ) {
             \Organic\Organic::captureException( $e );
@@ -71,8 +61,6 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             $limit = $placement['limit'];
             $relative = $placement['relative'];
 
-            // if placement's ad_type is set to 'outstream_video':
-            // inject connatix player instead of generic amp template
             if ( $placement['adType'] == AD_TYPE::OUTSTREAM_VIDEO ) {
                 $adHtml = $this->applyConnatixParams( $amp['html'], $this->targeting );
             } else if ( $placement['adType'] == AD_TYPE::DEFAULT ) {
@@ -83,79 +71,10 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
 
             try {
                 $count = $this->adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
-                if ( $placement['adType'] == AD_TYPE::OUTSTREAM_VIDEO ) {
-                    $this->connatixInjected += $count;
-                }
             } catch ( \Exception $e ) {
                 \Organic\Organic::captureException( $e );
             }
         }
-
-        // if no connatix players were injected by placements settings,
-        // try to inject one into default position
-        if ( $this->connatixEnabled && $this->connatixInjected === 0 ) {
-            $this->deprecatedInjectConnatix(
-                $this->connatix->getPlayspaceId(),
-                ConnatixConfig::DEFAULT_AMP_RELATIVE,
-                ConnatixConfig::DEFAULT_AMP_SELECTORS
-            );
-        }
-
-    }
-
-    private function deprecatedInjectConnatix( string $psid, string $relative, array $selectors, $limit = 1 ) {
-        if ( ! $psid ) {
-            return;
-        }
-        $base = AMP_BREAKPOINT::MD;
-        $smallMedia = AMP_BREAKPOINT::maxWidth( $base - 1 );
-        $largeMedia = AMP_BREAKPOINT::minWidth( $base );
-
-        $smallPlayer = $this->deprecatedCreateConnatixPlayer( $psid, $smallMedia, 4, 3 );
-        $largePlayer = $this->deprecatedCreateConnatixPlayer( $psid, $largeMedia, 16, 9 );
-        $players = "${smallPlayer}\n${largePlayer}";
-
-        try {
-            $count = $this->adsInjector->injectAds( $players, $relative, $selectors, $limit );
-            $this->connatixInjected += $count;
-            return $count;
-        } catch ( \Exception $e ) {
-            \Organic\Organic::captureException( $e );
-        }
-        return 0;
-    }
-
-    private function deprecatedCreateConnatixPlayer( string $psid, string $media = '', int $width = 16, int $height = 9 ) {
-        $key = "${psid}_${media}_${width}_${height}";
-
-        if ( isset( $this->connatixPlayers[ $key ] ) ) {
-            return $this->connatixPlayers[ $key ];
-        }
-
-        $mediaAttr = $media
-            ? 'media="' . esc_attr( $media ) . '"'
-            : '';
-
-        $player = sprintf(
-            '<amp-connatix-player
-                data-player-id="ps_%s"
-                layout="responsive"
-                width="%s"
-                height="%s"
-                %s
-                %s
-            >
-            </amp-connatix-player>',
-            esc_attr( $psid ),
-            esc_attr( $width ),
-            esc_attr( $height ),
-            $mediaAttr,
-            $this->getConnatixParams( $this->targeting ),
-        );
-
-        $this->connatixPlayers[ $key ] = $player;
-
-        return $player;
     }
 
     public function getConnatixParams( $targeting ) {

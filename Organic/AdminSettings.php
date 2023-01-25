@@ -38,16 +38,6 @@ class AdminSettings {
                     oneTrustCheckbox.addEventListener(event, hideShowOneTrust);
                 });
 
-                // Connatix
-                var hideShowConnatix = function() {
-                    var checked = document.getElementById('organic_connatix_enabled').checked;
-                    document.getElementById('connatix-config').style.display = checked ? 'block' : 'none';
-                };
-                var connatixCheckbox = document.getElementById('organic_connatix_enabled');
-                ['change', 'click', 'keypress'].forEach(function (event) {
-                    connatixCheckbox.addEventListener(event, hideShowConnatix);
-                });
-
                 // Ads Redirect
                 var adsTxtCheckbox = document.getElementById('organic_enable_ads_txt_redirect');
                 adsTxtCheckbox.addEventListener('change', function() {
@@ -149,16 +139,6 @@ class AdminSettings {
                 $this->organic->updateOption(
                     'organic::test_value',
                     sanitize_text_field( $_POST['organic_value'] ),
-                    false
-                );
-                $this->organic->updateOption(
-                    'organic::connatix_enabled',
-                    isset( $_POST['organic_connatix_enabled'] ) ? true : false,
-                    false
-                );
-                $this->organic->updateOption(
-                    'organic::connatix_playspace_id',
-                    sanitize_text_field( $_POST['organic_connatix_playspace_id'] ),
                     false
                 );
                 $this->organic->updateOption(
@@ -281,8 +261,6 @@ class AdminSettings {
         $enabled = $this->organic->getOption( 'organic::enabled' );
         $test_mode = $this->organic->getOption( 'organic::test_mode' );
         $sdk_version = $this->organic->getSdkVersion();
-        $connatix_enabled = $this->organic->getOption( 'organic::connatix_enabled' );
-        $connatix_playspace_id = $this->organic->getOption( 'organic::connatix_playspace_id' );
         $feed_images = $this->organic->getOption( 'organic::feed_images' );
         $cmp = $this->organic->getOption( 'organic::cmp' );
         $one_trust_id = $this->organic->getOption( 'organic::one_trust_id' );
@@ -334,12 +312,6 @@ class AdminSettings {
                     </label></p>
                 <p id="one-trust-config" style="display: <?php echo ( $cmp == 'one-trust' ? 'block' : 'none' ); ?>;">
                     <label>One Trust ID: <input type="text" name="organic_one_trust_id" style="width: 355px;" value="<?php echo esc_attr( $one_trust_id ); ?>" /></label>
-                </p>
-                <p><label><input type="checkbox" name="organic_connatix_enabled"
-                                 id="organic_connatix_enabled" <?php echo $connatix_enabled ? 'checked' : ''; ?>> Connatix Ads
-                        Enabled</label></p>
-                <p id="connatix-config" style="display: <?php echo esc_attr( $connatix_enabled ? 'block' : 'none' ); ?>;">
-                    <label>Playspace Player ID: <input type="text" name="organic_connatix_playspace_id" style="width: 355px;" value="<?php echo esc_attr( $connatix_playspace_id ); ?>" /></label>
                 </p>
                 <p>
                     <label>Inject Images into RSS Feed: <input type="checkbox" name="organic_feed_images" <?php echo $feed_images ? 'checked' : ''; ?> /></label>

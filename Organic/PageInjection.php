@@ -15,23 +15,8 @@ class PageInjection {
      */
     private $organic;
 
-    /**
-     * Tracker flag to ensure we don't inject multiple copies of the Connatix player. This has
-     * become an issue on the WATM template since it implements infinite scroll, which places
-     * multiple "single" posts on one page and confuses this logic.
-     *
-     * @var bool True if Connatix player is already on the page
-     */
-    private $connatixInjected = false;
-
-    /**
-     * @var ConnatixConfig
-     */
-    private $connatix;
-
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
-        $this->connatix = $organic->getConnatixConfig();
         $is_amp = organic_is_amp();
 
         if ( ! $this->organic->isEnabled() ) {
@@ -49,7 +34,6 @@ class PageInjection {
         }
 
         add_action( 'wp_head', [ $this, 'injectPixel' ] );
-        add_filter( 'the_content', [ $this, 'injectConnatixPlayer' ], 1 );
         add_action( 'rss2_item', [ $this, 'injectRssImage' ] );
         add_action( 'rss2_ns', [ $this, 'injectRssNs' ] );
 
@@ -160,90 +144,6 @@ class PageInjection {
         );
     }
 
-    /**
-     * Places a Connatix Playspace player into the article content after the first <p> tag
-     */
-    public function injectConnatixPlayer( $content ) {
-        // Skip it if we already injected once
-        if ( $this->connatixInjected ) {
-            return $content;
-        }
-
-        if ( ! $this->connatix->isEnabled() || ! is_single() ) {
-            return $content;
-        }
-
-        // Only do this on individual post pages
-        if ( ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
-            return $content;
-        }
-
-        // Skip out on injecting Playspace if there is already a Connatix Elements player on the
-        // page.
-        if ( str_contains( $content, 'connatix-elements' ) ) {
-            return $content;
-        }
-
-        // Figure out if there is a paragraph to inject after. If it doesn't exist (some legacy Wordpress's) then
-        // use a SPAN instead.
-        $injectionPoint = strpos( $content, '</p>' );
-        $injectionPointOffset = 4;
-        if ( $injectionPoint === false || $injectionPoint > 1000 ) {
-            if ( strlen( $content ) <= 200 ) {
-                return $content;
-            }
-            $spanInjectionPoint = strpos( $content, '</span>', 200 );
-            if ( $spanInjectionPoint === false ) {
-                return $content;
-            }
-            $injectionPoint = $spanInjectionPoint;
-            $injectionPointOffset = 7;
-        }
-
-        // Adjust for the length of </p> or </span>
-        $injectionPoint += $injectionPointOffset;
-
-        $this->connatixInjected = true;
-
-        $connatixPlayerCode = wp_get_inline_script_tag(
-            'var siteRootDomainParts = window.location.host.split(".");
-            var siteRootDomain = window.location.host;
-            if ( siteRootDomainParts.length >= 2 ) {
-                siteRootDomain = siteRootDomainParts[siteRootDomainParts.length - 2] + "." + 
-                    siteRootDomainParts[siteRootDomainParts.length - 1];
-            }
-            cnxps.cmd.push(function () {
-                cnxps({
-                    playerId: "' . $this->connatix->getPlayspaceId() . '",
-                    customParam1: window.empire.apps.ads.targeting.pageId + "",
-                    customParam2: window.empire.apps.ads.targeting.section + "",
-                    customParam3: window.empire.apps.ads.targeting.keywords + "",
-                    settings: {
-                        advertising: {
-                            macros: {
-                                cust_params: "site=" + siteRootDomain + 
-                                    "&targeting_article=" + window.empire.apps.ads.targeting.externalId + 
-                                    "&targeting_section=" + window.empire.apps.ads.targeting.section + 
-                                    "&targeting_keyword=" + window.empire.apps.ads.targeting.keywords +
-                                    "&article=" + window.empire.apps.ads.targeting.pageId,
-                                article: window.empire.apps.ads.targeting.pageId,
-                                category: window.empire.apps.ads.targeting.section,
-                                keywords: window.empire.apps.ads.targeting.keywords,
-                            }
-                        }
-                    }
-                }).render("404a5343b1434e25bf26b4e6356298bc");
-            });',
-            [ 'id' => '404a5343b1434e25bf26b4e6356298bc' ],
-        );
-
-        $connatixPlayerCode = apply_filters( 'organic_video_outstream', $connatixPlayerCode );
-
-        return substr( $content, 0, $injectionPoint ) .
-            $connatixPlayerCode .
-            substr( $content, $injectionPoint );
-    }
-
     public function injectPixel() {
         // If Organic isn't enabled, then don't bother injecting anything
         if ( ! $this->organic->isEnabled() ) {
@@ -266,13 +166,6 @@ class PageInjection {
         // Checks if this is a page using a template without ads.
         if ( ! apply_filters( 'organic_eligible_for_ads', true ) ) {
             return;
-        }
-
-        if ( $this->connatix->isEnabled() ) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo wp_get_inline_script_tag(
-                "!function(n){if(!window.cnxps){window.cnxps={},window.cnxps.cmd=[];var t=n.createElement('iframe');t.display='none',t.onload=function(){var n=t.contentWindow.document,c=n.createElement('script');c.src='//cd.connatix.com/connatix.playspace.js',c.setAttribute('async','1'),c.setAttribute('type','text/javascript'),n.body.appendChild(c)},n.head.appendChild(t)}}(document);"
-            );
         }
 
         if ( $this->organic->getPixelPublishedUrl() || $this->organic->getSiteId() ) {

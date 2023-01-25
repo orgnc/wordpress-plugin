@@ -125,11 +125,6 @@ class Organic {
     private $adsConfig = null;
 
     /**
-     * @var ConnatixConfig
-     */
-    private $connatixConfig = null;
-
-    /**
      * @var FbiaConfig Configuration for FBIA
      */
     private $fbiaConfig = null;
@@ -490,17 +485,6 @@ class Organic {
 
         return $this->adsConfig;
     }
-
-    public function getConnatixConfig() : ConnatixConfig {
-        if ( ! empty( $this->connatixConfig ) ) {
-            return $this->connatixConfig;
-        }
-
-        $this->connatixConfig = new ConnatixConfig( $this );
-
-        return $this->connatixConfig;
-    }
-
 
     public function getCurrentUrl() {
         $protocol = is_ssl() ? 'https://' : 'http://';
