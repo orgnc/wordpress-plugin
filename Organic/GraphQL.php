@@ -80,14 +80,6 @@ class GraphQL {
                     'type' => 'Boolean',
                     'description' => $this->organic->t( 'If true, show ads on AMP pages', 'organic' ),
                 ],
-                'connatixPlayspaceEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t( 'Are we injecting an outstream player?', 'organic' ),
-                ],
-                'connatixPlayspaceId' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t( 'Connatix Playspace ID, if set', 'organic' ),
-                ],
                 'oneTrustEnabled' => [
                     'type' => 'Boolean',
                     'description' => $this->organic->t( 'Should we use OneTrust as our CMP?', 'organic' ),
@@ -143,7 +135,6 @@ class GraphQL {
                 'type' => 'OrganicConfig',
                 'description' => __( 'Sitewide Configuration for Organic Platform', 'organic' ),
                 'resolve' => function() {
-                    $connatix = $this->organic->getConnatixConfig();
                     $testEnabled = $this->organic->getOrganicPixelTestPercent() < 100 &&
                         $this->organic->getOrganicPixelTestPercent() > 0;
                     return [
@@ -157,8 +148,6 @@ class GraphQL {
                             : null,
                         'adsTxt' => $this->organic->getAdsTxtManager()->get(),
                         'ampAdsEnabled' => $this->organic->useAmpAds(),
-                        'connatixPlayspaceEnabled' => $connatix->isEnabled(),
-                        'connatixPlayspaceId' => $connatix->getPlayspaceId() ?: null,
                         'oneTrustEnabled' => $this->organic->useCmpOneTrust(),
                         'oneTrustSiteId' => $this->organic->getOneTrustId(),
                         'preloadConfigEnabled' => $this->organic->useInjectedAdsConfig(),
