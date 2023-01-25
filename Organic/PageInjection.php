@@ -33,7 +33,7 @@ class PageInjection {
             return;
         }
 
-        add_action( 'wp_head', [ $this, 'injectPixel' ] );
+        add_action( 'wp_head', [ $this, 'injectBrowserSDK' ] );
         add_action( 'rss2_item', [ $this, 'injectRssImage' ] );
         add_action( 'rss2_ns', [ $this, 'injectRssNs' ] );
 
@@ -144,7 +144,7 @@ class PageInjection {
         );
     }
 
-    public function injectPixel() {
+    public function injectBrowserSDK() {
         // If Organic isn't enabled, then don't bother injecting anything
         if ( ! $this->organic->isEnabled() ) {
             return;
@@ -168,7 +168,7 @@ class PageInjection {
             return;
         }
 
-        if ( $this->organic->getPixelPublishedUrl() || $this->organic->getSiteId() ) {
+        if ( $this->organic->getSiteId() ) {
             $sectionString = '';
             $keywordString = '';
             $targeting = $this->organic->getTargeting();
@@ -198,15 +198,10 @@ class PageInjection {
                 var googletag = googletag || {};
                 var pbjs = pbjs || {};
 
-                /* TrackADM Config - to be phased out */
-                window.__trackadm_usp_cookie = 'ne-opt-out';
-                window.tadmPageId = '<?php echo esc_js( $gamPageId ); ?>';
-                window.tadmKeywords = '<?php echo esc_js( $keywordString ); ?>';
-                window.tadmSection = '<?php echo esc_js( $sectionString ); ?>';
-                window.trackADMData = window.trackADMData || {};
-
                 /* Organic Config - to be phased in */
                 window.__organic_usp_cookie = 'ne-opt-out';
+                window.__trackadm_usp_cookie = 'ne-opt-out';
+                window.__empire_usp_cookie = 'ne-opt-out';
                 window.empire = window.empire || {};
                 window.empire.apps = window.empire.apps || {};
                 window.empire.apps.ads = window.empire.apps.ads || {};
@@ -381,7 +376,6 @@ class PageInjection {
                     // Do nothing here, but rely on third party code to detect the use case and load the ads their way
                 }
                 else {
-                    window.trackADMData.tests = BVTests.getTargetingValue();
                     window.empire.apps.ads.targeting.tests = BVTests.getTargetingValue();
 
                     /* Loading GPT script */
@@ -394,8 +388,6 @@ class PageInjection {
                     <?php if ( $this->organic->getSdkVersion() == $this->organic->sdk::SDK_V1 ) { ?>
                         <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
                             utils.loadScript(document, 'organic-sdk', "<?php echo esc_url( $this->organic->sdk->getSdkUrl() ); ?>");
-                        <?php } else { ?>
-                                utils.loadScript(document, 'track-adm-adx-pixel', "<?php echo esc_url( $this->organic->getPixelPublishedUrl() ); ?>");
                         <?php } ?>
                     <?php } ?>
                         }

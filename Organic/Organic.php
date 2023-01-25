@@ -72,27 +72,6 @@ class Organic {
     private $oneTrustId = '';
 
     /**
-     * External ID of the pixel selected to inject on this site
-     *
-     * @var string|null
-     */
-    private $pixelId = null;
-
-    /**
-     * URL of the published version of the pixel
-     *
-     * @var string|null
-     */
-    private $pixelPublishedUrl;
-
-    /**
-     * URL of the testing version of the pixel
-     *
-     * @var string|null
-     */
-    private $pixelTestingUrl;
-
-    /**
      * New Organic SDK
      *
      * @var OrganicSdk
@@ -267,10 +246,6 @@ class Organic {
         $this->organicPixelTestValue = $this->getOption( 'organic::test_value' );
 
         $this->feedImages = $this->getOption( 'organic::feed_images' );
-
-        $this->pixelId = $this->getOption( 'organic::pixel_id' );
-        $this->pixelPublishedUrl = $this->getOption( 'organic::pixel_published_url' );
-        $this->pixelTestingUrl = $this->getOption( 'organic::pixel_testing_url' );
 
         $this->postTypes = $this->getOption( 'organic::post_types', [ 'post', 'page' ] );
 
@@ -1380,48 +1355,6 @@ class Organic {
      */
     public function getFeedImages() : bool {
         return $this->feedImages;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPixelId() {
-        return $this->pixelId;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPixelPublishedUrl() {
-        return $this->pixelPublishedUrl;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPixelTestingUrl() {
-        return $this->pixelTestingUrl;
-    }
-
-    /**
-     * @param int|null $pixelId
-     */
-    public function setPixelId( $pixelId ) {
-        $this->pixelId = $pixelId;
-    }
-
-    /**
-     * @param string|null $pixelPublishedUrl
-     */
-    public function setPixelPublishedUrl( $pixelPublishedUrl ) {
-        $this->pixelPublishedUrl = $pixelPublishedUrl;
-    }
-
-    /**
-     * @param string|null $pixelTestingUrl
-     */
-    public function setPixelTestingUrl( $pixelTestingUrl ) {
-        $this->pixelTestingUrl = $pixelTestingUrl;
     }
 
     /**
