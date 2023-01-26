@@ -40,8 +40,6 @@ class PageInjection {
         if ( $this->organic->useAdsSlotsPrefill() ) {
             $this->setupAdsSlotsPrefill();
         }
-
-        $this->setupFbiaInjection();
     }
 
     public function setupAmpAdsInjector() {
@@ -81,24 +79,6 @@ class PageInjection {
             },
             10,
             2
-        );
-    }
-
-    private function setupFbiaInjection() {
-        $fbiaConfig = $this->organic->getFbiaConfig();
-        if ( ! $fbiaConfig->isApplicable() ) {
-            return;
-        }
-
-        add_action(
-            'instant_articles_after_transform_post',
-            function( $ia_post ) {
-                $article = $ia_post->instant_article;
-                $ia_post->instant_article = new FbiaProxy(
-                    $article,
-                    $this->organic
-                );
-            }
         );
     }
 

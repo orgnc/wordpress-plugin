@@ -404,11 +404,6 @@ class OrganicSdk {
                                                 'enabled',
                                             ]
                                         ),
-                                        ( new Query( 'fbia' ) )->setSelectionSet(
-                                            [
-                                                'mode',
-                                            ]
-                                        ),
                                         ( new Query( 'consent' ) )->setSelectionSet(
                                             [
                                                 'gdpr',
@@ -509,18 +504,6 @@ class OrganicSdk {
                                         'css',
                                     ]
                                 ),
-                            ]
-                        ),
-                        ( new Query( 'fbiaConfig' ) )->setSelectionSet(
-                            [
-                                ( new Query( 'placements' ) )->setSelectionSet(
-                                    [
-                                        'key',
-                                        'html',
-                                    ]
-                                ),
-                                'enabled',
-                                'mode',
                             ]
                         ),
                     ]
