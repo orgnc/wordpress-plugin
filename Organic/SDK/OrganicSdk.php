@@ -86,29 +86,6 @@ class OrganicSdk {
     }
 
     /**
-     * Registers or updates meta data about Authors on this site
-     *
-     * @param string $externalId Unique ID for the Author known to your CMS
-     * @param string $name Displayable name of the author (not necessarily unique)
-     * @return array|object
-     */
-
-    public function authorUpdate( string $externalId, string $name ) {
-        return $this->metaUpdate( 'authorUpdate', $externalId, $name );
-    }
-
-    /**
-     * Registers or updates meta data about Categories on this site
-     *
-     * @param string $externalId
-     * @param string $name
-     * @return array|object
-     */
-    public function categoryUpdate( string $externalId, string $name ) {
-        return $this->metaUpdate( 'categoryUpdate', $externalId, $name );
-    }
-
-    /**
      * Registers the complete tree of categories
      *
      * Example input:
@@ -162,38 +139,6 @@ class OrganicSdk {
     }
 
     /**
-     * Registers or updates meta data about Tags on this site
-     *
-     * @param string $externalId
-     * @param string $name
-     * @return array|object
-     */
-    public function tagUpdate( string $externalId, string $name ) {
-        return $this->metaUpdate( 'tagUpdate', $externalId, $name );
-    }
-
-    /**
-     * Shared helper for updating our basic content metadata (authors, categories, tags)
-     *
-     * @param string $mutationName
-     * @param string $externalId
-     * @param string $name
-     * @return array|object
-     */
-    protected function metaUpdate( string $mutationName, string $externalId, string $name ) {
-        $mutation = ( new Mutation( $mutationName ) );
-        $mutation->setArguments(
-            [
-                'externalId' => $externalId,
-                'name' => $name,
-                'siteGuid' => $this->siteGuid,
-            ]
-        );
-        $mutation->setSelectionSet( [ 'ok' ] );
-        return $this->runQuery( $mutation );
-    }
-
-    /**
      * Registers or updates meta data about Articles and other content on this site
      *
      * Some posts may contain only meta data, such as a specialized template or
@@ -204,25 +149,12 @@ class OrganicSdk {
      * @param string $externalId Unique ID for this content on this site
      * @param string $canonicalUrl
      * @param string $title
-     * @param string $subtitle
-     * @param string $featured_image_url
-     * @param string $template_name
-     * @param string $sponsorship
-     * @param string $is_published
      * @param DateTime $publishedDate
      * @param DateTime $modifiedDate
      * @param string $content
      * @param array $authors
      * @param array $categories
      * @param array $tags
-     * @param array $third_party_integrations
-     * @param array $seo_schema_tags
-     * @param array $seo_data
-     * @param array $custom_metadata
-     * @param array $meta_tags
-     * @param array $rich_content_images
-     * @param array $rich_content_videos
-     * @param array $rich_content_embeds
      * @param string $campaign_asset_guid
      * @return array|object
      */
@@ -230,39 +162,18 @@ class OrganicSdk {
         string $externalId,
         string $canonicalUrl,
         string $title,
-        string $subtitle,
-        string $featured_image_url,
-        string $template_name,
-        string $sponsorship,
-        string $is_published,
         DateTime $publishedDate,
         DateTime $modifiedDate,
         string $content,
         array $authors = [],
         array $categories = [],
         array $tags = [],
-        array $third_party_integrations = [],
-        array $seo_schema_tags = [],
-        array $seo_data = [],
-        array $custom_metadata = [],
-        array $meta_tags = [],
-        array $rich_content_images = [],
-        array $rich_content_videos = [],
-        array $rich_content_embeds = [],
         string $campaign_asset_guid = null
     ) {
         // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
         $categories = $this->metaArrayToObjects( $categories, 'categories' );
         $tags = $this->metaArrayToObjects( $tags, 'tags' );
-        $third_party_integrations = $this->metaArrayToObjects( $third_party_integrations, 'third_party_integrations' );
-        $seo_schema_tags = $this->metaArrayToObjects( $seo_schema_tags, 'seo_schema_tags' );
-        $seo_data = $this->metaArrayToObjects( $seo_data, 'seo_data' );
-        $custom_metadata = $this->metaArrayToObjects( $custom_metadata, 'custom_metadata' );
-        $meta_tags = $this->metaArrayToObjects( $meta_tags, 'meta_tags' );
-        $rich_content_images = $this->metaArrayToObjects( $rich_content_images, 'rich_content_images' );
-        $rich_content_videos = $this->metaArrayToObjects( $rich_content_videos, 'rich_content_videos' );
-        $rich_content_embeds = $this->metaArrayToObjects( $rich_content_embeds, 'rich_content_embeds' );
 
         $mutation = ( new Mutation( 'contentCreateOrUpdate' ) );
         $mutation->setVariables( [ new Variable( 'input', 'CreateOrUpdateContentInput', true ) ] );
@@ -276,33 +187,14 @@ class OrganicSdk {
                 'categories' => $categories,
                 'content' => $content,
                 'externalId' => $externalId,
-                'isPublished' => (bool) $is_published,
                 'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
                 'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
                 'siteGuid' => $this->siteGuid,
                 'tags' => $tags,
                 'title' => $title,
-                'thirdPartyIntegrations' => $third_party_integrations,
-                'seoSchemaTags' => $seo_schema_tags,
-                'seoData' => $seo_data,
-                'customMetadata' => $custom_metadata,
-                'metaTags' => $meta_tags,
-                'richContentIndex' => array_merge( $rich_content_images, $rich_content_videos, $rich_content_embeds ),
                 'campaignAssetGuid' => $campaign_asset_guid,
             ],
         ];
-        if ( $subtitle ) {
-            $variables['input']['subtitle'] = $subtitle;
-        }
-        if ( $featured_image_url ) {
-            $variables['input']['featuredImageUrl'] = $featured_image_url;
-        }
-        if ( $template_name ) {
-            $variables['input']['templateName'] = $template_name;
-        }
-        if ( $sponsorship ) {
-            $variables['input']['sponsorship'] = $sponsorship;
-        }
 
         $result = $this->runQuery( $mutation, $variables );
         return $result['data']['contentCreateOrUpdate'];
