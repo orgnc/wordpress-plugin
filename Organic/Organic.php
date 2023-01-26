@@ -104,11 +104,6 @@ class Organic {
     private $adsConfig = null;
 
     /**
-     * @var FbiaConfig Configuration for FBIA
-     */
-    private $fbiaConfig = null;
-
-    /**
      * List of Post Types that we are synchronizing with Organic Platform
      *
      * @var string[]
@@ -436,17 +431,6 @@ class Organic {
         $this->prefillConfig = new PrefillConfig( $rawPrefillConfig );
 
         return $this->prefillConfig;
-    }
-
-    public function getFbiaConfig() : FbiaConfig {
-        if ( ! empty( $this->fbiaConfig ) ) {
-            return $this->fbiaConfig;
-        }
-
-        $raw = (array) $this->getOption( 'organic::ad_fbia_config', [] );
-        $this->fbiaConfig = new FbiaConfig( $raw );
-
-        return $this->fbiaConfig;
     }
 
     public function getAdsConfig() : AdsConfig {
@@ -1234,9 +1218,6 @@ class Organic {
 
         $this->debug( 'Got Prefill Config: ', $config['prefillConfig'] );
         $this->updateOption( 'organic::ad_prefill_config', $config['prefillConfig'], false );
-
-        $this->debug( 'Got FBIA Config: ', $config['fbiaConfig'] );
-        $this->updateOption( 'organic::ad_fbia_config', $config['fbiaConfig'], false );
 
         $this->syncAdsRefreshRates();
 
