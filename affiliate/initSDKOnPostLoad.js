@@ -8,12 +8,12 @@ const handlePageLoad = () => {
     // Affiliate
     if (affiliate && affiliate?.isEnabled()) {
       if (!affiliate.isInitialized()) {
-        affiliate.init();
+        setTimeout(() => affiliate.init(), 0);
       } else {
-        affiliate.processPage();
+        setTimeout(() => affiliate.processPage(), 0);
       }
     }
   });
 };
 
-window.addEventListener('load', handlePageLoad);
+window.addEventListener('pageshow', handlePageLoad);
