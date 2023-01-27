@@ -284,8 +284,14 @@ class Organic {
      *
      * @return bool
      */
-    public function isTestMode() : bool {
-        return $this->isTestMode;
+    public function useSplitTest() : bool {
+        return (
+            $this->isTestMode &&
+            $this->getOrganicPixelTestValue() &&
+            ($this->getOrganicPixelTestPercent() !== null) &&
+            $this->getOrganicPixelTestPercent() <= 100 &&
+            $this->getOrganicPixelTestPercent() >= 0
+        );
     }
 
     /**
@@ -354,7 +360,7 @@ class Organic {
      * @return bool
     */
     public function isAffiliateAppEnabled() {
-        return $this->isEnabled() && $this->getSdkVersion() == $this->sdk::SDK_V2 && $this->affiliateEnabled;
+        return $this->isEnabled() && ($this->getSdkVersion() == $this->sdk::SDK_V2) && $this->affiliateEnabled;
     }
 
     /**
@@ -367,7 +373,7 @@ class Organic {
     }
 
     public function useInjectedAdsConfig() : bool {
-        return $this->isEnabled() && $this->injectAdsConfig;
+        return $this->isEnabled() && ($this->getSdkVersion() == $this->sdk::SDK_V1) && $this->injectAdsConfig;
     }
 
     public function useAdsSlotsPrefill() : bool {
@@ -1282,6 +1288,13 @@ class Organic {
 
     public function getSdkVersion() {
         return $this->getOption( 'organic::sdk_version', $this->sdk::SDK_V1 );
+    }
+
+    public function getSdkUrl() {
+        if ( $this->getSdkVersion() == $this->sdk::SDK_V2 ) {
+            return $this->sdk->getSdkV2Url();
+        }
+        return $this->sdk->getSdkV1Url();
     }
 
     public function getPlatformUrl() {
