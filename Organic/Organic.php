@@ -1180,11 +1180,11 @@ class Organic {
     }
 
     /**
-     * Indicates if the plugin is configured to inject Featured Images into the RSS feed
+     * Indicates if the plugin is configured to inject Featured Images into the RSS feed (for Connatix)
      *
      * @return bool
      */
-    public function getFeedImages() : bool {
+    public function useFeedImages() : bool {
         return $this->feedImages;
     }
 

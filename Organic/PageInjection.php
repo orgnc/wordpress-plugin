@@ -33,12 +33,15 @@ class PageInjection {
             return;
         }
 
-        add_action( 'wp_head', [ $this, 'injectBrowserSDK' ] );
-        add_action( 'rss2_item', [ $this, 'injectRssImage' ] );
-        add_action( 'rss2_ns', [ $this, 'injectRssNs' ] );
-
         if ( $this->organic->useAdsSlotsPrefill() ) {
             $this->setupAdsSlotsPrefill();
+        }
+
+        add_action( 'wp_head', [ $this, 'injectBrowserSDK' ] );
+
+        if ( $this->organic->useFeedImages() ) {
+            add_action( 'rss2_item', [ $this, 'injectRssImage' ] );
+            add_action( 'rss2_ns', [ $this, 'injectRssNs' ] );
         }
     }
 
@@ -427,12 +430,12 @@ class PageInjection {
     }
 
     /**
-     * Adds in media URLs to the RSS feed to allow outstream players to rely on the feed for slideshows
+     * Adds in media URLs to the RSS feed to allow outstream players to rely on the feed for slideshows (for Connatix)
      *
      * @return void
      */
     public function injectRssImage() {
-        if ( $this->organic->getFeedImages() && has_post_thumbnail() ) {
+        if ( has_post_thumbnail() ) {
             echo '<media:content url="' . esc_url( get_the_post_thumbnail_url( null, 'medium' ) ) . '" medium="image" />';
         }
     }
@@ -443,8 +446,6 @@ class PageInjection {
      * @return void
      */
     public function injectRssNs() {
-        if ( $this->organic->getFeedImages() ) {
-            echo 'xmlns:media="http://search.yahoo.com/mrss/"';
-        }
+        echo 'xmlns:media="http://search.yahoo.com/mrss/"';
     }
 }
