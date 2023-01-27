@@ -291,14 +291,11 @@ class AdminSettings {
                     <label>One Trust ID: <input type="text" name="organic_one_trust_id" style="width: 355px;" value="<?php echo esc_attr( $one_trust_id ); ?>" /></label>
                 </p>
                 <p>
-                    <label>Inject Images into RSS Feed: <input type="checkbox" name="organic_feed_images" <?php echo $feed_images ? 'checked' : ''; ?> /></label>
-                </p>
-                <p>
                     <label>
                         <input
-                                type="checkbox"
-                                name="organic_amp_ads_enabled"
-                                id="organic_amp_ads_enabled"
+                            type="checkbox"
+                            name="organic_amp_ads_enabled"
+                            id="organic_amp_ads_enabled"
                             <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
                         AMP Ads Enabled
@@ -307,9 +304,9 @@ class AdminSettings {
                 <p>
                     <label>
                         <input
-                                type="checkbox"
-                                name="organic_inject_ads_config"
-                                id="organic_inject_ads_config"
+                            type="checkbox"
+                            name="organic_inject_ads_config"
+                            id="organic_inject_ads_config"
                             <?php echo $inject_ads_config ? 'checked' : ''; ?>
                         />
                         Automatically inject ad configuration into the page
@@ -331,6 +328,27 @@ class AdminSettings {
                     <label>
                         <input
                                 type="checkbox"
+                                name="organic_feed_images"
+                            <?php echo $feed_images ? 'checked' : ''; ?>
+                        />
+                        Inject Images into RSS Feed (for Connatix Playspace player)
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_content_foreground"
+                                id="organic_content_foreground"
+                            <?php echo $content_foreground ? 'checked' : ''; ?>
+                        />
+                        Force content updates to happen immediately on save. Only use if CRON is disabled on your site.
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
                                 name="organic_campaigns_enabled"
                                 id="organic_campaigns_enabled"
                             <?php echo $campaigns_enabled ? 'checked' : ''; ?>
@@ -338,15 +356,6 @@ class AdminSettings {
                         Campaigns Application is enabled on the Platform
                     </label>
                 </p>
-                <label>
-                    <input
-                            type="checkbox"
-                            name="organic_content_foreground"
-                            id="organic_content_foreground"
-                        <?php echo $content_foreground ? 'checked' : ''; ?>
-                    />
-                    Force content updates to happen immediately on save. Only use if CRON is disabled on your site.
-                </label>
                 <p>
                     <label>
                         <input
