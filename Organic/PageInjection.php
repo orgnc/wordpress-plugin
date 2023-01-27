@@ -164,7 +164,6 @@ class PageInjection {
             $this->injectSplitTestUtils(); ?>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
             <script>
-                debugger;
                 window.organicTestKey = "<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>";
                 BVTests.create('<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>', {
                     enabled: <?php echo esc_js( $this->organic->getOrganicPixelTestPercent() ); ?>,
