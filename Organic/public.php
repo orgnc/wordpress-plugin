@@ -33,5 +33,5 @@ function organic_content_assign_campaign_asset( $post_id, $campaign_asset_guid )
 }
 
 function organic_campaigns_enabled(): bool {
-    return Organic::getInstance()->isCampaignsAppEnabled();
+    return Organic::getInstance()->useCampaigns();
 }

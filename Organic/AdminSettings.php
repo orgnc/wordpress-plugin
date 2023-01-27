@@ -298,19 +298,7 @@ class AdminSettings {
                             id="organic_amp_ads_enabled"
                             <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
-                        AMP Ads Enabled
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="organic_inject_ads_config"
-                            id="organic_inject_ads_config"
-                            <?php echo $inject_ads_config ? 'checked' : ''; ?>
-                        />
-                        Automatically inject ad configuration into the page
-                        to increase page performance by reducing frontend requests
+                        AMP intergation
                     </label>
                 </p>
                 <p>
@@ -322,6 +310,18 @@ class AdminSettings {
                             <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
                         />
                         Prefill ad containers to prevent Content Layout Shift (CLS) issues
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="organic_inject_ads_config"
+                            id="organic_inject_ads_config"
+                            <?php echo $inject_ads_config ? 'checked' : ''; ?>
+                        />
+                        Inject ad configuration into the page
+                        to increase page performance by reducing frontend requests [DEPRECATED]
                     </label>
                 </p>
                 <p>
@@ -503,7 +503,7 @@ class AdminSettings {
      * @param $update
      */
     public function handleSavePostHook( $post_ID, $post, $update ) {
-        if ( ! $this->organic->isEnabled() ) {
+        if ( ! $this->organic->isEnabledAndConfigured() ) {
             return;
         }
 

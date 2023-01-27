@@ -16,25 +16,19 @@ class PageInjection {
     private $organic;
 
     public function __construct( Organic $organic ) {
+        if ( ! $organic->isEnabledAndConfigured() ) {
+            return;
+        }
         $this->organic = $organic;
-        $is_amp = organic_is_amp();
 
-        if ( ! $this->organic->isEnabled() ) {
+        if ( organic_is_amp() && $this->organic->useAmp() ) {
+            $this->setupAdsAmp();
+            $this->setupAffiliateAmp();
             return;
         }
 
-        if ( $is_amp ) {
-            if ( $this->organic->useAmpAds() ) {
-                $this->setupAmpAdsInjector();
-            }
-            if ( $this->organic->isAffiliateAppEnabled() ) {
-                $this->setupAmpAffiliateInjector();
-            }
-            return;
-        }
-
-        if ( $this->organic->useAdsSlotsPrefill() ) {
-            $this->setupAdsSlotsPrefill();
+        if ( $this->organic->usePrefill() ) {
+            $this->setupAdsPrefill();
         }
 
         add_action( 'wp_head', [ $this, 'injectBrowserSDK' ] );
@@ -45,7 +39,11 @@ class PageInjection {
         }
     }
 
-    public function setupAmpAdsInjector() {
+    public function setupAdsAmp() {
+        if ( ! $this->organic->useAds()) {
+            return;
+        }
+
         $ampConfig = $this->organic->getAmpConfig();
         if ( empty( $ampConfig->forPlacement ) ) {
             return;
@@ -56,7 +54,7 @@ class PageInjection {
         add_filter(
             'amp_content_sanitizers',
             function ( $sanitizer_classes, $post ) use ( $ampConfig, $adsConfig ) {
-                if ( ! $this->organic->eligibleForAds() ) {
+                if ( ! $this->organic->useAdsOnPage() ) {
                     return $sanitizer_classes;
                 }
 
@@ -72,10 +70,18 @@ class PageInjection {
         );
     }
 
-    public function setupAmpAffiliateInjector() {
+    public function setupAffiliateAmp() {
+        if ( ! $this->organic->useAffiliate() ) {
+            return;
+        }
+
         add_filter(
             'amp_content_sanitizers',
             function ( $sanitizer_classes, $post ) {
+                if ( ! $this->organic->useAffiliateOnPage() ) {
+                    return $sanitizer_classes;
+                }
+
                 require_once( dirname( __FILE__ ) . '/AmpAffiliateInjector.php' );
                 $sanitizer_classes['\Organic\AmpAffiliateInjector'] = [];
                 return $sanitizer_classes;
@@ -85,7 +91,11 @@ class PageInjection {
         );
     }
 
-    public function setupAdsSlotsPrefill() {
+    public function setupAdsPrefill() {
+        if ( ! $this->organic->useAds()) {
+            return;
+        }
+
         $prefillConfig = $this->organic->getPrefillConfig();
         if ( empty( $prefillConfig->forPlacement ) ) {
             return;
@@ -100,7 +110,7 @@ class PageInjection {
                             return $content;
                         }
 
-                        if ( ! apply_filters( 'organic_eligible_for_ads', $this->organic->eligibleForAds( $content ) ) ) {
+                        if ( ! $this->organic->useAdsOnPage( $content ) ) {
                             return $content;
                         }
 
@@ -128,34 +138,27 @@ class PageInjection {
     }
 
     public function injectBrowserSDK() {
-        // If Organic isn't enabled, then don't bother injecting anything
-        if ( ! $this->organic->isEnabled() ) {
-            return;
-        }
-
-        if ( ! $this->organic->getSiteId() ) {
-            return;
-        }
-
         $this->injectPrefetchHeaders();
         $this->injectBrowserSDKConfiguration();
         if ( ! $this->organic->useSplitTest() ) {
             // If we are not in test mode then we need to be loading up our ad stack as quickly as possible, which
             // means that we should do it with <script> tags directly.
-            wp_print_script_tag(
-                [
-                    'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
-                    'id' => 'gpt',
-                    'async' => true,
-                ]
-            );
-            wp_print_script_tag(
-                [
-                    'src' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
-                    'id' => 'organic-prebid',
-                    'async' => true,
-                ]
-            );
+            if ($this->organic->useAdsOnPage()) {
+                wp_print_script_tag(
+                    [
+                        'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
+                        'id' => 'gpt',
+                        'async' => true,
+                    ]
+                );
+                wp_print_script_tag(
+                    [
+                        'src' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
+                        'id' => 'organic-prebid',
+                        'async' => true,
+                    ]
+                );
+            }
             wp_print_script_tag(
                 [
                     'src' => $this->organic->getSdkUrl(),
@@ -176,8 +179,10 @@ class PageInjection {
                     // The below condition is a very specific case setup for Ads AB testing
                     // Do nothing here, but rely on third party code to detect the use case and load the ads their way
                 } else {
-                    utils.loadScript('gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js');
-                    utils.loadScript('organic-prebid', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
+                    <?php if ( $this->organic->useAdsOnPage() ) { ?>
+                        utils.loadScript('gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js');
+                        utils.loadScript('organic-prebid', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
+                    <?php } ?>
                     utils.loadScript('organic-sdk', "<?php echo esc_url( $this->organic->getSdkUrl() ); ?>");
                 }
             </script>
@@ -212,7 +217,7 @@ class PageInjection {
         </script>
         <?php
 
-        if ( $this->organic->useInjectedAdsConfig() ) {
+        if ( $this->organic->useAdsOnPage() && $this->organic->useInjectedAdsConfig() ) {
             // TODO: get rid of it after switch to the SDKv2
             ?>
             <script>
@@ -239,8 +244,7 @@ class PageInjection {
         </script>
         <?php
 
-        // Allow to disable Ads SDK by hook
-        if ( apply_filters( 'organic_eligible_for_ads', true ) ) {
+        if ( $this->organic->useAdsOnPage() ) {
             $sectionString = '';
             $keywordString = '';
             $targeting = $this->organic->getTargeting();
@@ -282,8 +286,7 @@ class PageInjection {
             <?php
         }
 
-        // Allow to disable Affiliate SDK by hook
-        if ( $this->organic->isAffiliateAppEnabled() && apply_filters( 'organic_eligible_for_affiliate', true ) ) {
+        if ( $this->organic->useAffiliateOnPage() ) {
             ?>
             <script>
                 window.empire.cmd.push(function(apps) {
