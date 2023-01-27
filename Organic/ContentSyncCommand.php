@@ -56,14 +56,8 @@ class ContentSyncCommand {
      * @since 0.1.0
      */
     public function __invoke( $args, $opts ) {
-        if ( ! $this->organic->isEnabled() ) {
-            $this->organic->warning( 'Cannot sync. Organic Integration is disabled' );
-            return;
-        }
-
-        // Only both trying if the API key is set
-        if ( ! $this->organic->getSdkKey() || ! $this->organic->getSiteId() ) {
-            $this->organic->warning( 'Cannot sync articles without Organic SDK API Key and Site ID' );
+        if ( ! $this->organic->isEnabledAndConfigured() ) {
+            $this->organic->warning( 'Cannot sync articles without enabled integration with SDK API Key and Site ID' );
             return;
         }
 

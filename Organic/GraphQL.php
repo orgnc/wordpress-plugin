@@ -146,14 +146,14 @@ class GraphQL {
                             ? $this->organic->getOrganicPixelTestValue()
                             : null,
                         'adsTxt' => $this->organic->getAdsTxtManager()->get(),
-                        'ampAdsEnabled' => $this->organic->useAmpAds(),
+                        'ampAdsEnabled' => $this->organic->useAmp(),
                         'oneTrustEnabled' => $this->organic->useCmpOneTrust(),
                         'oneTrustSiteId' => $this->organic->getOneTrustId(),
                         'preloadConfigEnabled' => $this->organic->useInjectedAdsConfig(),
                         'preloadConfigRules' => $this->organic->getAdsConfig()->adRules
                             ? json_encode( $this->organic->getAdsConfig()->adRules )
                             : '[]',
-                        'preloadContainersEnabled' => $this->organic->useAdsSlotsPrefill(),
+                        'preloadContainersEnabled' => $this->organic->usePrefill(),
                         'preloadContainersConfig' => $this->organic->getAdsConfig()->forPlacement
                             ? json_encode( $this->organic->getAdsConfig()->forPlacement )
                             : '[]',

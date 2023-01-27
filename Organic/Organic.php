@@ -133,9 +133,9 @@ class Organic {
      *  => Organic\Organic {#1829
      *       +sdk: Organic\SDK\OrganicSdk {#1830},
      *       +"siteDomain": "domino.com",
-     *       +"ampAdsEnabled": "1",
+     *       +"ampEnabled": "1",
      *       +"injectAdsConfig": "1",
-     *       +"adSlotsPrefillEnabled": "1",
+     *       +"prefillEnabled": "1",
      *     }
      */
     public static function getInstance(): Organic {
@@ -232,9 +232,11 @@ class Organic {
 
         $this->isEnabled = $this->getOption( 'organic::enabled' );
         $this->isTestMode = $this->getOption( 'organic::test_mode' );
-        $this->ampAdsEnabled = $this->getOption( 'organic::amp_ads_enabled' );
+        // Uses old `amp_ads_enabled` but controls AMP overall
+        $this->ampEnabled = $this->getOption( 'organic::amp_ads_enabled' );
         $this->injectAdsConfig = $this->getOption( 'organic::inject_ads_config' );
-        $this->adSlotsPrefillEnabled = $this->getOption( 'organic::ad_slots_prefill_enabled' );
+        // Uses old `ad_slots_prefill` but controls Prefill overall
+        $this->prefillEnabled = $this->getOption( 'organic::ad_slots_prefill_enabled' );
         $this->cmp = $this->getOption( 'organic::cmp' );
         $this->oneTrustId = $this->getOption( 'organic::one_trust_id' );
         $this->organicPixelTestPercent = intval( $this->getOption( 'organic::percent_test' ) );
@@ -265,7 +267,7 @@ class Organic {
         $graphql->init();
 
         // Set up affiliate app
-        if ( $this->isAffiliateAppEnabled() ) {
+        if ( $this->useAffiliate() ) {
             new Affiliate( $this );
         }
     }
@@ -277,6 +279,15 @@ class Organic {
      */
     public function isEnabled() : bool {
         return $this->isEnabled;
+    }
+
+    /**
+     * Returns true if Organic integration is enabled and properly configured
+     *
+     * @return bool
+     */
+    public function isEnabledAndConfigured() : bool {
+        return $this->isEnabled() && $this->getSdkKey() && $this->getSiteId();
     }
 
     /**
@@ -345,13 +356,18 @@ class Organic {
         return $this->oneTrustId;
     }
 
+    // TODO: we should be able to enabled/disable Ads too
+    public function useAds() : bool {
+        return $this->isEnabledAndConfigured();
+    }
+
     /**
      * Returns if Campaigns app is enabled
      *
      * @return bool
      */
-    public function isCampaignsAppEnabled() {
-        return $this->isEnabled() && $this->campaignsEnabled;
+    public function useCampaigns() : bool {
+        return $this->isEnabledAndConfigured() && $this->campaignsEnabled;
     }
 
     /**
@@ -359,8 +375,8 @@ class Organic {
      *
      * @return bool
     */
-    public function isAffiliateAppEnabled() {
-        return $this->isEnabled() && ($this->getSdkVersion() == $this->sdk::SDK_V2) && $this->affiliateEnabled;
+    public function useAffiliate() : bool {
+        return $this->isEnabledAndConfigured() && ($this->getSdkVersion() == $this->sdk::SDK_V2) && $this->affiliateEnabled;
     }
 
     /**
@@ -368,16 +384,16 @@ class Organic {
      *
      * @return bool
      */
-    public function useAmpAds() : bool {
-        return $this->isEnabled() && $this->ampAdsEnabled;
+    public function useAmp() : bool {
+        return $this->isEnabledAndConfigured() && $this->ampEnabled;
     }
 
     public function useInjectedAdsConfig() : bool {
-        return $this->isEnabled() && ($this->getSdkVersion() == $this->sdk::SDK_V1) && $this->injectAdsConfig;
+        return $this->isEnabledAndConfigured() && ($this->getSdkVersion() == $this->sdk::SDK_V1) && $this->injectAdsConfig;
     }
 
-    public function useAdsSlotsPrefill() : bool {
-        return $this->isEnabled() && $this->adSlotsPrefillEnabled;
+    public function usePrefill() : bool {
+        return $this->isEnabledAndConfigured() && $this->prefillEnabled;
     }
 
     public function getAffiliateDomain() {
@@ -388,7 +404,7 @@ class Organic {
      * @param $content string|null
      * @return bool|int
      */
-    public function eligibleForAds( $content = null ) {
+    public function eligibleForSDK( $content = null ) : bool {
         global $wp_query;
 
         if ( is_admin() || wp_doing_ajax() || is_feed() ) {
@@ -415,6 +431,26 @@ class Organic {
         }
 
         return true;
+    }
+
+    /**
+     * @param $content string|null
+     * @return bool|int
+     */
+    public function useAdsOnPage( $content = null ) : bool {
+        // Allow to disable Ads by hook
+        $eligibleForAds = apply_filters( 'organic_eligible_for_ads', $this->eligibleForSDK( $content ) );
+        return $this->useAds() && $eligibleForAds;
+    }
+
+    /**
+     * @param $content string|null
+     * @return bool|int
+     */
+    public function useAffiliateOnPage( $content = null ) : bool {
+        // Allow to disable Affiliate by hook
+        $eligibleForAffiliate = apply_filters( 'organic_eligible_for_affiliate', $this->eligibleForSDK( $content ) );
+        return $this->useAffiliate() && $eligibleForAffiliate;
     }
 
     public function getAmpConfig() : AmpConfig {
@@ -728,7 +764,7 @@ class Organic {
         $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
         $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
         $campaign_asset_guid = null;
-        if ( $this->isCampaignsAppEnabled() ) {
+        if ( $this->useCampaigns() ) {
             $campaign_asset_guid = get_post_meta( $post->ID, CAMPAIGN_ASSET_META_KEY, true );
             if ( $campaign_asset_guid == '' ) {
                 $campaign_asset_guid = null;
@@ -1226,7 +1262,7 @@ class Organic {
     }
 
     public function loadCampaignsAssets() {
-        if ( $this->isCampaignsAppEnabled() ) {
+        if ( $this->useCampaigns() ) {
             try {
                 return $this->sdk->queryAssets();
             } catch ( \Exception $e ) {
@@ -1238,7 +1274,7 @@ class Organic {
     }
 
     public function assignContentCampaignAsset( $post_id, $campaign_asset_guid ) {
-        if ( $this->isCampaignsAppEnabled() ) {
+        if ( $this->useCampaigns() ) {
             $post = get_post( $post_id );
             if ( $post == null || $post->post_type != 'post' ) {
                 return;
