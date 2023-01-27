@@ -135,8 +135,7 @@ class GraphQL {
                 'type' => 'OrganicConfig',
                 'description' => __( 'Sitewide Configuration for Organic Platform', 'organic' ),
                 'resolve' => function() {
-                    $testEnabled = $this->organic->getOrganicPixelTestPercent() < 100 &&
-                        $this->organic->getOrganicPixelTestPercent() > 0;
+                    $testEnabled = $this->organic->useSplitTest();
                     return [
                         'adsEnabled' => $this->organic->isEnabled(),
                         'adsTestEnabled' => $testEnabled,

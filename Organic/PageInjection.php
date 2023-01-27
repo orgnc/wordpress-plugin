@@ -130,25 +130,115 @@ class PageInjection {
             return;
         }
 
-        if ( $this->organic->getSdkVersion() == $this->organic->sdk::SDK_V2 && $this->organic->getSiteId() ) {
-            # As for 16.06.2022 SDKv2 contains Affiliate and Ads SDK.
-            # There could be cases when we need to disable ads but enable affiliate
-            # and vise versa.
-            # TODO: support disabling parts of sdkv2
-            wp_enqueue_script(
-                'organic-sdk',
-                $this->organic->sdk->getSdkV2Url(),
-                [],
-                $this->organic->version
-            );
-        }
-
-        // Checks if this is a page using a template without ads.
-        if ( ! apply_filters( 'organic_eligible_for_ads', true ) ) {
+        if ( ! $this->organic->getSiteId() ) {
             return;
         }
 
-        if ( $this->organic->getSiteId() ) {
+        $this->injectPrefetchHeaders();
+        $this->injectBrowserSDKConfiguration();
+        if ( ! $this->organic->useSplitTest() ) {
+            // If we are not in test mode then we need to be loading up our ad stack as quickly as possible, which
+            // means that we should do it with <script> tags directly.
+            wp_print_script_tag(
+                [
+                    'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
+                    'id' => 'gpt',
+                    'async' => true,
+                ]
+            );
+            wp_print_script_tag(
+                [
+                    'src' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
+                    'id' => 'organic-prebid',
+                    'async' => true,
+                ]
+            );
+            wp_print_script_tag(
+                [
+                    'src' => $this->organic->getSdkUrl(),
+                    'id' => 'organic-sdk',
+                    'async' => true,
+                ]
+            );
+        } else {
+            $this->injectSplitTestUtils(); ?>
+            <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
+            <script>
+                debugger;
+                window.organicTestKey = "<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>";
+                BVTests.create('<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>', {
+                    enabled: <?php echo esc_js( $this->organic->getOrganicPixelTestPercent() ); ?>,
+                });
+
+                if ( window.organicTestKey && BVTests.getValue(window.organicTestKey) === 'control' ) {
+                    // The below condition is a very specific case setup for Ads AB testing
+                    // Do nothing here, but rely on third party code to detect the use case and load the ads their way
+                } else {
+                    utils.loadScript('gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js');
+                    utils.loadScript('organic-prebid', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
+                    utils.loadScript('organic-sdk', "<?php echo esc_url( $this->organic->getSdkUrl() ); ?>");
+                }
+            </script>
+            <?php
+        }
+    }
+
+    public function injectPrefetchHeaders() {
+        ?>
+        <link rel="preconnect" href="https://organiccdn.io/" crossorigin>
+        <link rel="dns-prefetch" href="https://organiccdn.io/">
+        <link rel="preconnect" href="https://securepubads.g.doubleclick.net/" crossorigin>
+        <link rel="dns-prefetch" href="https://securepubads.g.doubleclick.net/">
+        <link rel="preconnect" href="https://c.amazon-adsystem.com/" crossorigin>
+        <link rel="dns-prefetch" href="https://c.amazon-adsystem.com/">
+        <?php
+    }
+
+    public function injectBrowserSDKConfiguration() {
+        ?>
+        <script>
+            window.__organic_usp_cookie = 'ne-opt-out';
+            window.__trackadm_usp_cookie = 'ne-opt-out';
+            window.__empire_usp_cookie = 'ne-opt-out';
+
+            window.empire = window.empire || {};
+            window.empire.cmd = window.empire.cmd || [];
+            window.empire.disableSDKAutoInitialization = true;
+            // disable calling `processPage` during `init`
+            // TODO-sdk: do not call `processPage` if `disableSDKAutoInitialization` is true
+            window.empire._disableAffiliateAutoProcessing = true;
+        </script>
+        <?php
+
+        if ( $this->organic->useInjectedAdsConfig() ) {
+            // TODO: get rid of it after switch to the SDKv2
+            ?>
+            <script>
+                // Using deprecated configuration method to inject AdConfig for SDKv1
+                window.empire.apps = window.empire.apps || {};
+                window.empire.apps.ads = window.empire.apps.ads || {};
+                (function (){
+                    var siteDomain = "<?php echo esc_js( $this->organic->siteDomain ); ?>";
+                    var adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
+                    adConfig.site = siteDomain;
+                    window.empire.apps.ads.config = adConfig;
+                })();
+            </script>
+            <?php
+        }
+
+        // Core SDK is always enabled in SDKv2 (for SDKv1 it will be just undefined)
+        ?>
+        <script>
+            window.empire.cmd.push(function(apps) {
+                if (!apps.core) return;
+                apps.core.init();
+            });
+        </script>
+        <?php
+
+        // Allow to disable Ads SDK by hook
+        if ( apply_filters( 'organic_eligible_for_ads', true ) ) {
             $sectionString = '';
             $keywordString = '';
             $targeting = $this->organic->getTargeting();
@@ -165,245 +255,176 @@ class PageInjection {
                 $keywordString = esc_html( implode( ',', $keywords ) );
             }
 
-            // No matter what, we want to add prefetch headers
+            // Configure Ads SDK
             ?>
-            <link rel="preconnect" href="https://organiccdn.io/" crossorigin>
-            <link rel="dns-prefetch" href="https://organiccdn.io/">
-            <link rel="preconnect" href="https://securepubads.g.doubleclick.net/" crossorigin>
-            <link rel="dns-prefetch" href="https://securepubads.g.doubleclick.net/">
-            <link rel="preconnect" href="https://c.amazon-adsystem.com/" crossorigin>
-            <link rel="dns-prefetch" href="https://c.amazon-adsystem.com/">
-
             <script>
-                var googletag = googletag || {};
-                var pbjs = pbjs || {};
+                window.empire.cmd.push(function(apps) {
+                    var ads = apps.ads;
+                    if (!ads || !ads.isEnabled()) return;
 
-                /* Organic Config - to be phased in */
-                window.__organic_usp_cookie = 'ne-opt-out';
-                window.__trackadm_usp_cookie = 'ne-opt-out';
-                window.__empire_usp_cookie = 'ne-opt-out';
-                window.empire = window.empire || {};
-                window.empire.apps = window.empire.apps || {};
-                window.empire.apps.ads = window.empire.apps.ads || {};
-                window.empire.apps.ads.config = window.empire.apps.ads.config || {};
-                <?php if ( $this->organic->useInjectedAdsConfig() ) { ?>
-                window.empire.apps.ads.config.siteDomain = "<?php echo esc_js( $this->organic->siteDomain ); ?>";
-                window.empire.apps.ads.config.adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
-                <?php } ?>
-
-                window.empire.apps.ads.targeting = {
-                    pageId: '<?php echo esc_js( $gamPageId ); ?>',
-                    externalId: '<?php echo esc_js( $gamExternalId ); ?>',
-                    keywords: '<?php echo esc_js( $keywordString ); ?>',
-                    disableKeywordReporting: false,
-                    section: '<?php echo esc_js( $sectionString ); ?>',
-                    disableSectionReporting: false
-                }
-
-                googletag.cmd = googletag.cmd || [];
-                pbjs.que = pbjs.que || [];
+                    ads.init();
+                    ads.setTargeting({
+                        pageId: '<?php echo esc_js( $gamPageId ); ?>',
+                        externalId: '<?php echo esc_js( $gamExternalId ); ?>',
+                        keywords: '<?php echo esc_js( $keywordString ); ?>',
+                        disableKeywordReporting: false,
+                        section: '<?php echo esc_js( $sectionString ); ?>',
+                        disableSectionReporting: false,
+                        tests: window.BVTests ? window.BVTests.getTargetingValue() : undefined,
+                    });
+                    ads.waitForPageLoad(function(){
+                        ads.initializeAds();
+                    });
+                });
             </script>
             <?php
+        }
 
-            if ( $this->organic->isTestMode() ) {
-                ?>
+        // Allow to disable Affiliate SDK by hook
+        if ( $this->organic->isAffiliateAppEnabled() && apply_filters( 'organic_eligible_for_affiliate', true ) ) {
+            ?>
             <script>
-                var utils = {
-                    queryString: {},
-                    init: function() {
-                        var t = this.queryString;
-                        location.search.slice(1).split("&").forEach(function(e) {
-                            e = e.split("="),
-                                t[e[0]] = decodeURIComponent(e[1] || "")
-                        }),
-                        "true" === t.debug_cls && this.logLayoutShift()
-                    },
-                    logLayoutShift: function() {
-                        function e(e) {
-                            for (i = 0; i < e.getEntries().length; i++) {
-                                var t = e.getEntries()[i];
-                                o += t.value,
-                                    console.log("Layout shift: " + t.value + ". CLS: " + o + ".")
+                window.empire.cmd.push(function(apps) {
+                    var affiliate = apps.affiliate;
+                    if (!affiliate || !affiliate.isEnabled()) return;
+
+                    affiliate.init();
+                    affiliate.waitForPageLoad(function(){
+                        affiliate.processPage();
+                    });
+                });
+            </script>
+            <?php
+        }
+    }
+
+    // TODO: refactor/cleanup
+    public function injectSplitTestUtils() {
+        ?>
+        <script>
+            var utils = {
+                queryString: {},
+                init: function () {
+                    var t = this.queryString;
+                    location.search.slice(1).split("&").forEach(function (e) {
+                        e = e.split("="),
+                            t[e[0]] = decodeURIComponent(e[1] || "")
+                    }),
+                    "true" === t.debug_cls && this.logLayoutShift()
+                },
+                logLayoutShift: function () {
+                    function e(e) {
+                        for (i = 0; i < e.getEntries().length; i++) {
+                            var t = e.getEntries()[i];
+                            o += t.value,
+                                console.log("Layout shift: " + t.value + ". CLS: " + o + ".")
+                        }
+                    }
+
+                    var o = 0;
+                    try {
+                        new PerformanceObserver(e).observe({
+                            type: "layout-shift",
+                            buffered: !0
+                        })
+                    } catch (t) {
+                        console.log("PerformanceObserver not supported.")
+                    }
+                },
+                setCookie: function (e, t, o) {
+                    var n, r = new Date, i = 2147483647;
+                    void 0 !== o && (r.setTime(r.getTime() + 24 * o * 60 * 60 * 1e3),
+                        i = r.toUTCString()),
+                        n = "expires=" + i,
+                        document.cookie = e + "=" + t + ";" + n + ";path=/"
+                },
+                getCookie: function (e) {
+                    var t = document.cookie.match("(^|;) ?" + e + "=([^;]*)(;|$)");
+                    return t ? t[2] : null
+                },
+                deleteCookie: function (e) {
+                    utils.setCookie(e, "", -1)
+                },
+                loadScript: function (id, src) {
+                    if (document.getElementById(id)) return;
+                    var script = document.createElement('script');
+                    script.id = id;
+                    script.src = src;
+                    script.async = true;
+                    document.getElementsByTagName('head')[0].appendChild(script);
+                }
+            };
+            utils.init();
+
+            window.BVTests = function() {
+                function f() {
+                    o && console.log.apply(null, arguments)
+                };
+                function e(e, t) {
+                    if (!d[e]) {
+                        var o = utils.queryString[h];
+                        if (o) {
+                            o = o.split(",");
+                            for (var n = 0; n < o.length; n++) {
+                                var r = o[n].split("-");
+                                if (2 === r.length && r[0] === e)
+                                    return g[e] = r[1],
+                                        utils.setCookie(v + e, r[1]),
+                                        void f("User bucketed from query string param:", e, r[1])
                             }
                         }
-                        var o = 0;
-                        try {
-                            new PerformanceObserver(e).observe({
-                                type: "layout-shift",
-                                buffered: !0
-                            })
-                        } catch (t) {
-                            console.log("PerformanceObserver not supported.")
-                        }
-                    },
-                    setCookie: function(e, t, o) {
-                        var n, r = new Date, i = 2147483647;
-                        void 0 !== o && (r.setTime(r.getTime() + 24 * o * 60 * 60 * 1e3),
-                            i = r.toUTCString()),
-                            n = "expires=" + i,
-                            document.cookie = e + "=" + t + ";" + n + ";path=/"
-                    },
-                    getCookie: function(e) {
-                        var t = document.cookie.match("(^|;) ?" + e + "=([^;]*)(;|$)");
-                        return t ? t[2] : null
-                    },
-                    deleteCookie: function(e) {
-                        utils.setCookie(e, "", -1)
-                    },
-                    loadScript: function(e, t, o, n, r, i) {
-                        if (document.querySelector("#" + t))
-                            "function" == typeof n && n();
+                        var i = utils.getCookie(v + e);
+                        if (i && ("control" === i || i in t))
+                            f("User bucketed from cookie:", e, g[e] = i);
                         else {
-                            var s = e.createElement("script");
-                            s.src = o,
-                            s.id = t,
-                            s.async = true,
-                            "function" == typeof n && (s.onload = n),
-                            r && Object.entries(r).forEach(function(e) {
-                                s.setAttribute(e[0], e[1])
-                            }),
-                                (i = i || e.getElementsByTagName("head")[0]).appendChild(s)
+                            d[e] = t,
+                                g[e] = "control";
+                            var s, u = [];
+                            for (var a in t) {
+                                s = parseInt(t[a]);
+                                for (n = 0; n < s; n++)
+                                    u.push(a)
+                            }
+                            var c = u.length;
+                            if (c < 100)
+                                for (n = 0; n < 100 - c; n++)
+                                    u.push("control");
+                            f("weightedBuckets", u.length, u);
+                            var l = u[Math.floor(Math.random() * u.length)];
+                            f("user sampled:", s, e, l),
+                                g[e] = l,
+                                utils.setCookie(v + e, g[e]),
+                                f("user bucketed:", e, g[e])
                         }
                     }
                 };
-                utils.init();
-
-                window.BVTests = function() {
-                    function f() {
-                        o && console.log.apply(null, arguments)
-                    };
-                    function e(e, t) {
-                        if (!d[e]) {
-                            var o = utils.queryString[h];
-                            if (o) {
-                                o = o.split(",");
-                                for (var n = 0; n < o.length; n++) {
-                                    var r = o[n].split("-");
-                                    if (2 === r.length && r[0] === e)
-                                        return g[e] = r[1],
-                                            utils.setCookie(v + e, r[1]),
-                                            void f("User bucketed from query string param:", e, r[1])
-                                }
-                            }
-                            var i = utils.getCookie(v + e);
-                            if (i && ("control" === i || i in t))
-                                f("User bucketed from cookie:", e, g[e] = i);
-                            else {
-                                d[e] = t,
-                                    g[e] = "control";
-                                var s, u = [];
-                                for (var a in t) {
-                                    s = parseInt(t[a]);
-                                    for (n = 0; n < s; n++)
-                                        u.push(a)
-                                }
-                                var c = u.length;
-                                if (c < 100)
-                                    for (n = 0; n < 100 - c; n++)
-                                        u.push("control");
-                                f("weightedBuckets", u.length, u);
-                                var l = u[Math.floor(Math.random() * u.length)];
-                                f("user sampled:", s, e, l),
-                                    g[e] = l,
-                                    utils.setCookie(v + e, g[e]),
-                                    f("user bucketed:", e, g[e])
-                            }
-                        }
-                    };
-                    function t() {
-                        var e = [];
-                        for (var t in g) {
-                            var o = g[t];
-                            e.push(t + "-" + o)
-                        }
-                        return e
-                    };
-                    var d = {}
-                        , g = {}
-                        , v = "bv_test__"
-                        , h = "debug_bv_tests"
-                        , o = "debug_tests"in utils.queryString;
-
-                    return {
-                        create: e,
-                        getValue: function(e) {
-                            return g[e]
-                        },
-                        getUserBuckets: function() {
-                            return g
-                        },
-                        getTargetingValue: t
+                function t() {
+                    var e = [];
+                    for (var t in g) {
+                        var o = g[t];
+                        e.push(t + "-" + o)
                     }
-                }();
+                    return e
+                };
+                var d = {}
+                    , g = {}
+                    , v = "bv_test__"
+                    , h = "debug_bv_tests"
+                    , o = "debug_tests"in utils.queryString;
 
-                <?php
-                if (
-                        $this->organic->getOrganicPixelTestValue() &&
-                        $this->organic->getOrganicPixelTestPercent() !== null
-                ) {
-                    ?>
-                window.organicTestKey = "<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>";
-                BVTests.create('<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>', {
-                    enabled: <?php echo esc_js( $this->organic->getOrganicPixelTestPercent() ); ?>,
-                });
-
-                <?php } ?>
-            </script>
-            <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
-            <script>
-                if ( window.organicTestKey && BVTests.getValue(window.organicTestKey) === 'control' ) {
-                    // The below condition is a very specific case setup for Ads AB testing
-                    // Do nothing here, but rely on third party code to detect the use case and load the ads their way
+                return {
+                    create: e,
+                    getValue: function(e) {
+                        return g[e]
+                    },
+                    getUserBuckets: function() {
+                        return g
+                    },
+                    getTargetingValue: t
                 }
-                else {
-                    window.empire.apps.ads.targeting.tests = BVTests.getTargetingValue();
-
-                    /* Loading GPT script */
-                    utils.loadScript(document, 'gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js', null, {async:true});
-                    var loadDelay = 1000;
-
-                    (function() {
-                        function loadAds() {
-                            utils.loadScript(document, 'prebid-library', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
-                    <?php if ( $this->organic->getSdkVersion() == $this->organic->sdk::SDK_V1 ) { ?>
-                        <?php if ( $this->organic->getSiteId() ) { /* This only works if Site ID is set up */ ?>
-                            utils.loadScript(document, 'organic-sdk', "<?php echo esc_url( $this->organic->sdk->getSdkUrl() ); ?>");
-                        <?php } ?>
-                    <?php } ?>
-                        }
-
-                        <?php if ( $this->organic->useAdsSlotsPrefill() ) { ?>
-                        loadAds();
-                        <?php } else { ?>
-                        setTimeout(loadAds, loadDelay);
-                        <?php } ?>
-                    })();
-                }
-            </script>
-                <?php
-            } else {
-                // If we are not in test mode then we need to be loading up our ad stack as quickly as possible, which
-                // means that we should do it with <script> tags directly.
-                wp_print_script_tag(
-                    [
-                        'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
-                        'async' => true,
-                    ]
-                );
-                wp_print_script_tag(
-                    [
-                        'src' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
-                        'async' => true,
-                    ]
-                );
-                wp_print_script_tag(
-                    [
-                        'src' => $this->organic->sdk->getSdkUrl(),
-                        'async' => true,
-                    ]
-                );
-            }
-        }
+            }();
+        </script>
+        <?php
     }
 
     /**

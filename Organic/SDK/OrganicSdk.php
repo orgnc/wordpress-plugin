@@ -112,11 +112,11 @@ class OrganicSdk {
     }
 
     /**
-     * Builds the SDK URL to embed the JS SDK into web pages
+     * Builds the SDK V1 URL to embed the JS SDK into web pages
      *
      * @return string
      */
-    public function getSdkUrl() {
+    public function getSdkV1Url() {
         return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
     }
 
