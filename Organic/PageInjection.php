@@ -307,49 +307,78 @@ class PageInjection {
     public function injectSplitTestUtils() {
         ?>
         <script>
+            /*
+                Various reusable utilities and debugging tools
+            */
             var utils = {
                 queryString: {},
-                init: function () {
-                    var t = this.queryString;
-                    location.search.slice(1).split("&").forEach(function (e) {
-                        e = e.split("="),
-                            t[e[0]] = decodeURIComponent(e[1] || "")
-                    }),
-                    "true" === t.debug_cls && this.logLayoutShift()
-                },
-                logLayoutShift: function () {
-                    function e(e) {
-                        for (i = 0; i < e.getEntries().length; i++) {
-                            var t = e.getEntries()[i];
-                            o += t.value,
-                                console.log("Layout shift: " + t.value + ". CLS: " + o + ".")
-                        }
-                    }
+                init: function() {
+                    // parse and store the query string on init
+                    var queryString = this.queryString;
 
-                    var o = 0;
-                    try {
-                        new PerformanceObserver(e).observe({
-                            type: "layout-shift",
-                            buffered: !0
-                        })
-                    } catch (t) {
-                        console.log("PerformanceObserver not supported.")
+                    location.search.slice(1).split('&').forEach(function(pair) {
+                        pair = pair.split('=');
+                        queryString[pair[0]] = decodeURIComponent(pair[1] || '');
+                    });
+
+                    // log CLS to console if ?debug_cls=true
+                    if (queryString.debug_cls === 'true') {
+                        this.logLayoutShift();
                     }
                 },
-                setCookie: function (e, t, o) {
-                    var n, r = new Date, i = 2147483647;
-                    void 0 !== o && (r.setTime(r.getTime() + 24 * o * 60 * 60 * 1e3),
-                        i = r.toUTCString()),
-                        n = "expires=" + i,
-                        document.cookie = e + "=" + t + ";" + n + ";path=/"
+                logLayoutShift: function() {
+                    var totalShift = 0;
+
+                    try {
+                        function perfObserver(list) {
+                            for (i = 0; i < list.getEntries().length; i++) {
+                                var entry = list.getEntries()[i];
+
+                                totalShift += entry.value;
+                                console.log('Layout shift: ' + entry.value + '. CLS: ' + totalShift + '.');
+                            }
+                        }
+
+                        var po = new PerformanceObserver(perfObserver);
+
+                        po.observe({
+                            type: 'layout-shift',
+                            buffered: true
+                        });
+                    } catch (e) {
+                        console.log('PerformanceObserver not supported.');
+                    }
                 },
-                getCookie: function (e) {
-                    var t = document.cookie.match("(^|;) ?" + e + "=([^;]*)(;|$)");
-                    return t ? t[2] : null
+
+                setCookie: function(cname, cvalue, exDays) {
+                    var d = new Date();
+                    var exTime = 2147483647;  // The maximum, can be overridden with exDays
+                    var expires;
+                    if (typeof exDays !== 'undefined') {
+                        d.setTime(d.getTime() + (exDays*24*60*60*1000));
+                        exTime = d.toUTCString();
+                    }
+                    expires = "expires=" + exTime;
+                    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
                 },
-                deleteCookie: function (e) {
-                    utils.setCookie(e, "", -1)
+
+                getCookie: function(cname) {
+                    var v = document.cookie.match('(^|;) ?' + cname + '=([^;]*)(;|$)');
+                    return v ? v[2] : null;
                 },
+
+                deleteCookie: function(cname) {
+                    utils.setCookie(cname, '', -1);
+                },
+
+                /**
+                 * Load a script once.
+                 *
+                 * Use the id to ensure a script is only loaded once.
+                 *
+                 * @param id (str) The id for the script tag.
+                 * @param src (str) The source for the script.
+                 */
                 loadScript: function (id, src) {
                     if (document.getElementById(id)) return;
                     var script = document.createElement('script');
@@ -359,75 +388,127 @@ class PageInjection {
                     document.getElementsByTagName('head')[0].appendChild(script);
                 }
             };
+
             utils.init();
 
-            window.BVTests = function() {
-                function f() {
-                    o && console.log.apply(null, arguments)
-                };
-                function e(e, t) {
-                    if (!d[e]) {
-                        var o = utils.queryString[h];
-                        if (o) {
-                            o = o.split(",");
-                            for (var n = 0; n < o.length; n++) {
-                                var r = o[n].split("-");
-                                if (2 === r.length && r[0] === e)
-                                    return g[e] = r[1],
-                                        utils.setCookie(v + e, r[1]),
-                                        void f("User bucketed from query string param:", e, r[1])
+            window.BVTests = (function() {
+                var tests = {};
+                var userBuckets = {};
+                var cookiePrefix = 'bv_test__';
+                var debugParam = 'debug_bv_tests';
+                var debugLogs = ('debug_tests' in utils.queryString);
+
+
+                function _log() {
+                    if (!debugLogs) {
+                        return;
+                    }
+                    console.log.apply(null, arguments);
+                }
+
+                /**
+                 * Create a split test with a given name, bucket the user.
+                 *
+                 * @param name (str) The test name.
+                 * @param config (object) The test config.
+                 *
+                 * Config object contains bucket names and percentages. Control is not required and will
+                 * be ignored. Control will automatically get the leftover values.
+                 *
+                 * Example:
+                 *
+                 *   BVTests.create('someTest', {
+                 *     bucketA: 5
+                 *   });
+                 *
+                 * In the above example, we create a test called "someTest" where control is 95% and
+                 * bucketA is 5%;
+                 */
+                function create(name, config) {
+                    if (tests[name]) {
+                        return;
+                    }
+
+                    // If we're using a query string, force a bucket even if the bucket doesn't exist yet
+                    // Debug param would be something like `debug_bv_tests=testName-testBucket,test2Name-testBucket`
+                    var qsTests = utils.queryString[debugParam];
+                    if (qsTests) {
+                        qsTests = qsTests.split(',');
+                        for (var i=0; i<qsTests.length; i++) {
+                            var _qsTest = qsTests[i].split('-');
+                            if (_qsTest.length === 2 && _qsTest[0] === name) {
+                                userBuckets[name] = _qsTest[1];
+                                utils.setCookie(cookiePrefix + name, _qsTest[1]);
+                                _log('User bucketed from query string param:', name, _qsTest[1]);
+                                return;
                             }
                         }
-                        var i = utils.getCookie(v + e);
-                        if (i && ("control" === i || i in t))
-                            f("User bucketed from cookie:", e, g[e] = i);
-                        else {
-                            d[e] = t,
-                                g[e] = "control";
-                            var s, u = [];
-                            for (var a in t) {
-                                s = parseInt(t[a]);
-                                for (n = 0; n < s; n++)
-                                    u.push(a)
-                            }
-                            var c = u.length;
-                            if (c < 100)
-                                for (n = 0; n < 100 - c; n++)
-                                    u.push("control");
-                            f("weightedBuckets", u.length, u);
-                            var l = u[Math.floor(Math.random() * u.length)];
-                            f("user sampled:", s, e, l),
-                                g[e] = l,
-                                utils.setCookie(v + e, g[e]),
-                                f("user bucketed:", e, g[e])
+                    }
+
+                    // If the user is already cookied with a valid bucket, use it
+                    var cookiedBucket = utils.getCookie(cookiePrefix + name);
+                    if (cookiedBucket && (cookiedBucket === 'control' || cookiedBucket in config)) {
+                        userBuckets[name] = cookiedBucket;
+                        _log('User bucketed from cookie:', name, cookiedBucket);
+                        return;
+                    }
+
+                    tests[name] = config;
+                    userBuckets[name] = 'control';  // Default to control
+
+                    // Build the weighted bucket array
+                    var weightedBuckets = [];
+                    var rate;
+                    for (var bucket in config) {
+                        rate = parseInt(config[bucket]);
+                        for (var i=0; i<rate; i++) {
+                            weightedBuckets.push(bucket);
                         }
                     }
-                };
-                function t() {
-                    var e = [];
-                    for (var t in g) {
-                        var o = g[t];
-                        e.push(t + "-" + o)
+
+                    // Fill the remaining with "control"
+                    var total = weightedBuckets.length;
+                    if (total < 100) {
+                        for (var i=0; i<(100-total); i++) {
+                            weightedBuckets.push('control');
+                        }
                     }
-                    return e
-                };
-                var d = {}
-                    , g = {}
-                    , v = "bv_test__"
-                    , h = "debug_bv_tests"
-                    , o = "debug_tests"in utils.queryString;
+
+                    _log('weightedBuckets', weightedBuckets.length, weightedBuckets);
+
+                    // Choose a bucket at random
+                    var selected = weightedBuckets[Math.floor(Math.random() * weightedBuckets.length)];
+                    _log('user sampled:', rate, name, selected);
+                    userBuckets[name] = selected;
+
+                    // Set the users bucket as a cookie
+                    utils.setCookie(cookiePrefix + name, userBuckets[name]);
+                    _log('user bucketed:', name, userBuckets[name]);
+                }
+
+                /**
+                 * Build the targeting string based on tests created.
+                 *
+                 * Example: testName-testBucket,test2Name-testBucket
+                 *
+                 * TODO: Add validation on name and value. Cannot contain '-' or ','.
+                 */
+                function getTargetingValue() {
+                    var targeting = [];
+                    for (var name in userBuckets) {
+                        var value = userBuckets[name];
+                        targeting.push(name + '-' + value);
+                    }
+                    return targeting;
+                }
 
                 return {
-                    create: e,
-                    getValue: function(e) {
-                        return g[e]
-                    },
-                    getUserBuckets: function() {
-                        return g
-                    },
-                    getTargetingValue: t
+                    create: create,
+                    getValue: function(name) { return userBuckets[name]; },
+                    getUserBuckets: function() { return userBuckets; },
+                    getTargetingValue: getTargetingValue
                 }
-            }();
+            })();
         </script>
         <?php
     }
