@@ -27,11 +27,6 @@ class Organic {
     private $isEnabled = false;
 
     /**
-     * @var bool True if we need to load via JavaScript
-     */
-    private $isTestMode = false;
-
-    /**
      * @var AdsTxt
      */
     private $adsTxt;
@@ -52,14 +47,19 @@ class Organic {
     private $feedImages = false;
 
     /**
-     * @var int % of traffic to send to Organic SDK instead of Organic Pixel
+     * @var bool True if we need to load via JavaScript
      */
-    private $organicPixelTestPercent = 0;
+    private $splitTestEnabled = false;
+
+    /**
+     * @var int % of traffic to send to Organic SDK instead of default implementation
+     */
+    private $splitTestPercent = 0;
 
     /**
      * @var string|null Name of the split test to use (must be tied to GAM value in 'tests' key)
      */
-    private $organicPixelTestValue = null;
+    private $splitTestKey = null;
 
     /**
      * @var string Organic environment
@@ -231,7 +231,6 @@ class Organic {
         $this->adsTxt = new AdsTxt( $this );
 
         $this->isEnabled = $this->getOption( 'organic::enabled' );
-        $this->isTestMode = $this->getOption( 'organic::test_mode' );
         // Uses old `amp_ads_enabled` but controls AMP overall
         $this->ampEnabled = $this->getOption( 'organic::amp_ads_enabled' );
         $this->injectAdsConfig = $this->getOption( 'organic::inject_ads_config' );
@@ -239,8 +238,9 @@ class Organic {
         $this->prefillEnabled = $this->getOption( 'organic::ad_slots_prefill_enabled' );
         $this->cmp = $this->getOption( 'organic::cmp' );
         $this->oneTrustId = $this->getOption( 'organic::one_trust_id' );
-        $this->organicPixelTestPercent = intval( $this->getOption( 'organic::percent_test' ) );
-        $this->organicPixelTestValue = $this->getOption( 'organic::test_value' );
+        $this->splitTestEnabled = $this->getOption( 'organic::test_mode' );
+        $this->splitTestPercent = intval( $this->getOption( 'organic::percent_test' ) );
+        $this->splitTestKey = $this->getOption( 'organic::test_value' );
 
         $this->feedImages = $this->getOption( 'organic::feed_images' );
 
@@ -297,11 +297,12 @@ class Organic {
      */
     public function useSplitTest() : bool {
         return (
-            $this->isTestMode &&
-            $this->getOrganicPixelTestValue() &&
-            ($this->getOrganicPixelTestPercent() !== null) &&
-            $this->getOrganicPixelTestPercent() <= 100 &&
-            $this->getOrganicPixelTestPercent() >= 0
+            $this->isEnabledAndConfigured() &&
+            $this->splitTestEnabled &&
+            $this->getSplitTestKey() &&
+            ($this->getSplitTestPercent() !== null) &&
+            $this->getSplitTestPercent() <= 100 &&
+            $this->getSplitTestPercent() >= 0
         );
     }
 
@@ -1241,15 +1242,15 @@ class Organic {
     /**
      * @return string|null
      */
-    public function getOrganicPixelTestValue() {
-        return $this->organicPixelTestValue;
+    public function getSplitTestKey() {
+        return $this->splitTestKey;
     }
 
     /**
      * @return int
      */
-    public function getOrganicPixelTestPercent(): int {
-        return $this->organicPixelTestPercent;
+    public function getSplitTestPercent(): int {
+        return $this->splitTestPercent;
     }
 
     public static function captureException( \Exception $e ) {

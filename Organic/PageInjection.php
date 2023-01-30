@@ -141,8 +141,8 @@ class PageInjection {
         $this->injectPrefetchHeaders();
         $this->injectBrowserSDKConfiguration();
         if ( ! $this->organic->useSplitTest() ) {
-            // If we are not in test mode then we need to be loading up our ad stack as quickly as possible, which
-            // means that we should do it with <script> tags directly.
+            // If we are not running split test then we need to be loading up our ad stack as quickly as possible,
+            // which means that we should do it with <script> tags directly.
             if ($this->organic->useAdsOnPage()) {
                 wp_print_script_tag(
                     [
@@ -170,21 +170,24 @@ class PageInjection {
             $this->injectSplitTestUtils(); ?>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
             <script>
-                window.organicTestKey = "<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>";
-                BVTests.create('<?php echo esc_js( $this->organic->getOrganicPixelTestValue() ); ?>', {
-                    enabled: <?php echo esc_js( $this->organic->getOrganicPixelTestPercent() ); ?>,
-                });
+                (function (){
+                    var splitTest = window.organic.splitTest;
+                    var splitTestKey = "<?php echo esc_js( $this->organic->getSplitTestKey() ); ?>";
+                    splitTest.create(splitTestKey, {
+                        enabled: <?php echo esc_js( $this->organic->getSplitTestPercent() ); ?>,
+                    });
 
-                if ( window.organicTestKey && BVTests.getValue(window.organicTestKey) === 'control' ) {
-                    // The below condition is a very specific case setup for Ads AB testing
-                    // Do nothing here, but rely on third party code to detect the use case and load the ads their way
-                } else {
+                    if ( splitTest.getValue(splitTestKey) === 'control' ) {
+                        // Do nothing here, but rely on third party code to detect the use case and load the ads their way
+                        return;
+                    }
+
                     <?php if ( $this->organic->useAdsOnPage() ) { ?>
-                        utils.loadScript('gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js');
-                        utils.loadScript('organic-prebid', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
+                    splitTest.loadScript('gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js');
+                    splitTest.loadScript('organic-prebid', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
                     <?php } ?>
-                    utils.loadScript('organic-sdk', "<?php echo esc_url( $this->organic->getSdkUrl() ); ?>");
-                }
+                    splitTest.loadScript('organic-sdk', "<?php echo esc_url( $this->organic->getSdkUrl() ); ?>");
+                })();
             </script>
             <?php
         }
@@ -268,6 +271,14 @@ class PageInjection {
                     var ads = apps.ads;
                     if (!ads || !ads.isEnabled()) return;
 
+                    function getSplitTestValue() {
+                        var organic = window.organic || {};
+                        if (!organic.splitTest) return;
+                        if (!((typeof organic.splitTest.getTargetingValue) == 'function')) return;
+
+                        return organic.splitTest.getTargetingValue();
+                    }
+
                     ads.init();
                     ads.setTargeting({
                         pageId: '<?php echo esc_js( $gamPageId ); ?>',
@@ -276,7 +287,7 @@ class PageInjection {
                         disableKeywordReporting: false,
                         section: '<?php echo esc_js( $sectionString ); ?>',
                         disableSectionReporting: false,
-                        tests: window.BVTests ? window.BVTests.getTargetingValue() : undefined,
+                        tests: getSplitTestValue(),
                     });
                     ads.waitForPageLoad(function(){
                         ads.initializeAds();
@@ -303,54 +314,32 @@ class PageInjection {
         }
     }
 
-    // TODO: refactor/cleanup
     public function injectSplitTestUtils() {
         ?>
         <script>
-            /*
-                Various reusable utilities and debugging tools
-            */
-            var utils = {
-                queryString: {},
-                init: function() {
-                    // parse and store the query string on init
-                    var queryString = this.queryString;
+            window.organic = window.organic || {};
+            window.organic.splitTest = (function() {
+                var _tests = {};
+                var _userBuckets = {};
+                var _cookiePrefix = 'organic_splittest__';
+                var _debugParam = 'organic-splittest-debug';
+                var _queryString = (function() {
+                    var query = {};
 
                     location.search.slice(1).split('&').forEach(function(pair) {
                         pair = pair.split('=');
-                        queryString[pair[0]] = decodeURIComponent(pair[1] || '');
+                        query[pair[0]] = decodeURIComponent(pair[1] || '');
                     });
+                    return query;
+                })();
+                var _debugLogs = ('organic-splittest-logs' in _queryString);
 
-                    // log CLS to console if ?debug_cls=true
-                    if (queryString.debug_cls === 'true') {
-                        this.logLayoutShift();
-                    }
-                },
-                logLayoutShift: function() {
-                    var totalShift = 0;
+                function _log() {
+                    if (!_debugLogs) return;
+                    console.log.apply(null, arguments);
+                }
 
-                    try {
-                        function perfObserver(list) {
-                            for (i = 0; i < list.getEntries().length; i++) {
-                                var entry = list.getEntries()[i];
-
-                                totalShift += entry.value;
-                                console.log('Layout shift: ' + entry.value + '. CLS: ' + totalShift + '.');
-                            }
-                        }
-
-                        var po = new PerformanceObserver(perfObserver);
-
-                        po.observe({
-                            type: 'layout-shift',
-                            buffered: true
-                        });
-                    } catch (e) {
-                        console.log('PerformanceObserver not supported.');
-                    }
-                },
-
-                setCookie: function(cname, cvalue, exDays) {
+                function _setCookie(cname, cvalue, exDays) {
                     var d = new Date();
                     var exTime = 2147483647;  // The maximum, can be overridden with exDays
                     var expires;
@@ -360,51 +349,12 @@ class PageInjection {
                     }
                     expires = "expires=" + exTime;
                     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-                },
+                };
 
-                getCookie: function(cname) {
+                function _getCookie(cname) {
                     var v = document.cookie.match('(^|;) ?' + cname + '=([^;]*)(;|$)');
                     return v ? v[2] : null;
-                },
-
-                deleteCookie: function(cname) {
-                    utils.setCookie(cname, '', -1);
-                },
-
-                /**
-                 * Load a script once.
-                 *
-                 * Use the id to ensure a script is only loaded once.
-                 *
-                 * @param id (str) The id for the script tag.
-                 * @param src (str) The source for the script.
-                 */
-                loadScript: function (id, src) {
-                    if (document.getElementById(id)) return;
-                    var script = document.createElement('script');
-                    script.id = id;
-                    script.src = src;
-                    script.async = true;
-                    document.getElementsByTagName('head')[0].appendChild(script);
-                }
-            };
-
-            utils.init();
-
-            window.BVTests = (function() {
-                var tests = {};
-                var userBuckets = {};
-                var cookiePrefix = 'bv_test__';
-                var debugParam = 'debug_bv_tests';
-                var debugLogs = ('debug_tests' in utils.queryString);
-
-
-                function _log() {
-                    if (!debugLogs) {
-                        return;
-                    }
-                    console.log.apply(null, arguments);
-                }
+                };
 
                 /**
                  * Create a split test with a given name, bucket the user.
@@ -417,7 +367,7 @@ class PageInjection {
                  *
                  * Example:
                  *
-                 *   BVTests.create('someTest', {
+                 *   window.organic.splitTest.create('someTest', {
                  *     bucketA: 5
                  *   });
                  *
@@ -425,36 +375,36 @@ class PageInjection {
                  * bucketA is 5%;
                  */
                 function create(name, config) {
-                    if (tests[name]) {
+                    if (_tests[name]) {
                         return;
                     }
 
                     // If we're using a query string, force a bucket even if the bucket doesn't exist yet
-                    // Debug param would be something like `debug_bv_tests=testName-testBucket,test2Name-testBucket`
-                    var qsTests = utils.queryString[debugParam];
+                    // Debug param would be something like `organic-debug-splittest=testName-testBucket,test2Name-testBucket`
+                    var qsTests = _queryString[_debugParam];
                     if (qsTests) {
                         qsTests = qsTests.split(',');
                         for (var i=0; i<qsTests.length; i++) {
-                            var _qsTest = qsTests[i].split('-');
-                            if (_qsTest.length === 2 && _qsTest[0] === name) {
-                                userBuckets[name] = _qsTest[1];
-                                utils.setCookie(cookiePrefix + name, _qsTest[1]);
-                                _log('User bucketed from query string param:', name, _qsTest[1]);
+                            var qsTest = qsTests[i].split('-');
+                            if (qsTest.length === 2 && qsTest[0] === name) {
+                                _userBuckets[name] = qsTest[1];
+                                _setCookie(_cookiePrefix + name, qsTest[1]);
+                                _log('User bucketed from query string param:', name, qsTest[1]);
                                 return;
                             }
                         }
                     }
 
                     // If the user is already cookied with a valid bucket, use it
-                    var cookiedBucket = utils.getCookie(cookiePrefix + name);
+                    var cookiedBucket = _getCookie(_cookiePrefix + name);
                     if (cookiedBucket && (cookiedBucket === 'control' || cookiedBucket in config)) {
-                        userBuckets[name] = cookiedBucket;
+                        _userBuckets[name] = cookiedBucket;
                         _log('User bucketed from cookie:', name, cookiedBucket);
                         return;
                     }
 
-                    tests[name] = config;
-                    userBuckets[name] = 'control';  // Default to control
+                    _tests[name] = config;
+                    _userBuckets[name] = 'control';  // Default to control
 
                     // Build the weighted bucket array
                     var weightedBuckets = [];
@@ -479,11 +429,11 @@ class PageInjection {
                     // Choose a bucket at random
                     var selected = weightedBuckets[Math.floor(Math.random() * weightedBuckets.length)];
                     _log('user sampled:', rate, name, selected);
-                    userBuckets[name] = selected;
+                    _userBuckets[name] = selected;
 
                     // Set the users bucket as a cookie
-                    utils.setCookie(cookiePrefix + name, userBuckets[name]);
-                    _log('user bucketed:', name, userBuckets[name]);
+                    _setCookie(_cookiePrefix + name, _userBuckets[name]);
+                    _log('user bucketed:', name, _userBuckets[name]);
                 }
 
                 /**
@@ -495,20 +445,40 @@ class PageInjection {
                  */
                 function getTargetingValue() {
                     var targeting = [];
-                    for (var name in userBuckets) {
-                        var value = userBuckets[name];
+                    for (var name in _userBuckets) {
+                        var value = _userBuckets[name];
                         targeting.push(name + '-' + value);
                     }
                     return targeting;
                 }
 
+                /**
+                 * Load a script once.
+                 *
+                 * Use the id to ensure a script is only loaded once.
+                 *
+                 * @param id (str) The id for the script tag.
+                 * @param src (str) The source for the script.
+                 */
+                function loadScript(id, src) {
+                    if (document.getElementById(id)) return;
+                    var script = document.createElement('script');
+                    script.id = id;
+                    script.src = src;
+                    script.async = true;
+                    document.getElementsByTagName('head')[0].appendChild(script);
+                }
+
                 return {
                     create: create,
-                    getValue: function(name) { return userBuckets[name]; },
-                    getUserBuckets: function() { return userBuckets; },
-                    getTargetingValue: getTargetingValue
+                    getValue: function(name) { return _userBuckets[name]; },
+                    getUserBuckets: function() { return _userBuckets; },
+                    getTargetingValue: getTargetingValue,
+                    loadScript: loadScript
                 }
             })();
+            // TODO: delete after full migration to organic.splitTest
+            window.BVTests = window.organic.splitTest
         </script>
         <?php
     }
