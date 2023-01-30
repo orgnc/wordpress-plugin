@@ -140,10 +140,10 @@ class GraphQL {
                         'adsEnabled' => $this->organic->isEnabled(),
                         'adsTestEnabled' => $testEnabled,
                         'adsTestPercentEnabled' => $testEnabled
-                            ? $this->organic->getOrganicPixelTestPercent()
+                            ? $this->organic->getSplitTestPercent()
                             : null,
                         'adsTestSplitTestKey' => $testEnabled
-                            ? $this->organic->getOrganicPixelTestValue()
+                            ? $this->organic->getSplitTestKey()
                             : null,
                         'adsTxt' => $this->organic->getAdsTxtManager()->get(),
                         'ampAdsEnabled' => $this->organic->useAmp(),
