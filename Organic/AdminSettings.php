@@ -8,7 +8,6 @@ class AdminSettings {
      * @var Organic
      */
     private $organic;
-    private $update_results = [];
 
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
@@ -197,13 +196,11 @@ class AdminSettings {
                     false
                 );
                 $this->organic->sdk->updateToken( sanitize_text_field( $_POST['organic_sdk_key'] ) );
-                $this->update_results[] = 'updated';
             }
         }
 
         $this->syncSettings();
         $this->showSettings();
-        $this->showNotices();
     }
 
     protected function syncSettings() {
@@ -218,7 +215,6 @@ class AdminSettings {
             case 'Update and sync':
                 $result = $this->organic->syncAdConfig();
                 if ( isset( $result['updated'] ) ) {
-                    $this->update_results[] = 'synced';
                     AdminNotice::success( 'Updated and synced successfully.' );
                 } else {
                     AdminNotice::warning( 'Updated but not synced.' );
@@ -228,10 +224,6 @@ class AdminSettings {
             default:
                 AdminNotice::success( 'Updated successfully.' );
         }
-    }
-
-    protected function showNotices() {
-        AdminNotice::showNotices();
     }
 
     public function showSettings() {
@@ -256,14 +248,12 @@ class AdminSettings {
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
-        if ( $this->update_results ) {
-            $update_status = '<span class="update_success">' . join( ', ', $this->update_results ) . ' successfully </span>';
-        } else {
-            $update_status = '';
-        }
         ?>
         <div class="wrap">
-            <h2>Organic Settings</h2>
+            <div id="organic-notices">
+                <?php AdminNotice::showNotices(); ?>
+            </div>
+            <h2>Organic Plugin</h2>
             <form method="post">
                 <?php wp_nonce_field( 'organic_settings' ); ?>
                 <p><label><input type="checkbox" name="organic_enabled"
@@ -271,7 +261,7 @@ class AdminSettings {
                         Enabled</label></p>
 
                 <hr />
-                <h3>Organic Settings</h3>
+                <h3>Settings</h3>
                 <p><label>SDK version:
                     <select id="organic_sdk_version" name="organic_sdk_version">
                         <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V1 ); ?>" <?php echo esc_html( ( $sdk_version == $this->organic->sdk::SDK_V1 ? 'selected="selected"' : '' ) ); ?>>v1</option>
@@ -380,7 +370,6 @@ class AdminSettings {
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
                     &nbsp;
                     <input id="update-and-sync-submit" type="submit" name="organic_update" value="Update and sync" />
-                    <?php echo esc_html( $update_status ); ?>
                 </p>
             </form>
 

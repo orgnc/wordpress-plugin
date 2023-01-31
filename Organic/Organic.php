@@ -1138,7 +1138,7 @@ class Organic {
     public function syncAdsRefreshRates() {
         $rates = $this->sdk->queryAdsRefreshRates();
 
-        $this->debug( 'Got ads refresh rates for: ' . $rates['targetType'] . ':' . $rates['targetGuid'] );
+        $this->debug( 'Got ads refresh rates: ', $rates );
         $this->updateOption( 'organic::ads_refresh_rates', $rates, false );
     }
 
