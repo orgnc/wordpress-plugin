@@ -43,69 +43,13 @@ class GraphQL {
         return [
             'description' => $this->organic->t( 'Sitewide Configuration for Organic Platform', 'organic' ),
             'fields' => [
-                'adsEnabled' => [
+                'organicEnabled' => [
                     'type' => 'Boolean',
-                    'description' => $this->organic->t( 'Are we running with Organic Ads?', 'organic' ),
+                    'description' => $this->organic->t( 'Organic sync and SDK are enabled', 'organic' ),
                 ],
-                'testModeEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t(
-                        'Should ad tags be directly on the page or dynamically loaded via JavaScript?',
-                        'organic'
-                    ),
-                ],
-                'adsTestEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t(
-                        'If ads are enabled only for a subset of traffic',
-                        'organic'
-                    ),
-                ],
-                'adsTestPercentEnabled' => [
-                    'type' => 'Int',
-                    'description' => $this->organic->t(
-                        'If testing ads, what % of traffic is enabled?',
-                        'organic'
-                    ),
-                ],
-                'adsTestSplitTestKey' => [
+                'sdkVersion' => [
                     'type' => 'String',
-                    'description' => $this->organic->t( 'If testing ads, key to send to GA and GAM', 'organic' ),
-                ],
-                'adsTxt' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( 'Contents of ads.txt Managed by Organic Ads', 'organic' ),
-                ],
-                'ampAdsEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t( 'If true, show ads on AMP pages', 'organic' ),
-                ],
-                'oneTrustEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t( 'Should we use OneTrust as our CMP?', 'organic' ),
-                ],
-                'oneTrustSiteId' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( 'Site ID from OneTrust for the CMP config', 'organic' ),
-                ],
-                'preloadConfigEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t( 'If true, preload config JSON in site code', 'organic' ),
-                ],
-                'preloadConfigRules' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( 'JSON of the display (blocking) rules', 'organic' ),
-                ],
-                'preloadContainersEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t(
-                        'If true, include pre-sized divs in the DOM for optimal CLS scores',
-                        'organic'
-                    ),
-                ],
-                'preloadContainersConfig' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( 'JSON of the placement rules', 'organic' ),
+                    'description' => $this->organic->t( 'SDK version', 'organic' ),
                 ],
                 'siteDomain' => [
                     'type' => 'String',
@@ -115,13 +59,108 @@ class GraphQL {
                     'type' => 'String',
                     'description' => $this->organic->t( 'Site ID for this site within Organic', 'organic' ),
                 ],
+                'sdkUrl' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( 'URL to load Organic SDK from', 'organic' ),
+                ],
+                'oneTrustEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t( 'Should we use OneTrust as our CMP?', 'organic' ),
+                ],
+                'oneTrustSiteId' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( 'Site ID from OneTrust for the CMP config', 'organic' ),
+                ],
+                'adsEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t( 'Are we using Organic Ads?', 'organic' ),
+                ],
                 'adsRawData' => [
                     'type' => 'String',
                     'description' => $this->organic->t( 'JSON of the raw Ads rules', 'organic' ),
                 ],
-                'sdkVersion' => [
+                'adsPrebidUrl' => [
                     'type' => 'String',
-                    'description' => $this->organic->t( 'SDK version', 'organic' ),
+                    'description' => $this->organic->t( 'URL to load Organic SDK from', 'organic' ),
+                ],
+                'affiliateEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t( 'Are we using Organic Affiliate?', 'organic' ),
+                ],
+                'splitTestEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t(
+                        'If Organic SDK is enabled only for a subset of traffic',
+                        'organic'
+                    ),
+                ],
+                'splitTestPercent' => [
+                    'type' => 'Int',
+                    'description' => $this->organic->t(
+                        'If testing Organic SDK, what % of traffic is enabled?',
+                        'organic'
+                    ),
+                ],
+                'splitTestKey' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( 'If testing ads, key to send to GA and GAM', 'organic' ),
+                ],
+                'ampEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t( 'If true, show ads on AMP pages', 'organic' ),
+                ],
+                'prefillEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t(
+                        'If true, include pre-sized divs in the DOM for optimal CLS scores',
+                        'organic'
+                    ),
+                ],
+
+                'adsTestEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t(
+                        '[DEPRECATED] If ads are enabled only for a subset of traffic',
+                        'organic'
+                    ),
+                ],
+                'adsTestPercentEnabled' => [
+                    'type' => 'Int',
+                    'description' => $this->organic->t(
+                        '[DEPRECATED] If testing ads, what % of traffic is enabled?',
+                        'organic'
+                    ),
+                ],
+                'adsTestSplitTestKey' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( '[DEPRECATED] If testing ads, key to send to GA and GAM', 'organic' ),
+                ],
+                'adsTxt' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( '[DEPRECATED] Contents of ads.txt Managed by Organic Ads', 'organic' ),
+                ],
+                'ampAdsEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t( '[DEPRECATED] If true, show ads on AMP pages', 'organic' ),
+                ],
+                'preloadConfigEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t( '[DEPRECATED] If true, preload config JSON in site code', 'organic' ),
+                ],
+                'preloadConfigRules' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( '[DEPRECATED] JSON of the display (blocking) rules', 'organic' ),
+                ],
+                'preloadContainersEnabled' => [
+                    'type' => 'Boolean',
+                    'description' => $this->organic->t(
+                        '[DEPRECATED] If true, include pre-sized divs in the DOM for optimal CLS scores',
+                        'organic'
+                    ),
+                ],
+                'preloadContainersConfig' => [
+                    'type' => 'String',
+                    'description' => $this->organic->t( '[DEPRECATED] JSON of the placement rules', 'organic' ),
                 ],
             ],
         ];
@@ -137,7 +176,29 @@ class GraphQL {
                 'resolve' => function() {
                     $testEnabled = $this->organic->useSplitTest();
                     return [
-                        'adsEnabled' => $this->organic->isEnabled(),
+                        'organicEnabled' => $this->organic->isEnabledAndConfigured(),
+                        'sdkVersion' => $this->organic->getSdkVersion(),
+                        'siteDomain' => $this->organic->siteDomain,
+                        'siteId' => $this->organic->getSiteId(),
+                        'sdkUrl' => $this->organic->getSdkUrl(),
+                        'oneTrustEnabled' => $this->organic->useCmpOneTrust(),
+                        'oneTrustSiteId' => $this->organic->getOneTrustId(),
+                        'adsEnabled' => $this->organic->useAds(),
+                        'adsRawData' => $this->organic->getAdsConfig()->raw
+                            ? json_encode( $this->organic->getAdsConfig()->raw )
+                            : '[]',
+                        'adsPrebidUrl' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
+                        'affiliateEnabled' => $this->organic->useAffiliate(),
+                        'splitTestEnabled' => $testEnabled,
+                        'splitTestPercent' => $testEnabled
+                            ? $this->organic->getSplitTestPercent()
+                            : null,
+                        'splitTestKey' => $testEnabled
+                            ? $this->organic->getSplitTestKey()
+                            : null,
+                        'ampEnabled' => $this->organic->useAmp(),
+                        'prefillEnabled' => $this->organic->usePrefill(),
+
                         'adsTestEnabled' => $testEnabled,
                         'adsTestPercentEnabled' => $testEnabled
                             ? $this->organic->getSplitTestPercent()
@@ -147,8 +208,6 @@ class GraphQL {
                             : null,
                         'adsTxt' => $this->organic->getAdsTxtManager()->get(),
                         'ampAdsEnabled' => $this->organic->useAmp(),
-                        'oneTrustEnabled' => $this->organic->useCmpOneTrust(),
-                        'oneTrustSiteId' => $this->organic->getOneTrustId(),
                         'preloadConfigEnabled' => $this->organic->useInjectedAdsConfig(),
                         'preloadConfigRules' => $this->organic->getAdsConfig()->adRules
                             ? json_encode( $this->organic->getAdsConfig()->adRules )
@@ -156,12 +215,6 @@ class GraphQL {
                         'preloadContainersEnabled' => $this->organic->usePrefill(),
                         'preloadContainersConfig' => $this->organic->getAdsConfig()->forPlacement
                             ? json_encode( $this->organic->getAdsConfig()->forPlacement )
-                            : '[]',
-                        'siteDomain' => $this->organic->siteDomain,
-                        'siteId' => $this->organic->getSiteId(),
-                        'sdkVersion' => $this->organic->getSdkVersion(),
-                        'adsRawData' => $this->organic->getAdsConfig()->raw
-                            ? json_encode( $this->organic->getAdsConfig()->raw )
                             : '[]',
                     ];
                 },
