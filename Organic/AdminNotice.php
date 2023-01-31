@@ -9,21 +9,12 @@ class AdminNotice {
     const TYPE_INFO = 'info';
 
     private static $notices = [];
-    private static $hook_added = null;
-
-    public static function registerHook() {
-        if ( static::$hook_added ) {
-            return;
-        }
-        add_action( 'admin_notices', [ static::class, 'showNotices' ] );
-        static::$hook_added = true;
-    }
 
     public static function showNotices() {
         foreach ( static::$notices as $notice ) {
             $is_dismissible = $notice['is_dismissible'] ? 'is-dismissible' : '';
             ?>
-            <div class="notice notice-<?php echo esc_attr( $notice['type'] ); ?> <?php echo esc_attr( $is_dismissible ); ?>">
+            <div class="inline notice notice-<?php echo esc_attr( $notice['type'] ); ?> <?php echo esc_attr( $is_dismissible ); ?>">
                 <p><?php echo esc_html( $notice['message'] ); ?></p>
             </div>
             <?php
