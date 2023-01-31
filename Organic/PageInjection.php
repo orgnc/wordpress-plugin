@@ -169,7 +169,7 @@ class PageInjection {
         } else {
             $this->injectSplitTestUtils(); ?>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
-            <script>
+            <script id="organic-splittest-run">
                 (function (){
                     var splitTest = window.organic.splitTest;
                     var splitTestKey = "<?php echo esc_js( $this->organic->getSplitTestKey() ); ?>";
@@ -206,32 +206,35 @@ class PageInjection {
 
     public function injectBrowserSDKConfiguration() {
         ?>
-        <script>
+        <script id="organic-sdk-preparation">
             window.__organic_usp_cookie = 'ne-opt-out';
             window.__trackadm_usp_cookie = 'ne-opt-out';
             window.__empire_usp_cookie = 'ne-opt-out';
 
             window.empire = window.empire || {};
-            window.empire.cmd = window.empire.cmd || [];
-            window.empire.disableSDKAutoInitialization = true;
+            // Use `empire` as a "source of truth"
+            window.organic = window.empire || window.organic; // now `organic` and `empire` reference the same js object
+
+            window.organic.cmd = window.organic.cmd || [];
+            window.organic.disableSDKAutoInitialization = true;
             // disable calling `processPage` during `init`
             // TODO-sdk: do not call `processPage` if `disableSDKAutoInitialization` is true
-            window.empire._disableAffiliateAutoProcessing = true;
+            window.organic._disableAffiliateAutoProcessing = true;
         </script>
         <?php
 
         if ( $this->organic->useAdsOnPage() && $this->organic->useInjectedAdsConfig() ) {
             // TODO: get rid of it after switch to the SDKv2
             ?>
-            <script>
+            <script id="organic-sdk-ads-inject-config">
                 // Using deprecated configuration method to inject AdConfig for SDKv1
-                window.empire.apps = window.empire.apps || {};
-                window.empire.apps.ads = window.empire.apps.ads || {};
+                window.organic.apps = window.organic.apps || {};
+                window.organic.apps.ads = window.organic.apps.ads || {};
                 (function (){
                     var siteDomain = "<?php echo esc_js( $this->organic->siteDomain ); ?>";
                     var adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
                     adConfig.site = siteDomain;
-                    window.empire.apps.ads.config = adConfig;
+                    window.organic.apps.ads.config = adConfig;
                 })();
             </script>
             <?php
@@ -239,8 +242,8 @@ class PageInjection {
 
         // Core SDK is always enabled in SDKv2 (for SDKv1 it will be just undefined)
         ?>
-        <script>
-            window.empire.cmd.push(function(apps) {
+        <script id="organic-sdk-core-init">
+            window.organic.cmd.push(function(apps) {
                 if (!apps.core) return;
                 apps.core.init();
             });
@@ -266,8 +269,8 @@ class PageInjection {
 
             // Configure Ads SDK
             ?>
-            <script>
-                window.empire.cmd.push(function(apps) {
+            <script id="organic-sdk-ads-init">
+                window.organic.cmd.push(function(apps) {
                     var ads = apps.ads;
                     if (!ads || !ads.isEnabled()) return;
 
@@ -299,8 +302,8 @@ class PageInjection {
 
         if ( $this->organic->useAffiliateOnPage() ) {
             ?>
-            <script>
-                window.empire.cmd.push(function(apps) {
+            <script id="organic-sdk-affiliate-init">
+                window.organic.cmd.push(function(apps) {
                     var affiliate = apps.affiliate;
                     if (!affiliate || !affiliate.isEnabled()) return;
 
@@ -316,7 +319,7 @@ class PageInjection {
 
     public function injectSplitTestUtils() {
         ?>
-        <script>
+        <script id="organic-splittest-utils">
             window.organic = window.organic || {};
             window.organic.splitTest = (function() {
                 var _tests = {};
