@@ -43,6 +43,13 @@ class AdminSettings {
                     var adsTxtContainer = document.getElementById('cont_organic_sync_ads_txt');
                     adsTxtContainer.style.display = adsTxtCheckbox.checked ? 'none' : 'block';
                 });
+
+                // Split testing
+                var splitTestCheckbox = document.getElementById('organic_test_mode');
+                splitTestCheckbox.addEventListener('change', function() {
+                    var splitTestConfigContainer = document.getElementById('organic-splittest-config');
+                    splitTestConfigContainer.style.display = splitTestCheckbox.checked ? 'block' : 'none';
+                });
             });
             }());
         </script>
@@ -361,10 +368,12 @@ class AdminSettings {
 
                 <hr />
                 <p><label><input type="checkbox" name="organic_test_mode"
-                                 id="organic_test_mode" <?php echo $test_mode ? 'checked' : ''; ?>> Test Mode Enabled
+                                 id="organic_test_mode" <?php echo $test_mode ? 'checked' : ''; ?>> Split testing
                     </label></p>
-                <p><label>% of ads on Organic Ads: <input type="text" name="organic_percent" id="organic_percent" value="<?php echo esc_attr( $organic_test ); ?>" /></label></p>
-                <p><label>Key-Value for Split Test: <input type="text" name="organic_value" id="organic_value" value="<?php echo esc_attr( $organic_value ); ?>" /></label></p>
+                <div id="organic-splittest-config" style="display: <?php echo ( $test_mode ? 'block' : 'none' ); ?>;">
+                    <p><label>% of ads on Organic Ads: <input type="text" name="organic_percent" id="organic_percent" value="<?php echo esc_attr( $organic_test ); ?>" /></label></p>
+                    <p><label>Key for Split Test: <input type="text" name="organic_value" id="organic_value" value="<?php echo esc_attr( $organic_value ); ?>" /></label></p>
+                </div>
 
                 <p>
                     <input id="update-submit" type="submit" name="organic_update" value="Update" />
