@@ -44,11 +44,11 @@ class GraphQL {
             'description' => $this->organic->t( 'Sitewide Configuration for Organic Platform', 'organic' ),
             'fields' => [
                 'organicEnabled' => [
-                    'type' => 'Boolean',
+                    'type' => [ 'non_null' => 'Boolean' ],
                     'description' => $this->organic->t( 'Organic sync and SDK are enabled', 'organic' ),
                 ],
                 'sdkVersion' => [
-                    'type' => 'String',
+                    'type' => [ 'non_null' => 'String' ],
                     'description' => $this->organic->t( 'SDK version', 'organic' ),
                 ],
                 'siteDomain' => [
@@ -64,7 +64,7 @@ class GraphQL {
                     'description' => $this->organic->t( 'URL to load Organic SDK from', 'organic' ),
                 ],
                 'oneTrustEnabled' => [
-                    'type' => 'Boolean',
+                    'type' => [ 'non_null' => 'Boolean' ],
                     'description' => $this->organic->t( 'Should we use OneTrust as our CMP?', 'organic' ),
                 ],
                 'oneTrustSiteId' => [
@@ -72,7 +72,7 @@ class GraphQL {
                     'description' => $this->organic->t( 'Site ID from OneTrust for the CMP config', 'organic' ),
                 ],
                 'adsEnabled' => [
-                    'type' => 'Boolean',
+                    'type' => [ 'non_null' => 'Boolean' ],
                     'description' => $this->organic->t( 'Are we using Organic Ads?', 'organic' ),
                 ],
                 'adsRawData' => [
@@ -80,15 +80,15 @@ class GraphQL {
                     'description' => $this->organic->t( 'JSON of the raw Ads rules', 'organic' ),
                 ],
                 'adsPrebidUrl' => [
-                    'type' => 'String',
+                    'type' => [ 'non_null' => 'String' ],
                     'description' => $this->organic->t( 'URL to load Organic SDK from', 'organic' ),
                 ],
                 'affiliateEnabled' => [
-                    'type' => 'Boolean',
+                    'type' => [ 'non_null' => 'Boolean' ],
                     'description' => $this->organic->t( 'Are we using Organic Affiliate?', 'organic' ),
                 ],
                 'splitTestEnabled' => [
-                    'type' => 'Boolean',
+                    'type' => [ 'non_null' => 'Boolean' ],
                     'description' => $this->organic->t(
                         'If Organic SDK is enabled only for a subset of traffic',
                         'organic'
@@ -106,11 +106,11 @@ class GraphQL {
                     'description' => $this->organic->t( 'If testing ads, key to send to GA and GAM', 'organic' ),
                 ],
                 'ampEnabled' => [
-                    'type' => 'Boolean',
+                    'type' => [ 'non_null' => 'Boolean' ],
                     'description' => $this->organic->t( 'If true, show ads on AMP pages', 'organic' ),
                 ],
                 'prefillEnabled' => [
-                    'type' => 'Boolean',
+                    'type' => [ 'non_null' => 'Boolean' ],
                     'description' => $this->organic->t(
                         'If true, include pre-sized divs in the DOM for optimal CLS scores',
                         'organic'
@@ -186,7 +186,7 @@ class GraphQL {
                         'adsEnabled' => $this->organic->useAds(),
                         'adsRawData' => $this->organic->getAdsConfig()->raw
                             ? json_encode( $this->organic->getAdsConfig()->raw )
-                            : '[]',
+                            : null,
                         'adsPrebidUrl' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
                         'affiliateEnabled' => $this->organic->useAffiliate(),
                         'splitTestEnabled' => $testEnabled,
