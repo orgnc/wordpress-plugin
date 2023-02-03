@@ -40,7 +40,7 @@ class PageInjection {
     }
 
     public function setupAdsAmp() {
-        if ( ! $this->organic->useAds()) {
+        if ( ! $this->organic->useAds() ) {
             return;
         }
 
@@ -92,7 +92,7 @@ class PageInjection {
     }
 
     public function setupAdsPrefill() {
-        if ( ! $this->organic->useAds()) {
+        if ( ! $this->organic->useAds() ) {
             return;
         }
 
@@ -143,7 +143,7 @@ class PageInjection {
         if ( ! $this->organic->useSplitTest() ) {
             // If we are not running split test then we need to be loading up our ad stack as quickly as possible,
             // which means that we should do it with <script> tags directly.
-            if ($this->organic->useAdsOnPage()) {
+            if ( $this->organic->useAdsOnPage() ) {
                 wp_print_script_tag(
                     [
                         'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
