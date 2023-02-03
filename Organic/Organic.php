@@ -300,7 +300,7 @@ class Organic {
             $this->isEnabledAndConfigured() &&
             $this->splitTestEnabled &&
             $this->getSplitTestKey() &&
-            ($this->getSplitTestPercent() !== null) &&
+            ( $this->getSplitTestPercent() !== null ) &&
             $this->getSplitTestPercent() <= 100 &&
             $this->getSplitTestPercent() >= 0
         );
@@ -377,7 +377,7 @@ class Organic {
      * @return bool
     */
     public function useAffiliate() : bool {
-        return $this->isEnabledAndConfigured() && ($this->getSdkVersion() == $this->sdk::SDK_V2) && $this->affiliateEnabled;
+        return $this->isEnabledAndConfigured() && ( $this->getSdkVersion() == $this->sdk::SDK_V2 ) && $this->affiliateEnabled;
     }
 
     /**
@@ -390,7 +390,7 @@ class Organic {
     }
 
     public function useInjectedAdsConfig() : bool {
-        return $this->isEnabledAndConfigured() && ($this->getSdkVersion() == $this->sdk::SDK_V1) && $this->injectAdsConfig;
+        return $this->isEnabledAndConfigured() && ( $this->getSdkVersion() == $this->sdk::SDK_V1 ) && $this->injectAdsConfig;
     }
 
     public function usePrefill() : bool {
