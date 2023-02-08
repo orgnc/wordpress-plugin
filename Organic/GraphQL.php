@@ -33,7 +33,7 @@ class GraphQL {
         }
 
         register_graphql_object_type( 'OrganicConfig', self::getGraphQLSpec() );
-        add_action( 'graphql_register_types', [ $this, 'global_ads_config' ] );
+        add_action( 'graphql_register_types', [ $this, 'register_organic_types' ] );
     }
 
     /**
@@ -166,7 +166,7 @@ class GraphQL {
         ];
     }
 
-    public function global_ads_config() {
+    public function register_organic_types() {
         \register_graphql_field(
             'RootQuery',
             'organicConfig',
