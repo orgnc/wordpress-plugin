@@ -99,7 +99,7 @@ const register = (productSearchPageUrl) => registerFormatType(FORMAT_NAME, {
   title: 'Affiliate Product Link',
   tagName: 'a',
   attributes: { url: 'href' },
-  className: null,
+  className: 'organic-affiliate-link',
   edit: (props) => (
     <InsertAffiliateLink
       {...props}
