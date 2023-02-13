@@ -7,14 +7,14 @@ use DOMXPath;
 
 class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
     private $organic;
-    private $adsInjector;
+    private $slotsInjector;
     private $affiliate_domain;
 
     public function sanitize() {
         try {
             $this->organic = Organic::getInstance();
             # we use the "ads" injector to inject amp-iframe product card code
-            $this->adsInjector = new AdsInjector(
+            $this->slotsInjector = new SlotsInjector(
                 $this->dom,
                 function( $html ) {
                     $document = $this->dom::fromHtmlFragment( $html );
@@ -77,8 +77,8 @@ class AmpAffiliateInjector extends \AMP_Base_Sanitizer {
             </amp-iframe>',
             $url
         );
-        $product_card = $this->adsInjector->nodeFromHtml( $amp_iframe_code );
-        $this->adsInjector->injectAd( $product_card, 'inside_start', $product_card_div );
+        $product_card = $this->slotsInjector->nodeFromHtml( $amp_iframe_code );
+        $this->slotsInjector->injectSlot( $product_card, 'INSIDE_START', $product_card_div );
         $product_card_div->setAttribute( 'data-organic-affiliate-processed', true );
     }
 

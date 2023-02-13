@@ -333,8 +333,14 @@ class OrganicSdk {
                                         'connatixId',
                                         'adUnitId',
                                         'relative',
-                                        'relativeSettings',
                                         'selectors',
+                                        ( new Query( 'relativeSelectors' ) )->setSelectionSet(
+                                            [
+                                                'relative',
+                                                'selector',
+                                            ]
+                                        ),
+                                        'relativeSettings',
                                         'prefillContainerCssClass',
                                         'limit',
                                         'isOutOfPage',
