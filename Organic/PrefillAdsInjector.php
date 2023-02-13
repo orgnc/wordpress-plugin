@@ -61,7 +61,7 @@ class PrefillAdsInjector {
                 continue;
             }
 
-            $relativeSelectors = $slotsInjector::getRelativeSelectors($placement);
+            $relativeSelectors = $slotsInjector::getRelativeSelectors( $placement );
             $limit = $placement['limit'];
 
             $adContainer = $prefill['html'];
