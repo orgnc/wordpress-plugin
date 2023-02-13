@@ -252,8 +252,10 @@ class Organic {
         $this->affiliateEnabled = $this->getOption( 'organic::affiliate_enabled' );
         $this->affiliateDomain = $this->getOption( 'organic::affiliate_domain' );
 
-        /* Load up our sub-page configs */
-        new AdminSettings( $this );
+        if ( is_admin() ) {
+            new AdminSettings( $this );
+        }
+
         new CCPAPage( $this );
         new PageInjection( $this );
         new ContentSyncCommand( $this );
@@ -270,6 +272,8 @@ class Organic {
         if ( $this->useAffiliate() ) {
             new Affiliate( $this );
         }
+
+        add_action( 'save_post', [ $this, 'handleSavePostHook' ], 10, 3 );
     }
 
     /**
@@ -1113,6 +1117,30 @@ class Organic {
         return $stats;
     }
 
+    /**
+     * Hook to see any newly created or updated posts and make sure we mark them as "dirty" for
+     * future Organic sync
+     *
+     * @param $post_ID
+     * @param $post
+     * @param $update
+     */
+    public function handleSavePostHook( $post_ID, $post, $update ) {
+        if ( ! $this->isEnabledAndConfigured() ) {
+            return;
+        }
+
+        if ( ! $this->isPostEligibleForSync( $post ) ) {
+            return;
+        }
+
+        update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
+
+        if ( $this->useSyncPostOnSave() ) {
+            $this->syncPost( $post );
+        }
+    }
+
     public function syncAdConfig() {
         $config = $this->sdk->queryAdConfig();
 
@@ -1212,7 +1240,7 @@ class Organic {
      *
      * @return bool
      */
-    public function getContentForeground() : bool {
+    public function useSyncPostOnSave() : bool {
         return $this->contentForeground;
     }
 

@@ -111,6 +111,14 @@ class OrganicSdk {
         return $this->runQuery( $mutation );
     }
 
+    public function getAPIUrl() {
+        return $this->apiUrl;
+    }
+
+    public function getCDNUrl() {
+        return $this->cdnUrl;
+    }
+
     /**
      * Builds the SDK V1 URL to embed the JS SDK into web pages
      *

@@ -49,7 +49,7 @@ class AdsTxtSyncCommand {
         }
 
         // Only both trying if the API key is set
-        if ( ! $this->organic->getSdkKey() || ! $this->organic->getSiteId() ) {
+        if ( ! $this->organic->isEnabledAndConfigured() ) {
             $this->organic->warning( 'Cannot sync Ads.txt without Organic SDK API Key and Site ID' );
             return;
         }
