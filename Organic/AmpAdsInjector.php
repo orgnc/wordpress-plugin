@@ -13,13 +13,13 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
      */
     private $targeting = null;
     /**
-     * @var AdsInjector
+     * @var SlotsInjector
      */
-    private $adsInjector;
+    private $slotsInjector;
 
     public function sanitize() {
         try {
-            $this->adsInjector = new AdsInjector(
+            $this->slotsInjector = new SlotsInjector(
                 $this->dom,
                 function( $html ) {
                     $document = $this->dom::fromHtmlFragment( $html );
@@ -38,28 +38,25 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         $ampConfig = $this->args['ampConfig'];
         $adsConfig = $this->args['adsConfig'];
 
-        $rule = $this->adsInjector::getBlockRule( $adsConfig->adRules, $this->targeting );
-        $blockedKeys = ( $rule ? $rule['placementKeys'] : [] ) ?? [];
-
+        $rule = $this->slotsInjector::getBlockRule( $adsConfig->adRules, $this->targeting );
         // all placements are blocked by rule
-        if ( $rule && ! $blockedKeys ) {
+        if ( $rule && ! $rule['placementKeys'] ) {
             return;
         }
 
         foreach ( $ampConfig->forPlacement as $key => $amp ) {
+            // certain placement is blocked
+            if ( $rule && in_array( $key, $rule['placementKeys'] ) ) {
+                continue;
+            }
+
             $placement = $adsConfig->forPlacement[ $key ];
             if ( ! $placement['enabled'] ) {
                 continue;
             }
 
-            // certain placement is blocked
-            if ( $rule && in_array( $key, $blockedKeys ) ) {
-                continue;
-            }
-
-            $selectors = $placement['selectors'];
+            $relativeSelectors = $this->slotsInjector::getRelativeSelectors($placement);
             $limit = $placement['limit'];
-            $relative = $placement['relative'];
 
             if ( $placement['adType'] == AD_TYPE::OUTSTREAM_VIDEO ) {
                 $adHtml = $this->applyConnatixParams( $amp['html'], $this->targeting );
@@ -70,7 +67,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             }
 
             try {
-                $count = $this->adsInjector->injectAds( $adHtml, $relative, $selectors, $limit );
+                $this->slotsInjector->injectSlots( $adHtml, $relativeSelectors, $limit );
             } catch ( \Exception $e ) {
                 \Organic\Organic::captureException( $e );
             }

@@ -7,7 +7,7 @@ use DOMNode;
 use DOMXPath;
 
 
-class AdsInjector {
+class SlotsInjector {
     private $fragmentBuilder;
     /**
      * @var null|\FluentDOM\Xpath\Transformer
@@ -54,12 +54,14 @@ class AdsInjector {
         return ( new DOMXPath( $this->dom ) )->query( $path );
     }
 
-    public function injectAds( $adHtml, $relative, $selectors, $limit ) {
+    public function injectSlots($slotHtml, $relativeSelectors, $limit ) {
         $count = 0;
-        foreach ( $selectors as $selector ) {
+        foreach ( $relativeSelectors as $relativeSelector ) {
+            $selector = $relativeSelector['selector'];
+            $relative = $relativeSelector['relative'];
             foreach ( $this->querySelector( $selector ) as $elem ) {
-                $ad = $this->nodeFromHtml( $adHtml );
-                $injected = $this->injectAd( $ad, $relative, $elem );
+                $slot = $this->nodeFromHtml( $slotHtml );
+                $injected = $this->injectSlot( $slot, $relative, $elem );
                 if ( $injected ) {
                     $count++;
                 }
@@ -73,18 +75,18 @@ class AdsInjector {
         return $count;
     }
 
-    public function injectAd( $ad, $relative, $elem ) {
-        switch ( $relative ) {
-            case 'inside_start':
-                return $elem->insertBefore( $ad, $elem->firstChild );
-            case 'inside_end':
-                return $elem->appendChild( $ad );
-            case 'after':
-                return $elem->parentNode->insertBefore( $ad, $elem->nextSibling );
-            case 'before':
-                return $elem->parentNode->insertBefore( $ad, $elem );
-            case 'sticky_footer':
-                return $elem->appendChild( $ad );
+    public function injectSlot($slot, $relative, $elem ) {
+        switch ( strtoupper( $relative ) ) {
+            case 'INSIDE_START':
+                return $elem->insertBefore( $slot, $elem->firstChild );
+            case 'INSIDE_END':
+                return $elem->appendChild( $slot );
+            case 'AFTER':
+                return $elem->parentNode->insertBefore( $slot, $elem->nextSibling );
+            case 'BEFORE':
+                return $elem->parentNode->insertBefore( $slot, $elem );
+            case 'STICKY_FOOTER':
+                return $elem->appendChild( $slot );
             default:
                 return false;
         }
@@ -148,5 +150,21 @@ class AdsInjector {
         }
 
         return null;
+    }
+
+    // For compatibility during the first deploy before new config pulled
+    public static function getRelativeSelectors( $placement ) {
+        $relativeSelectors = $placement['relativeSelectors'] ?? [];
+        if ( ! empty( $relativeSelectors ) ) {
+            return $relativeSelectors;
+        }
+
+        foreach ( $placement['selectors'] as $selector ) {
+            $relativeSelectors[] = [
+                'relative' => $placement['relative'],
+                'selector' => $selector
+            ];
+        }
+        return $relativeSelectors;
     }
 }

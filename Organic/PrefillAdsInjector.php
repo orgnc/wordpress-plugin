@@ -31,7 +31,7 @@ class PrefillAdsInjector {
         $doctype = $implementation->createDocumentType( 'html' );
         $contentDom->insertBefore( $doctype, $contentDom->firstChild );
 
-        $adsInjector = new AdsInjector(
+        $slotsInjector = new SlotsInjector(
             $contentDom,
             function( $html ) {
                 $document = \FluentDOM::load(
@@ -43,18 +43,16 @@ class PrefillAdsInjector {
             }
         );
 
-        $rule = $adsInjector::getBlockRule( $this->adsConfig->adRules, $this->targeting );
-        $blockedKeys = ( $rule ? $rule['placementKeys'] : [] ) ?? [];
-
+        $rule = $slotsInjector::getBlockRule( $this->adsConfig->adRules, $this->targeting );
         // all placements are blocked by rule
-        if ( $rule && ! $blockedKeys ) {
+        if ( $rule && ! $rule['placementKeys'] ) {
             return $content;
         }
 
         $styles = '';
         foreach ( $this->prefillConfig->forPlacement as $key => $prefill ) {
             // certain placement is blocked
-            if ( $rule && in_array( $key, $blockedKeys ) ) {
+            if ( $rule && in_array( $key, $rule['placementKeys'] ) ) {
                 continue;
             }
 
@@ -63,15 +61,14 @@ class PrefillAdsInjector {
                 continue;
             }
 
-            $selectors = $placement['selectors'];
+            $relativeSelectors = $slotsInjector::getRelativeSelectors($placement);
             $limit = $placement['limit'];
-            $relative = $placement['relative'];
 
             $adContainer = $prefill['html'];
 
             $count = 0;
             try {
-                $count = $adsInjector->injectAds( $adContainer, $relative, $selectors, $limit );
+                $count = $slotsInjector->injectSlots( $adContainer, $relativeSelectors, $limit );
             } catch ( \Exception $e ) {
                 \Organic\Organic::captureException( $e );
             }
