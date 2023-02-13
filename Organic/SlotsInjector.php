@@ -54,7 +54,7 @@ class SlotsInjector {
         return ( new DOMXPath( $this->dom ) )->query( $path );
     }
 
-    public function injectSlots($slotHtml, $relativeSelectors, $limit ) {
+    public function injectSlots( $slotHtml, $relativeSelectors, $limit ) {
         $count = 0;
         foreach ( $relativeSelectors as $relativeSelector ) {
             $selector = $relativeSelector['selector'];
@@ -75,7 +75,7 @@ class SlotsInjector {
         return $count;
     }
 
-    public function injectSlot($slot, $relative, $elem ) {
+    public function injectSlot( $slot, $relative, $elem ) {
         switch ( strtoupper( $relative ) ) {
             case 'INSIDE_START':
                 return $elem->insertBefore( $slot, $elem->firstChild );
@@ -162,7 +162,7 @@ class SlotsInjector {
         foreach ( $placement['selectors'] as $selector ) {
             $relativeSelectors[] = [
                 'relative' => $placement['relative'],
-                'selector' => $selector
+                'selector' => $selector,
             ];
         }
         return $relativeSelectors;

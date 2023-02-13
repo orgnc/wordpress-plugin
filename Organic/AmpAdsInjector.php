@@ -55,7 +55,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
                 continue;
             }
 
-            $relativeSelectors = $this->slotsInjector::getRelativeSelectors($placement);
+            $relativeSelectors = $this->slotsInjector::getRelativeSelectors( $placement );
             $limit = $placement['limit'];
 
             if ( $placement['adType'] == AD_TYPE::OUTSTREAM_VIDEO ) {
