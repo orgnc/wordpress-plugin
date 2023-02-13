@@ -50,7 +50,7 @@ class AdConfigSyncCommand {
      */
     public function __invoke( $args ) {
         // Only both trying if the API key is set
-        if ( ! $this->organic->getSdkKey() || ! $this->organic->getSiteId() ) {
+        if ( ! $this->organic->isEnabledAndConfigured() ) {
             $this->organic->warning( 'Cannot sync AdConfig without Organic SDK API Key and Site ID' );
             return;
         }
