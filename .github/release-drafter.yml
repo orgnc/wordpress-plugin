@@ -13,11 +13,14 @@ categories:
 version-resolver:
     major:
       labels:
-        - 'major'
+        - 'ver-major'
     minor:
       labels:
-        - 'minor'
-    default: patch
+        - 'ver-minor'
+    patch:
+      labels:
+        - 'ver-patch'
+    default: minor
 template: |
   ## Changes
 
