@@ -10,6 +10,14 @@ categories:
       - bugfix
       - fix
       - bug
+version-resolver:
+    major:
+      labels:
+        - 'major'
+    minor:
+      labels:
+        - 'minor'
+    default: patch
 template: |
   ## Changes
 
