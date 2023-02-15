@@ -23,6 +23,7 @@ of the Synchronization to Organic Platform.
 * `organic_post_modified_date` - transform the modified date of the post
 * `organic_post_authors` - accepts array with one author info based on $post->post_author data and $post->ID; expects an array of dicts with 'externalId' and 'name' keys
 * `organic_eligible_for_ads` - enable or disable ads injection, overlapping plugin settings
+* `organic_eligible_for_affiliate` - enable or disable affiliate injection, overlapping plugin settings
 
 Example Filter Implementations:
 ```php
