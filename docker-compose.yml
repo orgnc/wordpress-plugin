@@ -1,0 +1,85 @@
+name: organic-wp-plugin
+
+x-vars:
+  db-password: &db-password organicwpplugin
+  db-user: &db-user root
+
+x-templates:
+  base-wordpress: &base-wordpress
+    depends_on:
+      - db
+    volumes:
+      - ./:/var/www/html/wp-content/plugins/wordpress-plugin:ro
+  base-environment: &base-environment
+    WORDPRESS_DB_HOST: db
+    WORDPRESS_DB_USER: *db-user
+    WORDPRESS_DB_PASSWORD: *db-password
+
+services:
+  wp49-php56:
+    build:
+      context: ./dev
+      target: wp49-php56
+    <<: *base-wordpress
+    ports:
+      - 8030:80
+    environment:
+      <<: *base-environment
+      WORDPRESS_DB_NAME: wp49_php56
+    x-theme: twentyseventeen
+
+  wp49-php72:
+    build:
+      context: ./dev
+      target: wp49-php72
+    <<: *base-wordpress
+    ports:
+      - 8031:80
+    environment:
+      <<: *base-environment
+      WORDPRESS_DB_NAME: wp49_php72
+    x-theme: twentyseventeen
+
+  wp59-php74:
+    build:
+      context: ./dev
+      target: wp59-php74
+    <<: *base-wordpress
+    ports:
+      - 8032:80
+    environment:
+      <<: *base-environment
+      WORDPRESS_DB_NAME: wp59_php74
+    x-theme: twentytwentytwo
+
+  wp61-php74:
+    build:
+      context: ./dev
+      target: wp61-php74
+    <<: *base-wordpress
+    ports:
+      - 8033:80
+    environment:
+      <<: *base-environment
+      WORDPRESS_DB_NAME: wp61_php74
+    x-theme: twentytwentytwo
+
+  wp61-php82:
+    build:
+      context: ./dev
+      target: wp61-php82
+    <<: *base-wordpress
+    ports:
+      - 8034:80
+    environment:
+      <<: *base-environment
+      WORDPRESS_DB_NAME: wp61_php82
+    x-theme: twentytwentytwo
+
+  db:
+    image: mysql:8.0.32-oracle
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3330:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: *db-password

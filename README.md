@@ -72,3 +72,21 @@ With this in mind, to test the build locally--for instance, if you need to confi
 * Copy wordpress-plugin/organic (newly built) into the parent mu-plugins directory.
 * Temporarily remove the wordpress-plugin directory from this mu-plugins directory. You can restore this after testing.
 * Rename the organic directory (now in mu-plugins) to wordpress-plugin. Now you can test in your local SWP editor.
+
+# Development
+1. [Install poetry](https://python-poetry.org/docs/#installation)
+2. Make sure poetry will use your currently active Python
+``` bash
+$ poetry config virtualenvs.prefer-active-python true
+```
+3. Install deps
+```bash
+$ peotry install
+```
+
+_Hint: before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/):_
+```
+$ pyenv install 3.11
+$ pyenv local 3.11
+$ poetry install
+```
