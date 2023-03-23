@@ -7,27 +7,20 @@ x-vars:
 x-templates:
   base-wordpress: &base-wordpress
     depends_on:
-      - db
+      db:
+          condition: service_healthy
     volumes:
       - ./:/var/www/html/wp-content/plugins/wordpress-plugin:ro
+      - ./dev/fixtures.yml:/tmp/dev/fixtures.yml:ro
   base-environment: &base-environment
     WORDPRESS_DB_HOST: db
     WORDPRESS_DB_USER: *db-user
     WORDPRESS_DB_PASSWORD: *db-password
+    ORGANIC_ENVIRONMENT: ${ORGANIC_ENVIRONMENT}
+    ORGANIC_API_URL: ${ORGANIC_API_URL}
+    ORGANIC_CDN_URL: ${ORGANIC_CDN_URL}
 
 services:
-  wp49-php56:
-    build:
-      context: ./dev
-      target: wp49-php56
-    <<: *base-wordpress
-    ports:
-      - 8030:80
-    environment:
-      <<: *base-environment
-      WORDPRESS_DB_NAME: wp49_php56
-    x-theme: twentyseventeen
-
   wp49-php72:
     build:
       context: ./dev
@@ -38,7 +31,6 @@ services:
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp49_php72
-    x-theme: twentyseventeen
 
   wp59-php74:
     build:
@@ -50,7 +42,6 @@ services:
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp59_php74
-    x-theme: twentytwentytwo
 
   wp61-php74:
     build:
@@ -62,7 +53,6 @@ services:
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp61_php74
-    x-theme: twentytwentytwo
 
   wp61-php82:
     build:
@@ -74,12 +64,21 @@ services:
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp61_php82
-    x-theme: twentytwentytwo
 
   db:
     image: mysql:8.0.32-oracle
     command: --default-authentication-plugin=mysql_native_password
     ports:
       - 3330:3306
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent" ]
+      interval: 5s
+      timeout: 3s
+      retries: 2
     environment:
       MYSQL_ROOT_PASSWORD: *db-password
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data: {}

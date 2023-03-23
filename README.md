@@ -79,14 +79,20 @@ With this in mind, to test the build locally--for instance, if you need to confi
 ``` bash
 $ poetry config virtualenvs.prefer-active-python true
 ```
-3. Install deps
+3. Install poetry plugins
+```bash
+$ poetry self add poetry-dotenv-plugin
+```
+4. (Optional) Before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/)
+```bash
+$ pyenv install 3.11
+$ pyenv local 3.11
+```
+5. Install deps
 ```bash
 $ peotry install
 ```
-
-_Hint: before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/):_
-```
-$ pyenv install 3.11
-$ pyenv local 3.11
-$ poetry install
+6. Build the dev environment
+```bash
+$ poetry run ./dev.py up
 ```
