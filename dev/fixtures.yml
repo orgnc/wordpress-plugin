@@ -1,0 +1,54 @@
+# https://raw.githubusercontent.com/nlemoine/wp-cli-fixtures/master/examples/fixtures.yml
+
+#
+# ATTACHMENTS
+#
+Hellonico\Fixtures\Entity\Attachment:
+  image{1..10}:
+    post_title: <words(2, true)>
+    post_date: <dateTimeThisDecade()>
+    file: <fileIn('/tmp/dev/images')>
+
+#
+# TERMS
+#
+Hellonico\Fixtures\Entity\Term:
+  category{1..10}:
+    name (unique): <words(2, true)> # '(unique)' is required
+    description: <sentence()>
+    parent: '50%? <termId(childless=1)>' # 50% of created categories will have a top level parent category
+    taxonomy: 'category' # could be skipped, default to 'category'
+  tag{1..20}:
+    __construct: ['post_tag'] # This is required to ensure the dynamic parent field above doesn't use tags as possible parents
+    name (unique): <words(2, true)> # '(unique)' is required
+    description: <sentence()>
+    taxonomy: post_tag
+#
+# POSTS
+#
+Hellonico\Fixtures\Entity\Post:
+  # TEMPLATE
+  default (template):
+    post_title: <words(2, true)>
+    post_date: <dateTimeThisDecade()>
+    post_content: <paragraphs(15, true)>
+    post_excerpt: <paragraphs(1, true)>
+    meta:
+      _thumbnail_id: '@image*->ID'
+
+  # POSTS
+  post{1..10} (extends default):
+    # 'meta' and 'meta_input' are basically the same, you can use one or both,
+    # they will be merged, just don't provide the same keys in each definition
+    meta:
+      _thumbnail_id: '@image*->ID'
+    meta_input:
+      _extra_field: <paragraphs(1, true)>
+    post_category: '3x @category*->term_id' # post_category only accepts IDs
+    tax_input:
+      post_tag: '5x @tag*->term_id'
+
+  # PAGES
+  page{contact, privacy}:
+    post_title: <current()>
+    post_type: page
