@@ -48,12 +48,12 @@ The Wordpress Plugin includes the following Affiliate App features:
 * Insert Affiliate Link: implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/).
 
 ### Building
-The source code is in the [affiliate/](https://github.com/orgnc/wordpress-plugin/tree/master/affiliate/src) directory.
+The source code is in the [blocks/](https://github.com/orgnc/wordpress-plugin/tree/master/src/blocksc) directory.
 To build the code you'll need npm. SWP container doesn't include it by default. To install it run:
 ```sh
 apt update && apt install -y npm
 ```
-To build the code, run (in the affiliate/ directory):
+To build the code, run (in the blocks/ directory):
 ```sh
 npm install
 npm run build

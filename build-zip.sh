@@ -27,13 +27,13 @@ composer install --no-dev
 cd $ROOT_DIR
 
 # cp -r vendor build/organic/
-(cd src/affiliate/ && npm ci && npm run build)
-mkdir -p build/organic/affiliate/blocks/productCard build/organic/affiliate/blocks/productCarousel
-cp -r src/affiliate/blocks/productCard/build build/organic/affiliate/blocks/productCard/
-cp src/affiliate/blocks/productCard/block.json build/organic/affiliate/blocks/productCard/
-cp -r src/affiliate/blocks/productCarousel/build build/organic/affiliate/blocks/productCarousel/
-cp src/affiliate/blocks/productCarousel/block.json build/organic/affiliate/blocks/productCarousel/
-cp src/affiliate/initSDKOnPostLoad.js build/organic/affiliate/
+(cd src/blocks/ && npm ci && npm run build)
+mkdir -p build/organic/blocks/affiliate/productCard build/organic/blocks/affiliate/productCarousel
+cp -r src/blocks/affiliate/productCard/build build/organic/blocks/affiliate/productCard/
+cp src/blocks/affiliate/productCard/block.json build/organic/blocks/affiliate/productCard/
+cp -r src/blocks/affiliate/productCarousel/build build/organic/blocks/affiliate/productCarousel/
+cp src/blocks/affiliate/productCarousel/block.json build/organic/blocks/affiliate/productCarousel/
+cp src/blocks/initSDKOnPostLoad.js build/organic/blocks/
 cd build
 zip -r organic-${BUILD_NUMBER}.zip organic
 cp organic-${BUILD_NUMBER}.zip organic.zip

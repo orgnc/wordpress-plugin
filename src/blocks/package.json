@@ -4,11 +4,10 @@
 	"description": "Organic Affiliate Integrations",
 	"author": "Organic Team",
 	"scripts": {
-		"build": "wp-scripts build blocks/productCard/src/index.js --output-path=blocks/productCard/build/ && wp-scripts build blocks/productCarousel/src/index.js --output-path=blocks/productCarousel/build",
+		"build": "wp-scripts build affiliate/productCard/src/index.js --output-path=affiliate/productCard/build/ && wp-scripts build affiliate/productCarousel/src/index.js --output-path=affiliate/productCarousel/build",
+		"start": "wp-scripts build affiliate/productCard/src/index.js --output-path=affiliate/productCard/build/ && wp-scripts build affiliate/productCarousel/src/index.js --output-path=affiliate/productCarousel/build",
 		"lint:css": "wp-scripts lint-style",
-		"lint:js": "wp-scripts lint-js",
-		"packages-update": "wp-scripts packages-update",
-		"start": "wp-scripts start"
+		"lint:js": "wp-scripts lint-js"
 	},
 	"devDependencies": {
 		"@babel/core": "7.18.0",
@@ -17,7 +16,8 @@
 		"eslint": "8.15.0",
 		"eslint-config-airbnb": "19.0.4",
 		"eslint-plugin-prettier": "4.0.0",
-		"eslint-plugin-react": "7.30.0"
+		"eslint-plugin-react": "7.30.0",
+		"nodemon": "^2.0.22"
 	},
 	"dependencies": {
 		"@wordpress/block-editor": "^10.5.0",
