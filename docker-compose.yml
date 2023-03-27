@@ -11,6 +11,8 @@ x-templates:
         condition: service_healthy
       composer:
         condition: service_started
+      nodejs:
+        condition: service_started
     volumes:
       - ./src:/var/www/html/wp-content/plugins/wordpress-plugin:ro
       - ./dev/fixtures.yml:/tmp/dev/fixtures.yml:ro
@@ -97,6 +99,16 @@ services:
     volumes:
       - ./src:/app
 
+  nodejs:
+    image: node:17.9.1
+    command: npx nodemon --ignore "*/build/*.js"
+    working_dir: /home/node/app
+    volumes:
+      - ./src/blocks:/home/node/app
+      - blocks-node-modules:/home/node/app/node_modules
+
+
 
 volumes:
   db-data: {}
+  blocks-node-modules: {}

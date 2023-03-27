@@ -177,6 +177,8 @@ def cli(ctx):
 @click.option('--reset', is_flag=True, default=False, help="Reset DB for Wordpress")
 @click.pass_obj
 def up(config, services, build, reset):
+    service_run('nodejs', 'npm install')
+
     if build or empty_dir(PHP_VENDOR_DIR):
         service_run('composer', 'composer install')
 
