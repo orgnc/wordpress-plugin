@@ -14,6 +14,16 @@ import yaml
 ADMIN_USER = 'organic'
 ADMIN_PASSWORD = 'organic'
 DEFAULT_WP_SERVICE = 'wp61-php74'
+PHP_VENDOR_DIR = 'src/vendor'
+REQUIRED_ENVVARS = [
+    'ORGANIC_DEMO_SITE_UUID',
+    'ORGANIC_DEMO_SITE_APIKEY',
+    'COMPOSER_AUTH',
+]
+
+
+def empty_dir(path):
+    return not os.path.isdir(path) or not os.listdir(path)
 
 
 class ComposeConfig(dict):
@@ -37,21 +47,32 @@ def get_compose_config():
         return ComposeConfig(yaml.load(ymlfile, yaml.SafeLoader))
 
 
-def service_exec(service, cmd, service_env=None, exit_on_nonzero=True, **kwargs):
+def host_run(run_args, exit_on_nonzero=True, **kwargs):
+    result = subprocess.run(run_args, **kwargs)
+    if exit_on_nonzero and result.returncode:
+        click.secho(f'The {run_args} return non-zero exit code: {result.returncode}', fg='red')
+        sys.exit(result.returncode)
+
+    return result
+
+
+def _service_exec_or_run(service, exec_or_run, cmd, service_env=None, exit_on_nonzero=True, **kwargs):
     service_env = service_env or {}
 
     env = []
     for key, value in service_env.items():
         env.extend(['--env', f'{key}={value}'])
 
-    run_args = [ 'docker', 'compose', 'exec', '-T', *env, service, *shlex.split(cmd)]
-    result = subprocess.run(run_args, **kwargs)
+    run_args = [ 'docker', 'compose', *exec_or_run, *env, service, *shlex.split(cmd)]
+    return host_run(run_args, exit_on_nonzero, **kwargs)
 
-    if exit_on_nonzero and result.returncode:
-        click.secho(f'The {run_args} return non-zero exit code: {result.returncode}', fg='red')
-        sys.exit(result.returncode)
 
-    return result
+def service_exec(service, cmd, **kwargs):
+    return _service_exec_or_run(service, ['exec', '--no-TTY'], cmd, **kwargs)
+
+
+def service_run(service, cmd, **kwargs):
+    return _service_exec_or_run(service, ['run', '--build', '--no-TTY', '--rm'], cmd, **kwargs)
 
 
 def db_sql(sql, db_user, db_password):
@@ -65,7 +86,6 @@ def wp_is_installed(service):
     db_name, db_user, db_password = get_compose_config().get_db_creds(service)
     db_sql(f'CREATE DATABASE IF NOT EXISTS {db_name}', db_user, db_password)
 
-    service_exec(service, 'bash -c "until [ -f ./wp-config.php ]; do sleep 0.1; done"')
     res = service_exec(service, 'wp --allow-root core is-installed', exit_on_nonzero=False)
     if res.returncode == 0:
         return True
@@ -145,19 +165,25 @@ def cli(ctx):
         click.secho("Done! Check the `.env` file, set missing values and re-run command", fg='green')
         ctx.exit()
 
+    for envvar in REQUIRED_ENVVARS:
+        get_env_var(envvar)
+
     ctx.obj = get_compose_config()
 
 
 @cli.command()
 @click.argument('services', nargs=-1, type=click.Choice(get_compose_config().get_wp_services()))
-@click.option('--build', is_flag=True, default=False, help="Rebuild images and containers")
+@click.option('--build', is_flag=True, default=False, help="Rebuild images, containers and dependencies")
 @click.option('--reset', is_flag=True, default=False, help="Reset DB for Wordpress")
 @click.pass_obj
 def up(config, services, build, reset):
+    if build or empty_dir(PHP_VENDOR_DIR):
+        service_run('composer', 'composer install')
+
     if not services:
         services = (DEFAULT_WP_SERVICE,)
 
-    up_cmd = ['docker', 'compose', 'up', '--detach']
+    up_cmd = ['docker', 'compose', 'up', '--detach' , '--wait']
     if build:
         up_cmd.append('--build')
         # Differnt case, but good description of --force-recreate and --renew-anon-volumes
@@ -173,7 +199,7 @@ def up(config, services, build, reset):
     up_cmd.append('--remove-orphans')
     up_cmd.extend(services)
 
-    subprocess.run(up_cmd)
+    host_run(up_cmd)
 
     for service in services:
         if not wp_is_installed(service) or reset:
@@ -191,14 +217,19 @@ def up(config, services, build, reset):
 
 @cli.command()
 @click.option('--nuke', is_flag=True, default=False,
-              help="Cleanup all images/volumes/DBs/artifacts")
+              help="Cleanup all images/volumes/DBs/artifacts/dependencies")
 def down(nuke):
     down_cmd = ['docker', 'compose', 'down']
     if nuke:
         down_cmd.extend(['--rmi', 'all'])
         down_cmd.append('--volumes')
 
-    subprocess.run(down_cmd)
+    host_run(down_cmd)
+
+    php_deps_deletion_msg = f"Delete PHP dependencies from '{PHP_VENDOR_DIR}'? (may require sudo password)"
+    if nuke and click.confirm(php_deps_deletion_msg, default=True):
+        host_run(f'sudo rm -rf {PHP_VENDOR_DIR}'.split())
+        click.echo(f"PHP dependencies deleted from '{PHP_VENDOR_DIR}'")
 
 
 if __name__ == '__main__':

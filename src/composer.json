@@ -57,6 +57,9 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "liborm85/composer-vendor-cleaner": true
         },
+        "platform": {
+            "php": "7.2"
+        },
         "match-case": false
     },
     "extra": {
