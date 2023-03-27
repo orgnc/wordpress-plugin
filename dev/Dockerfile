@@ -27,3 +27,9 @@ FROM wordpress:6.1-php8.2 AS wp61-php82
 COPY --from=wordpress:cli-php8.2 /usr/local/bin/wp /usr/local/bin/wp
 RUN wp --allow-root package install nlemoine/wp-cli-fixtures
 COPY . /tmp/dev
+
+FROM php:7.4 AS composer
+COPY --from=composer/composer:2-bin /composer /usr/bin/composer
+RUN apt update && apt install -y \
+        zip;
+WORKDIR /app

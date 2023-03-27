@@ -8,10 +8,17 @@ x-templates:
   base-wordpress: &base-wordpress
     depends_on:
       db:
-          condition: service_healthy
+        condition: service_healthy
+      composer:
+        condition: service_started
     volumes:
-      - ./:/var/www/html/wp-content/plugins/wordpress-plugin:ro
+      - ./src:/var/www/html/wp-content/plugins/wordpress-plugin:ro
       - ./dev/fixtures.yml:/tmp/dev/fixtures.yml:ro
+    healthcheck:
+      test: [ "CMD", "test", "-f", "./wp-config.php" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
   base-environment: &base-environment
     WORDPRESS_DB_HOST: db
     WORDPRESS_DB_USER: *db-user
@@ -74,11 +81,22 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent" ]
       interval: 5s
       timeout: 3s
-      retries: 2
+      retries: 3
     environment:
       MYSQL_ROOT_PASSWORD: *db-password
     volumes:
       - db-data:/var/lib/mysql
+
+  composer:
+    build:
+      context: ./dev
+      target: composer
+    command: bash -c "sleep infinity"
+    environment:
+      COMPOSER_AUTH: ${COMPOSER_AUTH}
+    volumes:
+      - ./src:/app
+
 
 volumes:
   db-data: {}
