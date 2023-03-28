@@ -6,6 +6,7 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pre-commit = "v3.2.1"
 
 [tool.poetry.group.dev.dependencies]
 click = "^8.1.3"

@@ -10,7 +10,7 @@ data gets exposed. Valid values are:
 
 ## Actions
 * `organic_ads_txt_changed` - called after the ads.txt content has changed from syncing with Organic Platform. No args.
-  
+
 ## Filters
 These filters allow integrators to use non-standard attributes on Post objects to fulfill the needs
 of the Synchronization to Organic Platform.
@@ -82,6 +82,7 @@ $ poetry config virtualenvs.prefer-active-python true
 3. Install poetry plugins
 ```bash
 $ poetry self add poetry-dotenv-plugin
+$ poetry self add poetry-pre-commit-plugin
 ```
 4. (Optional) Before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/)
 ```bash

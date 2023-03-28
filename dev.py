@@ -234,5 +234,20 @@ def down(nuke):
         click.echo(f"PHP dependencies deleted from '{PHP_VENDOR_DIR}'")
 
 
+@cli.command()
+@click.argument('filenames', nargs=-1)
+@click.option('--php', is_flag=True, default=False, help="Lint PHP files")
+@click.option('--js', is_flag=True, default=False, help="Lint JS files")
+def lint(filenames, php, js):
+    if not all([php, js]):
+        php = js = True
+
+    if php:
+        service_run('composer', 'composer run lint')
+
+    if js:
+        service_run('nodejs', 'npm run lint:js')
+
+
 if __name__ == '__main__':
     cli()
