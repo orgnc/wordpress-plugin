@@ -28,8 +28,12 @@ COPY --from=wordpress:cli-php8.2 /usr/local/bin/wp /usr/local/bin/wp
 RUN wp --allow-root package install nlemoine/wp-cli-fixtures
 COPY . /tmp/docker-context
 
-FROM php:7.4 AS composer
+FROM php:7.4 AS builder
 COPY --from=composer/composer:2-bin /composer /usr/bin/composer
+COPY --from=node:17.9.1 /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:17.9.1 /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
+RUN ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 RUN apt update && apt install -y \
         zip;
 WORKDIR /app

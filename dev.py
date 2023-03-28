@@ -177,11 +177,6 @@ def cli(ctx):
 @click.option('--reset', is_flag=True, default=False, help="Reset DB for Wordpress")
 @click.pass_obj
 def up(config, services, build, reset):
-    service_run('nodejs', 'npm install')
-
-    if build or empty_dir(PHP_VENDOR_DIR):
-        service_run('composer', 'composer install')
-
     if not services:
         services = (DEFAULT_WP_SERVICE,)
 
@@ -202,6 +197,11 @@ def up(config, services, build, reset):
     up_cmd.extend(services)
 
     host_run(up_cmd)
+
+    service_run('nodejs', 'npm install')
+    if build or empty_dir(PHP_VENDOR_DIR):
+        service_run('composer', 'composer install')
+
 
     for service in services:
         if not wp_is_installed(service) or reset:
@@ -247,6 +247,11 @@ def lint(filenames, php, js):
 
     if js:
         service_run('nodejs', 'npm run lint:js')
+
+
+@cli.command()
+def build_zip():
+    service_run('builder', './build-zip.sh')
 
 
 if __name__ == '__main__':

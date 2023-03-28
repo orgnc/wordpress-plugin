@@ -15,7 +15,7 @@ x-templates:
         condition: service_started
     volumes:
       - ./src:/var/www/html/wp-content/plugins/wordpress-plugin:ro
-      - ./docker-context/fixtures.yml:/tmp/docker-context/fixtures/data.yml:ro
+      - ./docker-context/fixtures/data.yml:/tmp/docker-context/fixtures/data.yml:ro
     healthcheck:
       test: [ "CMD", "test", "-f", "./wp-config.php" ]
       interval: 5s
@@ -92,7 +92,7 @@ services:
   composer:
     build:
       context: ./docker-context
-      target: composer
+      target: builder
     command: bash -c "sleep infinity"
     environment:
       COMPOSER_AUTH: ${COMPOSER_AUTH}
@@ -100,12 +100,23 @@ services:
       - ./src:/app
 
   nodejs:
-    image: node:17.9.1
+    build:
+      context: ./docker-context
+      target: builder
     command: npx nodemon --ignore "*/build/*.js"
-    working_dir: /home/node/app
+    working_dir: /blocks
     volumes:
-      - ./src/blocks:/home/node/app
-      - blocks-node-modules:/home/node/app/node_modules
+      - ./src/blocks:/blocks
+      - blocks-node-modules:/blocks/node_modules
+
+  builder:
+    build:
+      context: ./docker-context
+      target: builder
+    working_dir: /plugin
+    volumes:
+      - ./:/plugin
+      - blocks-node-modules:/plugin/src/blocks/node_modules
 
 
 
