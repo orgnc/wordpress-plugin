@@ -11,22 +11,22 @@ RUN { \
 		echo 'memory_limit = 1024M'; \
 	} > /usr/local/etc/php/conf.d/tap.ini;
 RUN wp --allow-root package install https://github.com/nlemoine/wp-cli-fixtures/archive/refs/tags/0.3.0.zip
-COPY . /tmp/dev
+COPY . /tmp/docker-context
 
 FROM wordpress:5.9-php7.4 AS wp59-php74
 COPY --from=wordpress:cli-php7.4 /usr/local/bin/wp /usr/local/bin/wp
 RUN wp --allow-root package install nlemoine/wp-cli-fixtures
-COPY . /tmp/dev
+COPY . /tmp/docker-context
 
 FROM wordpress:6.1-php7.4 AS wp61-php74
 COPY --from=wordpress:cli-php7.4 /usr/local/bin/wp /usr/local/bin/wp
 RUN wp --allow-root package install nlemoine/wp-cli-fixtures
-COPY . /tmp/dev
+COPY . /tmp/docker-context
 
 FROM wordpress:6.1-php8.2 AS wp61-php82
 COPY --from=wordpress:cli-php8.2 /usr/local/bin/wp /usr/local/bin/wp
 RUN wp --allow-root package install nlemoine/wp-cli-fixtures
-COPY . /tmp/dev
+COPY . /tmp/docker-context
 
 FROM php:7.4 AS composer
 COPY --from=composer/composer:2-bin /composer /usr/bin/composer

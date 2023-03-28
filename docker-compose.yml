@@ -15,7 +15,7 @@ x-templates:
         condition: service_started
     volumes:
       - ./src:/var/www/html/wp-content/plugins/wordpress-plugin:ro
-      - ./dev/fixtures.yml:/tmp/dev/fixtures.yml:ro
+      - ./docker-context/fixtures.yml:/tmp/docker-context/fixtures/data.yml:ro
     healthcheck:
       test: [ "CMD", "test", "-f", "./wp-config.php" ]
       interval: 5s
@@ -32,7 +32,7 @@ x-templates:
 services:
   wp49-php72:
     build:
-      context: ./dev
+      context: ./docker-context
       target: wp49-php72
     <<: *base-wordpress
     ports:
@@ -43,7 +43,7 @@ services:
 
   wp59-php74:
     build:
-      context: ./dev
+      context: ./docker-context
       target: wp59-php74
     <<: *base-wordpress
     ports:
@@ -54,7 +54,7 @@ services:
 
   wp61-php74:
     build:
-      context: ./dev
+      context: ./docker-context
       target: wp61-php74
     <<: *base-wordpress
     ports:
@@ -65,7 +65,7 @@ services:
 
   wp61-php82:
     build:
-      context: ./dev
+      context: ./docker-context
       target: wp61-php82
     <<: *base-wordpress
     ports:
@@ -91,7 +91,7 @@ services:
 
   composer:
     build:
-      context: ./dev
+      context: ./docker-context
       target: composer
     command: bash -c "sleep infinity"
     environment:
