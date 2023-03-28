@@ -1,7 +1,89 @@
-# Organic Platform
-Wordpress Plugin
+# Organic Wordpress Plugin
+https://wordpress.org/plugins/organic/
 
-## Configuration
+# Development
+## Initial setup
+1. [Install poetry](https://python-poetry.org/docs/#installation)
+2. Make sure poetry will use your currently active Python
+``` bash
+$ poetry config virtualenvs.prefer-active-python true
+```
+
+3. Install poetry plugins
+```bash
+$ poetry self add poetry-dotenv-plugin
+$ poetry self add poetry-pre-commit-plugin
+```
+
+4. (Optional) Before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/)
+```bash
+$ pyenv install 3.11
+$ pyenv local 3.11
+```
+
+5. Install deps
+```bash
+$ peotry install
+```
+
+## Work on plugin
+1. Build the dev environment
+```bash
+$ poetry run ./dev.py up
+```
+
+2. Lint files
+```bash
+$ poetry run ./dev.py lint
+```
+
+3. Shutdown dev enviroment
+```bash
+$ poetry run ./dev.py down
+```
+
+For more command and helpful flags check the help
+```bash
+$ poetry run ./dev.py --help
+$ poetry run ./dev.py up --help
+$ poetry run ./dev.py down --help
+```
+
+## Organic Affiliate Features Development
+The Wordpress Plugin includes the following Affiliate App features:
+* Insert Product Card: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
+* Insert Product Carousel: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
+* Insert Affiliate Link: implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/).
+
+These blocks are atomatically build on every file change after `./dev.py up` - see `docker compose logs -f --tail 20 nodejs` for logs
+
+## Building the zip file
+build-zip.sh builds a zipped and unzipped version of the plugin in wordpress-plugin/build/.
+(In other words, the wordpress-plugin/build/organic directory should be a copy of (most of) the wordpress-plugin directory, with the same file structure.)
+With this in mind, to test the build locally--for instance, if you need to confirm that changes made in build-zip.sh are correct--you can:
+```bash
+$ poetry run ./dev.py build-zip
+```
+
+## Organic Dev and SWP
+If you are working on internal Organic projects and want to work with your local version add
+these to your `docker-compose.override.yml` inside of your `organic-dev` repo:
+```yaml
+services:
+  solutions-wordpress:
+    volumes:
+      - ./wordpress-plugin/src:/var/www/html/web/app/mu-plugins/wordpress-plugin:ro
+```
+Or for tesing with result of `./dev.py build-zip`
+```yaml
+services:
+  solutions-wordpress:
+    volumes:
+      - ./wordpress-plugin/build/organic:/var/www/html/web/app/mu-plugins/wordpress-plugin:ro
+```
+
+
+# Configuration
 If you set the environment variable ORGANIC_ENVIRONMENT to an explicit value, you can control what kind of debug
 data gets exposed. Valid values are:
 
@@ -40,60 +122,4 @@ function get_custom_post_title($title, $id) {
     return $title;
 }
 add_filter( 'organic_post_title', 'get_custom_post_title', 10, 2);
-```
-## Organic Affiliate Features Development
-The Wordpress Plugin includes the following Affiliate App features:
-* Insert Product Card: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
-* Insert Product Carousel: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
-* Insert Affiliate Link: implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/).
-
-### Building
-The source code is in the [blocks/](https://github.com/orgnc/wordpress-plugin/tree/master/src/blocksc) directory.
-To build the code you'll need npm. SWP container doesn't include it by default. To install it run:
-```sh
-apt update && apt install -y npm
-```
-To build the code, run (in the blocks/ directory):
-```sh
-npm install
-npm run build
-```
-### NOTE
-Wordpress doesn't support symlinks. If you develop the WP plugin by creating a symlink in the
-mu-plugins directory, the Gutenberg Block won't work. Instead, you'll need to copy the code inside the
-mu-plugins/wordpress-plugin directory.
-
-## Building the zip file
-build-zip.sh builds a zipped and unzipped version of the plugin in wordpress-plugin/build/.
-(In other words, the wordpress-plugin/build/organic directory should be a copy of (most of) the wordpress-plugin directory, with the same file structure.)
-With this in mind, to test the build locally--for instance, if you need to confirm that changes made in build-zip.sh are correct--you can:
-* Delete the wordpress-plugin/build directory (if it exists).
-* Run build-zip.sh in the container.
-* Copy wordpress-plugin/organic (newly built) into the parent mu-plugins directory.
-* Temporarily remove the wordpress-plugin directory from this mu-plugins directory. You can restore this after testing.
-* Rename the organic directory (now in mu-plugins) to wordpress-plugin. Now you can test in your local SWP editor.
-
-# Development
-1. [Install poetry](https://python-poetry.org/docs/#installation)
-2. Make sure poetry will use your currently active Python
-``` bash
-$ poetry config virtualenvs.prefer-active-python true
-```
-3. Install poetry plugins
-```bash
-$ poetry self add poetry-dotenv-plugin
-$ poetry self add poetry-pre-commit-plugin
-```
-4. (Optional) Before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/)
-```bash
-$ pyenv install 3.11
-$ pyenv local 3.11
-```
-5. Install deps
-```bash
-$ peotry install
-```
-6. Build the dev environment
-```bash
-$ poetry run ./dev.py up
 ```
