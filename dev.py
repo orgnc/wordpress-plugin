@@ -239,7 +239,7 @@ def down(nuke):
 @click.option('--php', is_flag=True, default=False, help="Lint PHP files")
 @click.option('--js', is_flag=True, default=False, help="Lint JS files")
 def lint(filenames, php, js):
-    if not all([php, js]):
+    if not any([php, js]):
         php = js = True
 
     if php:
