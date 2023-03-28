@@ -147,7 +147,7 @@ def setup_wp_env(config, service):
     )
 
     service_exec(service,
-        'wp --allow-root fixtures load --file=/tmp/dev/fixtures.yml',
+        'wp --allow-root fixtures load --file=/tmp/docker-context/fixtures/data.yml',
     )
     service_exec(service,
         'wp --allow-root plugin activate "wordpress-plugin/organic.php"',

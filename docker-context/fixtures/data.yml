@@ -7,7 +7,7 @@ Hellonico\Fixtures\Entity\Attachment:
   image{1..10}:
     post_title: <words(2, true)>
     post_date: <dateTimeThisDecade()>
-    file: <fileIn('/tmp/dev/images')>
+    file: <fileIn('/tmp/docker-context/fixtures/images')>
 
 #
 # TERMS

@@ -49,7 +49,7 @@
             "phpunit -c ./phpunit.xml"
         ],
         "eslint": [
-            "cd affiliate && npm install && npm run lint:js"
+            "cd blocks && npm install && npm run lint:js"
         ]
     },
     "config": {
