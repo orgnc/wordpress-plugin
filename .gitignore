@@ -2,4 +2,5 @@ src/vendor/*
 .phpunit.result.cache
 .idea/
 build/
+.python-version
 .env
