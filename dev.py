@@ -145,7 +145,9 @@ def setup_wp_env(config, service):
             f' --admin_email=wpplugin@organic.ly'
         ),
     )
-
+    service_exec(service,
+        'wp --allow-root theme install /tmp/base-theme.zip --activate',
+    )
     service_exec(service,
         'wp --allow-root fixtures load --file=/tmp/docker-context/fixtures/data.yml',
     )

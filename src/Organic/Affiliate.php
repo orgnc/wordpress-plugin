@@ -20,6 +20,11 @@ class Affiliate {
         $siteId = $this->organic->getSiteId();
         $sdk_url = $this->organic->sdk->getSdkV2Url();
         wp_enqueue_script( 'organic-sdk', $sdk_url, [], $this->organic->version );
+
+        if ( ! function_exists( 'register_block_type' ) ) {
+            // Gutenberg blocks are not supported
+            return;
+        }
         wp_register_script(
             'organic-affiliate-product-card',
             plugins_url( 'blocks/affiliate/productCard/build/index.js', __DIR__ ),
@@ -62,6 +67,11 @@ class Affiliate {
     }
 
     public function register_gutenberg_block() {
+        if ( ! function_exists( 'register_block_type' ) ) {
+            // Gutenberg blocks are not supported
+            return;
+        }
+
         register_block_type(
             plugin_dir_path( __DIR__ ) . 'blocks/affiliate/productCard'
         );
