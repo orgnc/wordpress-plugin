@@ -25,9 +25,10 @@
             "Organic\\SDK\\": "Organic/SDK/"
         },
         "files": [
-          "Organic/public.php",
-          "Organic/helpers.php",
-          "Organic/types.php"
+            "Organic/compat-polyfills.php",
+            "Organic/types.php",
+            "Organic/helpers.php",
+            "Organic/public.php"
         ]
     },
     "require-dev": {

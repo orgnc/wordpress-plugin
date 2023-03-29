@@ -5,6 +5,11 @@ x-vars:
   db-user: &db-user root
 
 x-templates:
+  base-build: &base-build
+    context: ./docker-context
+    args:
+      COMPOSER_AUTH: ${COMPOSER_AUTH}
+
   base-wordpress: &base-wordpress
     depends_on:
       db:
@@ -32,7 +37,7 @@ x-templates:
 services:
   wp49-php72:
     build:
-      context: ./docker-context
+      <<: *base-build
       target: wp49-php72
     <<: *base-wordpress
     ports:
@@ -43,7 +48,7 @@ services:
 
   wp59-php74:
     build:
-      context: ./docker-context
+      <<: *base-build
       target: wp59-php74
     <<: *base-wordpress
     ports:
@@ -54,7 +59,7 @@ services:
 
   wp61-php74:
     build:
-      context: ./docker-context
+      <<: *base-build
       target: wp61-php74
     <<: *base-wordpress
     ports:
@@ -65,7 +70,7 @@ services:
 
   wp61-php82:
     build:
-      context: ./docker-context
+      <<: *base-build
       target: wp61-php82
     <<: *base-wordpress
     ports:
@@ -91,7 +96,7 @@ services:
 
   composer:
     build:
-      context: ./docker-context
+      <<: *base-build
       target: builder
     command: bash -c "sleep infinity"
     environment:
@@ -101,7 +106,7 @@ services:
 
   nodejs:
     build:
-      context: ./docker-context
+      <<: *base-build
       target: builder
     command: npx nodemon --ignore "*/build/*.js"
     working_dir: /blocks
@@ -111,7 +116,7 @@ services:
 
   builder:
     build:
-      context: ./docker-context
+      <<: *base-build
       target: builder
     working_dir: /plugin
     volumes:

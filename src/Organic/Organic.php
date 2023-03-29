@@ -1150,11 +1150,13 @@ class Organic {
         $this->debug( 'Got Ad Settings: ', $config['settings'] );
         $this->updateOption( 'organic::ad_settings', $config['settings'], false );
 
-        $this->debug( 'Got Amp Config: ', $config['ampConfig'] );
-        $this->updateOption( 'organic::ad_amp_config', $config['ampConfig'], false );
+        $ampConfig = $config['ampConfig'] ?? [];
+        $this->debug( 'Got Amp Config: ', $ampConfig );
+        $this->updateOption( 'organic::ad_amp_config', $ampConfig, false );
 
-        $this->debug( 'Got Prefill Config: ', $config['prefillConfig'] );
-        $this->updateOption( 'organic::ad_prefill_config', $config['prefillConfig'], false );
+        $prefillConfig = $config['prefillConfig'] ?? [];
+        $this->debug( 'Got Prefill Config: ', $prefillConfig );
+        $this->updateOption( 'organic::ad_prefill_config', $prefillConfig, false );
 
         $this->syncAdsRefreshRates();
 
