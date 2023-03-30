@@ -156,7 +156,7 @@ def get_env_var(varname):
     return value
 
 
-def setup_wp_env(config, service):
+def setup_wp_env(config, service, amp=False):
     """
     Setup WP env with dummy data and active Organic plugin
     """
@@ -191,6 +191,11 @@ def setup_wp_env(config, service):
     )
     db_sql(configure_organic_plugin_sql(db_name, site_id, api_key), db_user, db_password)
 
+    if amp:
+        service_exec(service,
+            'wp --allow-root plugin install /tmp/wpamp-plugin.zip --activate',
+        )
+
 
 @click.group()
 @click.pass_context
@@ -212,8 +217,9 @@ def cli(ctx):
 @click.argument('services', nargs=-1, type=click.Choice(get_compose_config().get_wp_services()))
 @click.option('--build', is_flag=True, default=False, help="Rebuild images, containers and dependencies")
 @click.option('--reset', is_flag=True, default=False, help="Reset DB for Wordpress")
+@click.option('--install-amp', is_flag=True, default=False, help="Install WPAMP plugin")
 @click.pass_obj
-def up(config, services, build, reset):
+def up(config, services, build, reset, install_amp):
     if not services:
         services = (DEFAULT_WP_SERVICE,)
 
@@ -248,7 +254,7 @@ def up(config, services, build, reset):
     for service in services:
         if not wp_is_installed(service) or reset:
             info(f"Setting up WP env for {service}..")
-            setup_wp_env(config, service)
+            setup_wp_env(config, service, amp=install_amp)
 
         port = config.get_service_port(service)
         click.secho(textwrap.dedent(f"""

@@ -108,7 +108,7 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
             esc_attr( $gamPageId ),
             esc_attr( $section ),
             esc_attr( $keywords ),
-            esc_attr( $macros ),
+            esc_attr( $macros )
         );
     }
 
