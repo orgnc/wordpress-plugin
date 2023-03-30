@@ -156,7 +156,7 @@ def get_env_var(varname):
     return value
 
 
-def setup_wp_env(config, service, amp=False):
+def setup_wp_env(config, service):
     """
     Setup WP env with dummy data and active Organic plugin
     """
@@ -191,11 +191,6 @@ def setup_wp_env(config, service, amp=False):
     )
     db_sql(configure_organic_plugin_sql(db_name, site_id, api_key), db_user, db_password)
 
-    if amp:
-        service_exec(service,
-            'wp --allow-root plugin install /tmp/wpamp-plugin.zip --activate',
-        )
-
 
 @click.group()
 @click.pass_context
@@ -218,15 +213,16 @@ def cli(ctx):
 @click.option('--build', is_flag=True, default=False, help="Rebuild images, containers and dependencies")
 @click.option('--reset', is_flag=True, default=False, help="Reset DB for Wordpress")
 @click.option('--install-amp', is_flag=True, default=False, help="Install WPAMP plugin")
+@click.option('--pull-configs', is_flag=True, default=False, help="Pull Ads/Affiliate configs from API")
 @click.pass_obj
-def up(config, services, build, reset, install_amp):
+def up(config, services, build, reset, install_amp, pull_configs):
     if not services:
         services = (DEFAULT_WP_SERVICE,)
 
     up_cmd = ['docker', 'compose', 'up', '--detach' , '--wait']
     if build:
         up_cmd.append('--build')
-        # Differnt case, but good description of --force-recreate and --renew-anon-volumes
+        # Different case, but good description of --force-recreate and --renew-anon-volumes
         # https://github.com/docker/compose/issues/8728#issuecomment-939858721
         # Make sure that we "renew" volumes with build artefacts
         # with content from image
@@ -254,7 +250,18 @@ def up(config, services, build, reset, install_amp):
     for service in services:
         if not wp_is_installed(service) or reset:
             info(f"Setting up WP env for {service}..")
-            setup_wp_env(config, service, amp=install_amp)
+            setup_wp_env(config, service)
+
+        if install_amp:
+            info(f"Installing WPAMP plugin..")
+            service_exec(service,
+                'wp --allow-root plugin install /tmp/wpamp-plugin.zip --activate --force',
+            )
+
+        if pull_configs:
+            info(f"Pulling configs from API..")
+            service_exec(service, 'wp --allow-root organic-sync-ad-config')
+            service_exec(service, 'wp --allow-root organic-sync-affiliate-config')
 
         port = config.get_service_port(service)
         click.secho(textwrap.dedent(f"""
