@@ -146,7 +146,7 @@ def setup_wp_env(config, service):
         ),
     )
     service_exec(service,
-        'wp --allow-root theme install /tmp/base-theme.zip --activate',
+        'wp --allow-root theme install /tmp/base-theme.zip --activate --force',
     )
     service_exec(service,
         'wp --allow-root fixtures load --file=/tmp/docker-context/fixtures/data.yml',
