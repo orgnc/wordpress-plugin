@@ -22,6 +22,11 @@ REQUIRED_ENVVARS = [
 ]
 
 
+def info(msg):
+    click.echo()
+    click.secho(f"# Organic WP plugin |> {msg}", fg='bright_magenta')
+
+
 def empty_dir(path):
     return not os.path.isdir(path) or not os.listdir(path)
 
@@ -48,6 +53,9 @@ def get_compose_config():
 
 
 def host_run(run_args, exit_on_nonzero=True, **kwargs):
+    if isinstance(run_args, str):
+        run_args = shlex.split(run_args)
+
     result = subprocess.run(run_args, **kwargs)
     if exit_on_nonzero and result.returncode:
         click.secho(f'The {run_args} return non-zero exit code: {result.returncode}', fg='red')
@@ -56,14 +64,18 @@ def host_run(run_args, exit_on_nonzero=True, **kwargs):
     return result
 
 
-def _service_exec_or_run(service, exec_or_run, cmd, service_env=None, exit_on_nonzero=True, **kwargs):
-    service_env = service_env or {}
+def _service_exec_or_run(service, exec_or_run, cmd, service_env=None, exit_on_nonzero=True, detach=False, **kwargs):
+    if detach:
+        exec_or_run += ['--detach']
 
     env = []
-    for key, value in service_env.items():
+    for key, value in (service_env or {}).items():
         env.extend(['--env', f'{key}={value}'])
 
-    run_args = [ 'docker', 'compose', *exec_or_run, *env, service, *shlex.split(cmd)]
+    if isinstance(cmd, str):
+        cmd = shlex.split(cmd)
+
+    run_args = [ 'docker', 'compose', *exec_or_run, *env, service, *cmd]
     return host_run(run_args, exit_on_nonzero, **kwargs)
 
 
@@ -73,6 +85,23 @@ def service_exec(service, cmd, **kwargs):
 
 def service_run(service, cmd, **kwargs):
     return _service_exec_or_run(service, ['run', '--build', '--no-TTY', '--rm'], cmd, **kwargs)
+
+
+def _service_is_running(service):
+    result = host_run('docker compose ps --services --status running', capture_output=True)
+    services = [*filter(None, result.stdout.decode().split('\n'))]
+    return service in services
+
+
+def service_trigger(service, cmd, **kwargs):
+    if _service_is_running(service):
+        return service_exec(service, cmd, **kwargs)
+
+    return service_run(service, cmd, **kwargs)
+
+
+def service_restart(service):
+    return host_run(f'docker compose restart {service}')
 
 
 def db_sql(sql, db_user, db_password):
@@ -87,10 +116,16 @@ def wp_is_installed(service):
     db_sql(f'CREATE DATABASE IF NOT EXISTS {db_name}', db_user, db_password)
 
     res = service_exec(service, 'wp --allow-root core is-installed', exit_on_nonzero=False)
-    if res.returncode == 0:
-        return True
+    return res.returncode == 0
 
-    return False
+
+def npm_deps_are_installed():
+    res = service_exec('nodejs', 'npm list --depth 0', exit_on_nonzero=False, capture_output=True)
+    return res.returncode == 0
+
+
+def composer_deps_are_installed():
+    return not empty_dir(PHP_VENDOR_DIR)
 
 
 def configure_organic_plugin_sql(db_name, site_id, api_key):
@@ -198,15 +233,21 @@ def up(config, services, build, reset):
     up_cmd.append('--remove-orphans')
     up_cmd.extend(services)
 
+    info("Building/starting services..")
     host_run(up_cmd)
 
-    service_run('nodejs', 'npm install')
-    if build or empty_dir(PHP_VENDOR_DIR):
-        service_run('composer', 'composer install')
+    if build or not npm_deps_are_installed():
+        info("Installing JS dependencies..")
+        service_exec('nodejs', 'npm install')
+        service_restart('nodejs')
 
+    if build or not composer_deps_are_installed():
+        info("Installing PHP dependencies..")
+        service_exec('composer', 'composer install')
 
     for service in services:
         if not wp_is_installed(service) or reset:
+            info(f"Setting up WP env for {service}..")
             setup_wp_env(config, service)
 
         port = config.get_service_port(service)
@@ -232,7 +273,7 @@ def down(nuke):
 
     php_deps_deletion_msg = f"Delete PHP dependencies from '{PHP_VENDOR_DIR}'? (may require sudo password)"
     if nuke and click.confirm(php_deps_deletion_msg, default=True):
-        host_run(f'sudo rm -rf {PHP_VENDOR_DIR}'.split())
+        host_run(f'sudo rm -rf {PHP_VENDOR_DIR}')
         click.echo(f"PHP dependencies deleted from '{PHP_VENDOR_DIR}'")
 
 
@@ -245,10 +286,10 @@ def lint(filenames, php, js):
         php = js = True
 
     if php:
-        service_run('composer', 'composer run lint')
+        service_trigger('composer', 'composer run lint')
 
     if js:
-        service_run('nodejs', 'npm run lint:js')
+        service_trigger('nodejs', 'npm run lint:js')
 
 
 @cli.command()
