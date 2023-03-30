@@ -1,0 +1,24 @@
+services:
+  wp49-php72:
+    networks:
+      - default
+      - organic-dev_default
+
+  wp59-php74:
+    networks:
+      - default
+      - organic-dev_default
+
+  wp61-php74:
+    networks:
+      - default
+      - organic-dev_default
+
+  wp61-php82:
+    networks:
+      - default
+      - organic-dev_default
+
+networks:
+  organic-dev_default:
+    external: true
