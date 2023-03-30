@@ -15,7 +15,7 @@ $ poetry self add poetry-dotenv-plugin
 $ poetry self add poetry-pre-commit-plugin
 ```
 
-4. (Optional) Before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/)
+4. Before setting up project you may want [to install pyenv](https://github.com/pyenv/pyenv#installation) and use it [to configure the latest Python](https://python-poetry.org/docs/managing-environments/). **This step is optional, but highly recommended!**
 ```bash
 $ pyenv install 3.11
 $ pyenv local 3.11
@@ -23,8 +23,15 @@ $ pyenv local 3.11
 
 5. Install deps
 ```bash
-$ peotry install
+$ poetry install
 ```
+
+6. Create `.env` file
+```bash
+$ cp .env.example .env
+```
+
+7. Don't forget to update `TODO` vars in your `.env` file!
 
 ## Work on plugin
 1. Build the dev environment
@@ -37,44 +44,59 @@ $ poetry run ./dev.py up
 $ poetry run ./dev.py lint
 ```
 
-3. Shutdown dev enviroment
+3. Shutdown dev environment
 ```bash
 $ poetry run ./dev.py down
 ```
 
-For more command and helpful flags check the help
+For more commands and helpful flags check the help
 ```bash
 $ poetry run ./dev.py --help
 $ poetry run ./dev.py up --help
 $ poetry run ./dev.py down --help
+$ poetry run ./dev.py lint --help
+$ poetry run ./dev.py build-zip --help
 ```
 
 ## Organic Affiliate Features Development
 The Wordpress Plugin includes the following Affiliate App features:
-* Insert Product Card: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
-* Insert Product Carousel: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/).
-* Insert Affiliate Link: implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/).
+* Insert Product Card: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/)
+* Insert Product Carousel: implemented as a [Gutenberg Block](https://developer.wordpress.org/block-editor/getting-started/create-block/)
+* Insert Affiliate Link: implemented as a [Custom Format](https://developer.wordpress.org/block-editor/how-to-guides/format-api/)
 
-These blocks are atomatically build on every file change after `./dev.py up` - see `docker compose logs -f --tail 20 nodejs` for logs
+These blocks are automatically built on every file change after `./dev.py up` - see `docker compose logs -f --tail 20 nodejs` for logs
 
 ## Building the zip file
-build-zip.sh builds a zipped and unzipped version of the plugin in wordpress-plugin/build/.
-(In other words, the wordpress-plugin/build/organic directory should be a copy of (most of) the wordpress-plugin directory, with the same file structure.)
-With this in mind, to test the build locally--for instance, if you need to confirm that changes made in build-zip.sh are correct--you can:
+The `build-zip` command builds a zipped and unzipped versions
+of the production build of the plugin in wordpress-plugin/build/.
+If ou need to confirm that production build of the plugin works as expected:
+1. Build the plugin
 ```bash
 $ poetry run ./dev.py build-zip
 ```
+2. Install the plugin by copying the `build/organic` dir into yours WP plugins folder or by installing the `build/organic.zip`. Or use docker volume mappings similar to [this](#swp)
 
-## Organic Dev and SWP
-If you are working on internal Organic projects and want to work with your local version add
-these to your `docker-compose.override.yml` inside of your `organic-dev` repo:
+## Organic Dev
+If you are working on internal Organic projects.
+
+### Platform
+By default, plugin will connect to the staging version of the Platform.
+If you work with local version of the Platform make sure that
+Organic WP plugin will be able to connect to the `api.lcl.organic.ly` - copy
+the example file or edit your override file in similar way **inside this repo**:
+```bash
+$ cp docker-compose.override.yml.example docker-compose.override.yml
+```
+### SWP
+If you are working on internal Organic projects and want to work with your local version - add
+these to your `docker-compose.override.yml` **inside of your `organic-dev` repo**:
 ```yaml
 services:
   solutions-wordpress:
     volumes:
       - ./wordpress-plugin/src:/var/www/html/web/app/mu-plugins/wordpress-plugin:ro
 ```
-Or for tesing with result of `./dev.py build-zip`
+Or for testing with result of `./dev.py build-zip`
 ```yaml
 services:
   solutions-wordpress:
