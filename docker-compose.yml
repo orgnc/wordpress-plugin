@@ -108,7 +108,8 @@ services:
     build:
       <<: *base-build
       target: builder
-    command: npx nodemon --ignore "*/build/*.js"
+    # on fresh build/start node_modules will be empty until 'npm install'
+    command: bash -c "until npx nodemon --ignore "*/build/*.js"; do sleep 5; done"
     working_dir: /blocks
     volumes:
       - ./src/blocks:/blocks
