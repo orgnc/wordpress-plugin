@@ -1,5 +1,6 @@
 FROM wordpress:6.1-php7.4 AS builder
 RUN curl -L -o /tmp/base-theme.zip https://downloads.wordpress.org/theme/newspaperss.2.10.0.zip
+RUN curl -L -o /tmp/wpamp-plugin.zip https://downloads.wordpress.org/plugin/amp.2.4.1.zip
 COPY --from=composer/composer:2-bin /composer /usr/bin/composer
 COPY --from=wordpress:cli-php7.4 /usr/local/bin/wp /usr/local/bin/wp
 COPY --from=node:17.9.1 /usr/local/bin/node /usr/local/bin/node
@@ -13,6 +14,7 @@ WORKDIR /app
 FROM wordpress:4.9-php7.2 AS wp49-php72
 COPY --from=wordpress:cli-php7.2 /usr/local/bin/wp /usr/local/bin/wp
 COPY --from=builder /tmp/base-theme.zip /tmp/base-theme.zip
+COPY --from=builder /tmp/wpamp-plugin.zip /tmp/wpamp-plugin.zip
 ENV CACERT_PATH="/tmp/cacert.pem"
 RUN set -ex && \
     echo '' > /etc/ca-certificates.conf && \
@@ -34,16 +36,19 @@ FROM wordpress:5.9-php7.4 AS wp59-php74
 COPY --from=wordpress:cli-php7.4 /usr/local/bin/wp /usr/local/bin/wp
 COPY --from=builder /root/.wp-cli /root/.wp-cli
 COPY --from=builder /tmp/base-theme.zip /tmp/base-theme.zip
+COPY --from=builder /tmp/wpamp-plugin.zip /tmp/wpamp-plugin.zip
 COPY . /tmp/docker-context
 
 FROM wordpress:6.1-php7.4 AS wp61-php74
 COPY --from=wordpress:cli-php7.4 /usr/local/bin/wp /usr/local/bin/wp
 COPY --from=builder /root/.wp-cli /root/.wp-cli
 COPY --from=builder /tmp/base-theme.zip /tmp/base-theme.zip
+COPY --from=builder /tmp/wpamp-plugin.zip /tmp/wpamp-plugin.zip
 COPY . /tmp/docker-context
 
 FROM wordpress:6.1-php8.2 AS wp61-php82
 COPY --from=wordpress:cli-php8.2 /usr/local/bin/wp /usr/local/bin/wp
 COPY --from=builder /root/.wp-cli /root/.wp-cli
 COPY --from=builder /tmp/base-theme.zip /tmp/base-theme.zip
+COPY --from=builder /tmp/wpamp-plugin.zip /tmp/wpamp-plugin.zip
 COPY . /tmp/docker-context
