@@ -27,17 +27,20 @@ class Affiliate {
         }
         // As more blocks are added, create a function like "register_widget_block_script".
         $card_asset_file = include( plugin_dir_path( __DIR__ ) . 'blocks/affiliate/productCard/build/index.asset.php' );
+        // wp-scripts 5.0.0+ generates an index.asset.php file with dependencies. If the wp-scripts version is before
+        // this, we specify known dependencies explicitly.
+        $legacy_block_dependencies = [ 'organic-sdk', 'wp-block-editor', 'wp-blocks', 'wp-polyfill' ];
         wp_register_script(
             'organic-affiliate-product-card',
             plugins_url( 'blocks/affiliate/productCard/build/index.js', __DIR__ ),
-            $card_asset_file['dependencies'],
+            $card_asset_file['dependencies'] ?? $legacy_block_dependencies,
             $this->organic->version
         );
         $carousel_asset_file = include( plugin_dir_path( __DIR__ ) . 'blocks/affiliate/productCarousel/build/index.asset.php' );
         wp_register_script(
             'organic-affiliate-product-carousel',
             plugins_url( 'blocks/affiliate/productCarousel/build/index.js', __DIR__ ),
-            $carousel_asset_file['dependencies'],
+            $carousel_asset_file['dependencies'] ?? $legacy_block_dependencies,
             $this->organic->version
         );
         if ( 'post.php' === $hook_suffix || 'post-new.php' === $hook_suffix ) {
