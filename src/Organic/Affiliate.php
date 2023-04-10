@@ -25,16 +25,19 @@ class Affiliate {
             // Gutenberg blocks are not supported
             return;
         }
+        // As more blocks are added, create a function like "register_widget_block_script".
+        $card_asset_file = include( plugin_dir_path( __DIR__ ) . 'blocks/affiliate/productCard/build/index.asset.php' );
         wp_register_script(
             'organic-affiliate-product-card',
             plugins_url( 'blocks/affiliate/productCard/build/index.js', __DIR__ ),
-            [ 'organic-sdk' ],
+            $card_asset_file['dependencies'],
             $this->organic->version
         );
+        $carousel_asset_file = include( plugin_dir_path( __DIR__ ) . 'blocks/affiliate/productCarousel/build/index.asset.php' );
         wp_register_script(
             'organic-affiliate-product-carousel',
             plugins_url( 'blocks/affiliate/productCarousel/build/index.js', __DIR__ ),
-            [ 'organic-sdk' ],
+            $carousel_asset_file['dependencies'],
             $this->organic->version
         );
         if ( 'post.php' === $hook_suffix || 'post-new.php' === $hook_suffix ) {
