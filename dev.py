@@ -13,7 +13,7 @@ import yaml
 
 ADMIN_USER = 'organic'
 ADMIN_PASSWORD = 'organic'
-DEFAULT_WP_SERVICE = 'wp61-php74'
+DEFAULT_WP_SERVICE = 'wp61-php74'  # 'wordpress.lcl.default.com'
 PHP_VENDOR_DIR = 'src/vendor'
 REQUIRED_ENVVARS = [
     'ORGANIC_DEMO_SITE_UUID',
@@ -233,7 +233,7 @@ def up(config, services, build, reset, install_amp, pull_configs):
     up_cmd.append('--force-recreate')
     # Remove orphaned containers after docker-compose.yml edits
     up_cmd.append('--remove-orphans')
-    up_cmd.extend(services)
+    up_cmd.extend([*services, 'wp-nginx-proxy'])
 
     info("Building/starting services..")
     host_run(up_cmd)
@@ -267,8 +267,8 @@ def up(config, services, build, reset, install_amp, pull_configs):
         click.secho(textwrap.dedent(f"""
 
             Done! The URLs for {service}
-            Site:  http://localhost:{port}
-            Admin: http://localhost:{port}/wp-admin/ (user: {ADMIN_USER}, pass: {ADMIN_PASSWORD})
+            Site: http://wpplugin.lcl.organic.ly:{port}
+            Admin: http://wpplugin.lcl.organic.ly:{port}/wp-admin (user: {ADMIN_USER}, pass: {ADMIN_PASSWORD})
 
         """), fg='green')
 
@@ -303,6 +303,14 @@ def lint(filenames, php, js):
 
     if js:
         service_trigger('nodejs', 'npm run lint:js')
+
+
+@cli.command()
+def run_tests():
+    if _service_is_running('composer'):
+        service_trigger('composer', './vendor/bin/phpunit')
+    else:
+        info('Need composer service to be running. Have you run the up command?')
 
 
 @cli.command()

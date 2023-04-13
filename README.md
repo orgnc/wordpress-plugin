@@ -32,6 +32,10 @@ $ cp .env.example .env
 ```
 
 7. Don't forget to update `TODO` vars in your `.env` file!
+8. Make sure your `/etc/hosts` file contains `wpplugin.lcl.organic.ly`.
+```bash
+$ organic dev update-hosts
+```
 
 ## Work on plugin
 1. Build the dev environment

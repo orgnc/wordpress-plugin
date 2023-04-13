@@ -3,15 +3,16 @@
     "description": "Wordpress Plugin for Organic Platform",
     "type": "wordpress-plugin",
     "require": {
-        "gmostafa/php-graphql-client": "^1.10",
-        "seravo/wp-custom-bulk-actions": "^0.1.4",
-        "fluentdom/fluentdom": "^8.0",
-        "fluentdom/html5": "^2.0",
-        "fluentdom/selectors-symfony": "^4.0",
-        "fluentdom/selectors-phpcss": "^2.0",
-        "ext-json": "*",
         "ext-dom": "*",
-        "liborm85/composer-vendor-cleaner": "^1.7"
+        "ext-json": "*",
+        "gmostafa/php-graphql-client": "^1.10",
+        "fluentdom/fluentdom": "^7.0",
+        "fluentdom/html5": "^1.5.2",
+        "fluentdom/selectors-phpcss": "^1.2.0",
+        "fluentdom/selectors-symfony": "^3.1.0",
+        "liborm85/composer-vendor-cleaner": "^1.7",
+        "php-webdriver/webdriver": "^1.13.0",
+        "seravo/wp-custom-bulk-actions": "^0.1.4"
     },
     "authors": [
         {
@@ -33,11 +34,11 @@
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+        "phpcompatibility/php-compatibility": "*",
+        "phpunit/phpunit": "^8.5",
         "roave/security-advisories": "dev-master",
         "squizlabs/php_codesniffer": "3.6.0",
-        "wp-coding-standards/wpcs": "2.3.0",
-        "phpunit/phpunit": "^9.5",
-        "phpcompatibility/php-compatibility": "*"
+        "wp-coding-standards/wpcs": "2.3.0"
     },
     "scripts": {
         "lint": [
