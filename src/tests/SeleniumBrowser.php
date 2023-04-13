@@ -85,7 +85,7 @@ class SeleniumBrowser {
         $this->wait(2);
         // First, click the first Add block button.
         fwrite(STDERR, print_r('Clicking Add block', TRUE));
-        $this->click( '[aria-label="Add block"]' );
+        $this->click( '[aria-label="Toggle block inserter"]' );
         fwrite(STDERR, print_r('Clicked Add block', TRUE));
         $this->wait( 3 );
         // Click the block search bar. Search for the block type.
@@ -204,11 +204,7 @@ class SeleniumBrowser {
     }
 
     function get_iframe_url( int $index ) {
-        if ( $index > 0 ) {
-            $iframe = $this->wait_for('iframe', null, null, true)[$index];
-        } else {
-            $iframe = $this->wait_for('iframe', null, null);
-        }
+        $iframe = $this->wait_for('iframe', null, null, true)[$index];
         return $iframe->getAttribute('src');
     }
 

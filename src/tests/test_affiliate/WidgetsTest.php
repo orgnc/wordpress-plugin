@@ -33,7 +33,7 @@ class WidgetsTest extends TestCase {
             fwrite(STDERR, print_r('\n Going to page', TRUE));
             $browser->go_to_new_post();
             $browser->add_block( $block_type );
-            $browser->wait( 0.5 );
+            $browser->wait( .5 );
             $url_correct = str_contains( $browser->get_iframe_url( 0 ), 'app.organic.ly');
             $browser->quit();
             $this->assertTrue( $url_correct );
