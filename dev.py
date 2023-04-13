@@ -13,7 +13,7 @@ import yaml
 
 ADMIN_USER = 'organic'
 ADMIN_PASSWORD = 'organic'
-DEFAULT_WP_SERVICE = 'wp61-php74'  # 'wordpress.lcl.default.com'
+DEFAULT_WP_SERVICE = 'wp61-php74'
 PHP_VENDOR_DIR = 'src/vendor'
 REQUIRED_ENVVARS = [
     'ORGANIC_DEMO_SITE_UUID',
@@ -22,9 +22,9 @@ REQUIRED_ENVVARS = [
 ]
 
 
-def info(msg):
+def info(msg, color='bright_magenta'):
     click.echo()
-    click.secho(f"# Organic WP plugin |> {msg}", fg='bright_magenta')
+    click.secho(f"# Organic WP plugin |> {msg}", fg=color)
 
 
 def empty_dir(path):
@@ -44,6 +44,9 @@ class ComposeConfig(dict):
     def get_wp_services(self):
         config = get_compose_config()
         return [s for s in config['services'] if s.startswith('wp')]
+
+    def get_running_wp_services(self):
+        return [s for s in ComposeConfig.get_wp_services(self) if _service_is_running(s)]
 
 
 @functools.cache
@@ -233,7 +236,7 @@ def up(config, services, build, reset, install_amp, pull_configs):
     up_cmd.append('--force-recreate')
     # Remove orphaned containers after docker-compose.yml edits
     up_cmd.append('--remove-orphans')
-    up_cmd.extend([*services, 'wp-nginx-proxy'])
+    up_cmd.extend([*services, 'nginx-proxy'])
 
     info("Building/starting services..")
     host_run(up_cmd)
@@ -306,11 +309,42 @@ def lint(filenames, php, js):
 
 
 @cli.command()
-def run_tests():
-    if _service_is_running('composer'):
-        service_trigger('composer', './vendor/bin/phpunit')
-    else:
-        info('Need composer service to be running. Have you run the up command?')
+@click.argument('services', nargs=-1, type=click.Choice(get_compose_config().get_wp_services()))
+@click.pass_obj
+def run_tests(config, services):
+
+    if not _service_is_running("composer"):
+        info(
+            "The composer service needs to be running in order to run tests. "
+            "Have you run the up command?",
+            "red",
+        )
+        return
+
+    if not services:
+        if len(services := config.get_running_wp_services()) > 1:
+            info(
+                "Multiple WP services are running! "
+                "Please specify which service(s) over which to run the tests.",
+                "red",
+            )
+            return
+        service = services[0]
+        port = config.get_service_port(service)
+        info(f"Running tests for {service} (port {port}")
+        service_trigger("composer", "./vendor/bin/phpunit")
+        return
+
+    for service in services:
+        if not _service_is_running(service):
+            info(f"Cannot run tests for {service}: {service} is not running.", "red")
+        else:
+            port = config.get_service_port(service)
+            info(f"Running tests for {service} (port {port})")
+            service_trigger(
+                "composer",
+                f'/bin/bash -c "export WP_PORT={port}; ./vendor/bin/phpunit"',
+            )
 
 
 @cli.command()

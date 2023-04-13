@@ -12,7 +12,6 @@ x-templates:
       COMPOSER_AUTH: ${COMPOSER_AUTH}
 
   base-wordpress: &base-wordpress
-    # container_name: wpplugin.lcl.organic.ly
     depends_on:
       db:
         condition: service_healthy
@@ -150,9 +149,6 @@ services:
 
   selenium:
     # For ARM64 use SELENIUM_IMAGE:-seleniarm/standalone-chromium:4.8.3
-    environment:
-      SELENIUM_URL: 'http://selenium:4444/wd/hub'
-      WP_URL: http://wp61-php74:80/wp-admin
     # image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:4.8.3}
     image: ${SELENIUM_IMAGE:-seleniarm/standalone-chromium:4.8.3}
     shm_size: '1gb'
@@ -168,7 +164,7 @@ services:
       - 5901:5900  # port for external VNC client
       - 7901:7900  # noVNC.com UI
 
-  wp-nginx-proxy:
+  nginx-proxy:
     image: nginxproxy/nginx-proxy:1642
     ports:
       - "80:80"
