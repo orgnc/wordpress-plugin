@@ -329,11 +329,6 @@ def run_tests(config, services):
                 "red",
             )
             return
-        service = services[0]
-        port = config.get_service_port(service)
-        info(f"Running tests for {service} (port {port}")
-        service_trigger("composer", "./vendor/bin/phpunit")
-        return
 
     for service in services:
         if not _service_is_running(service):
