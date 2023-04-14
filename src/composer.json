@@ -5,7 +5,6 @@
     "require": {
         "ext-dom": "*",
         "ext-json": "*",
-        "ext-zip": "*",
         "gmostafa/php-graphql-client": "^1.10",
         "fluentdom/fluentdom": "^7.0",
         "fluentdom/html5": "^1.5.2",

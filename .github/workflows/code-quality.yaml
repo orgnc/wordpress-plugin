@@ -18,6 +18,9 @@ jobs:
           working_dir: src
           php_version: "7.4"
 
+      - name: Install ext-zip
+        run: apt-get update && apt-get install php7.4-zip
+
       - name: Run PHPCS
         run: cd src && composer run lint
 
