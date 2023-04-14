@@ -340,7 +340,6 @@ def run_tests(config, services):
         else:
             port = config.get_service_port(service)
             version = config.get_wp_version(service)
-            print(version)
             info(f"Running tests for {service} (port {port})")
             service_trigger(
                 "composer",
