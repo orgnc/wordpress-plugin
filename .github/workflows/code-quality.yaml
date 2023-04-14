@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: pierrejoye/php_zip
       - uses: php-actions/composer@v5
         with:
           working_dir: src
           php_version: "7.4"
+          extensions: ext-zip
 
       - name: Run PHPCS
         run: cd src && composer run lint
