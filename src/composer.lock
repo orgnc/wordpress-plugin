@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eeaf046890007804dea617cdf679931b",
+    "content-hash": "ace7a4d0fc8ca05340fddc6259fee3f3",
     "packages": [
         {
             "name": "carica/phpcss",
@@ -3845,7 +3845,8 @@
     "prefer-lowest": false,
     "platform": {
         "ext-dom": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-zip": "*"
     },
     "platform-dev": [],
     "platform-overrides": {
