@@ -14,7 +14,7 @@ jobs:
     steps:
 
       - name: Install PHP-zip
-        run: apt-get install -y zlib1g-dev && apt-get install -y zip
+        run: sudo apt-get install -y zlib1g-dev && sudo apt-get install -y zip
 
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v5
