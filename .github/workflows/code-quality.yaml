@@ -23,7 +23,7 @@ jobs:
         run: cd src && composer run lint
 
       - name: Run PHPUnit
-        run: cd src && composer run phpunit --exclude-group selenium_test
+        run: cd src && composer run phpunit -- --exclude-group selenium_test
 
       - name: Run ESLint
         run: cd src && composer run eslint
