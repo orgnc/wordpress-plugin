@@ -141,16 +141,15 @@ services:
       <<: *base-build
       target: builder
     # on fresh build/start node_modules will be empty until 'npm install'
-    command: bash -c "npm install; npm run build"
+    command: bash -c "until npx nodemon --ignore "*/build/*.js"; do sleep 5; done"
     working_dir: /blocks
     volumes:
       - ./src/blocks:/blocks
       - blocks-node-modules:/blocks/node_modules
 
   selenium:
-    # For ARM64 use SELENIUM_IMAGE:-seleniarm/standalone-chromium:4.8.3
-    # image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:4.8.3}
-    image: ${SELENIUM_IMAGE:-seleniarm/standalone-chromium:4.8.3}
+    image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:4.8.3}
+    # image: ${SELENIUM_IMAGE:-seleniarm/standalone-chromium:4.8.3} # use this for ARM64
     shm_size: '1gb'
     ports:
       # Increment default port numbers by 1 to avoid conflict with organic dev.
