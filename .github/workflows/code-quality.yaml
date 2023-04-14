@@ -17,7 +17,7 @@ jobs:
         with:
           working_dir: src
           php_version: "7.4"
-          php_extensions: ext-zip
+          php_extensions: libzip-dev, zip
 
       - name: Run PHPCS
         run: cd src && composer run lint
