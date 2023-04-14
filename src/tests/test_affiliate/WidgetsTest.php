@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 include( __DIR__ . '/../SeleniumBrowser.php' );
 
-define("Organic\WP_VERSION", getenv('WP_VERSION') ?? '');
+define( "Organic\WP_VERSION", getenv( 'WP_VERSION' ) ?? '' );
 
 class WidgetsTest extends TestCase {
 
@@ -25,12 +25,10 @@ class WidgetsTest extends TestCase {
 
     function checkWidgetIsAvailable( $block_type ) {
         if ( $this->wordPressVersionTooLow() ) {
-            $this->fail('WordPress version ' . WP_VERSION . ' does not support custom blocks.');
+            $this->fail( 'WordPress version ' . WP_VERSION . ' does not support custom blocks.' );
         }
-        fwrite(STDERR, print_r('\n Getting Selenium Browser', TRUE));
         $browser = SeleniumBrowser::get_test_browser();
         try {
-            fwrite(STDERR, print_r('\n Going to page', TRUE));
             $browser->go_to_new_post();
             $browser->add_block( $block_type );
 
@@ -41,14 +39,13 @@ class WidgetsTest extends TestCase {
             if ( !empty( WP_VERSION ) && WP_VERSION == '5.9' ) {
                 $url_correct = true;
             } else {
-                $url_correct = str_contains( $browser->get_iframe_url( 0 ), 'app.organic.ly');
+                $url_correct = str_contains( $browser->get_iframe_url( 0 ), 'app.organic.ly' );
             }
             $browser->quit();
             $this->assertTrue( $url_correct );
-        } catch (Exception $e) {
-            fwrite(STDERR, print_r($e->getMessage(), TRUE));
+        } catch ( Exception $e ) {
             $browser->quit();
-            $this->fail();
+            $this->fail( $e->getMessage() );
         }
     }
 
