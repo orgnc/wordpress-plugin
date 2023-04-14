@@ -12,15 +12,12 @@ jobs:
     name: Code Quality
     runs-on: ubuntu-latest
     steps:
-
-      - name: Install PHP-zip
-        run: sudo apt-get install -y zlib1g-dev && sudo apt-get install -y zip
-
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v5
         with:
           working_dir: src
           php_version: "7.4"
+          php_extensions: zip
 
       - name: Run PHPCS
         run: cd src && composer run lint
