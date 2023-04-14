@@ -5,7 +5,6 @@ namespace Organic;
 use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
-use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\WebDriverWait;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\Chrome\ChromeOptions;
