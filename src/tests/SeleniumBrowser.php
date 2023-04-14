@@ -275,7 +275,7 @@ class SeleniumBrowser {
      * @throws Exception
      */
     function get_iframe_url( int $index ) {
-        $iframe = $this->wait_for('iframe', null, null, true)[$index];
+        $iframe = $this->wait_for('iframe', null, null, true )[$index];
         return $iframe->getAttribute( 'src' );
     }
 

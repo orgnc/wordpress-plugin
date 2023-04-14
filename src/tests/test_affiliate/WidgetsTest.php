@@ -65,6 +65,4 @@ class WidgetsTest extends TestCase {
         $this->checkWidgetIsAvailable( 'organic-affiliate-product-carousel' );
     }
 
-
-
 }
