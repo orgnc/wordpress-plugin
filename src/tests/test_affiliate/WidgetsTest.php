@@ -51,6 +51,7 @@ class WidgetsTest extends TestCase {
 
     /**
      * Test that the product card block is available.
+     * @group selenium_test
      */
     public function testProductCardAvailable() {
         $this->checkWidgetIsAvailable( 'organic-affiliate-product-card' );
@@ -58,6 +59,7 @@ class WidgetsTest extends TestCase {
 
     /**
      * Test that the product carousel block is available.
+     * @group selenium_test
      */
     public function testProductCarouselAvailable() {
         $this->checkWidgetIsAvailable( 'organic-affiliate-product-carousel' );

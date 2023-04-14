@@ -314,8 +314,9 @@ def lint(filenames, php, js):
 
 @cli.command()
 @click.argument('services', nargs=-1, type=click.Choice(get_compose_config().get_wp_services()))
+@click.option('--exclude', type=click.Choice(['selenium_test']))
 @click.pass_obj
-def run_tests(config, services):
+def run_tests(config, services, exclude):
 
     if not _service_is_running("composer"):
         info(
@@ -341,9 +342,13 @@ def run_tests(config, services):
             port = config.get_service_port(service)
             version = config.get_wp_version(service)
             info(f"Running tests for {service} (port {port})")
+            cmd = f'/bin/bash -c "export WP_PORT={port} WP_VERSION={version}; composer run phpunit'
+            if exclude:
+                cmd += f' -- --exclude-group {exclude}'
+            cmd += '"'
             service_trigger(
                 "composer",
-                f'/bin/bash -c "export WP_PORT={port} WP_VERSION={version}; ./vendor/bin/phpunit"',
+                cmd,
             )
 
 
