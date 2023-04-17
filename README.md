@@ -28,7 +28,7 @@ $ poetry install
 
 6. Create `.env` file
 ```bash
-$ cp .env.example .env
+$ cp .env.template .env
 ```
 
 7. Don't forget to update `TODO` vars in your `.env` file!
