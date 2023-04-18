@@ -36,6 +36,13 @@ class CCPAPage {
     public function enqueueOneTrust() {
         // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
         wp_enqueue_script(
+            'one-trust-tcf-stub',
+            'https://cdn.cookielaw.org/consent/tcf.stub.js',
+            [],
+            null
+        );
+        // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
+        wp_enqueue_script(
             'one-trust',
             'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js',
             [],
