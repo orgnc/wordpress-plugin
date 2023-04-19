@@ -23,6 +23,7 @@ class Organic {
     public $version = \Organic\ORGANIC_PLUGIN_VERSION;
 
     const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
+    const DEFAULT_REST_API_URL = 'https://api.organiccdn.io/';
 
     private $isEnabled = false;
 
@@ -1370,5 +1371,13 @@ class Organic {
             $organic_app_url = self::DEFAULT_PLATFORM_URL;
         }
         return $organic_app_url;
+    }
+
+    public function getRestAPIUrl() {
+        $organic_api_url = getenv( 'ORGANIC_API_URL_REST' );
+        if ( ! $organic_api_url ) {
+            $organic_api_url = self::DEFAULT_REST_API_URL;
+        }
+        return $organic_api_url;
     }
 }

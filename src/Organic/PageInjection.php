@@ -32,6 +32,7 @@ class PageInjection {
         }
 
         add_action( 'wp_head', [ $this, 'injectBrowserSDK' ] );
+        add_action( 'wp_head', [ $this, 'injectOrganicCustomCss' ] );
 
         if ( $this->organic->useFeedImages() ) {
             add_action( 'rss2_item', [ $this, 'injectRssImage' ] );
@@ -191,6 +192,12 @@ class PageInjection {
             </script>
             <?php
         }
+    }
+
+    public function injectOrganicCustomCss() {
+        $siteId = $this->organic->getSiteId();
+        $cssUrl = $this->organic->getRestAPIUrl() . '/sdk/customcss/' . $siteId;
+        wp_enqueue_style( $siteId, $cssUrl, [], '1.0' );
     }
 
     public function injectPrefetchHeaders() {
