@@ -23,7 +23,7 @@ class Organic {
     public $version = \Organic\ORGANIC_PLUGIN_VERSION;
 
     const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
-    const DEFAULT_REST_API_URL = 'https://api.organic.ly';
+    const DEFAULT_REST_API_URL = 'https://api.organiccdn.io/';
 
     private $isEnabled = false;
 
