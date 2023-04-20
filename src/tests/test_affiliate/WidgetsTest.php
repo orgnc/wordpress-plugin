@@ -23,26 +23,26 @@ class WidgetsTest extends TestCase {
         return false;
     }
 
-    function checkWidgetIsAvailable( $block_type ) {
+    function checkWidgetIsAvailable( $blockType ) {
         if ( $this->wordPressVersionTooLow() ) {
             $this->fail( 'WordPress version ' . WP_VERSION . ' does not support custom blocks.' );
         }
-        $browser = SeleniumBrowser::get_test_browser();
+        $browser = SeleniumBrowser::getTestBrowser();
         try {
-            $browser->go_to_new_post();
-            $browser->add_block( $block_type );
+            $browser->goToNewPost();
+            $browser->addBlock( $blockType );
 
             // Total hack. I cannot figure out why the iframe src attribute is empty in 5.9 (and presumably
             // some other WP versions). The page content looks basically the same as for 6.1,
             // which works fine, and I can visually see the correct URL in Selenium Grid's live view.
             // Let's get rid of this when we figure out the issue.
             if ( !empty( WP_VERSION ) && WP_VERSION == '5.9' ) {
-                $url_correct = true;
+                $urlCorrect = true;
             } else {
-                $url_correct = str_contains( $browser->get_iframe_url( 0 ), 'app.organic.ly' );
+                $urlCorrect = str_contains( $browser->getIframeURL( 0 ), 'app.organic.ly' );
             }
             $browser->quit();
-            $this->assertTrue( $url_correct );
+            $this->assertTrue( $urlCorrect );
         } catch ( Exception $e ) {
             $browser->quit();
             $this->fail( $e->getMessage() );

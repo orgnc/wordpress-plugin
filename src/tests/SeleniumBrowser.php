@@ -26,14 +26,14 @@ class SeleniumBrowser {
     }
 
     /**
-     * @param bool $log_into_wordpress
+     * @param bool logIntoWordPress
      * @return SeleniumBrowser
      */
-    static function get_test_browser( bool $log_into_wordpress = true ) : SeleniumBrowser {
+    static function getTestBrowser( bool $logIntoWordPress = true ) : SeleniumBrowser {
         $browser = new SeleniumBrowser();
         $browser->start();
-        if ( $log_into_wordpress ) {
-            $browser->log_into_wordpress();
+        if ( $logIntoWordPress ) {
+            $browser->logIntoWordPress();
         }
         return $browser;
     }
@@ -43,7 +43,7 @@ class SeleniumBrowser {
      * Do everything needed to start the test browser.
      */
     function start() {
-        $this->configure_browser();
+        $this->configureBrowser();
     }
 
     /**
@@ -51,9 +51,9 @@ class SeleniumBrowser {
      * @return void
      */
     function wait( float $seconds=0.2 ) {
-        $int_seconds = intval( $seconds );
-        $remainder = $seconds - $int_seconds;
-        sleep( $int_seconds );
+        $intSeconds = intval( $seconds );
+        $remainder = $seconds - $intSeconds;
+        sleep( $intSeconds );
         usleep( $remainder * 100000 );
     }
 
@@ -67,7 +67,7 @@ class SeleniumBrowser {
         $this->driver = null;
     }
 
-    private function configure_browser() {
+    private function configureBrowser() {
         $options = new ChromeOptions();
         $options->addArguments(
             [
@@ -83,45 +83,45 @@ class SeleniumBrowser {
     }
 
     /**
-     * @param $element_or_selector
+     * @param $elementOrSelector
      * @param $parent
      * @param $timeout
      * @param $multiple
-     * @param $expected_condition
+     * @param $expectedCondition
      * @return mixed
      * @throws Exception
      */
-    function wait_for( $element_or_selector, $parent, $timeout = null, $multiple=false, $expected_condition=null ) {
-        if ( !is_string( $element_or_selector ) ) {
+    function waitFor( $elementOrSelector, $parent, $timeout = null, $multiple=false, $expectedCondition=null ) {
+        if ( !is_string( $elementOrSelector ) ) {
             // We need to use the full namespace here. See https://www.php.net/manual/en/function.is-a.php#119972.
-            $is_correct_single = !$multiple && is_a( $element_or_selector, 'Facebook\WebDriver\WebDriverElement' );
-            $is_correct_multiple = $multiple && is_array( $element_or_selector ) &&
-                $this->all_elements_are_web_elements( $element_or_selector );
-            if ( $is_correct_single || $is_correct_multiple ) {
-                return $element_or_selector;
+            $isCorrectSingle = !$multiple && is_a( $elementOrSelector, 'Facebook\WebDriver\WebDriverElement' );
+            $isCorrectMultiple = $multiple && is_array( $elementOrSelector ) &&
+                $this->allElementsAreWebElements( $elementOrSelector );
+            if ( $isCorrectSingle || $isCorrectMultiple ) {
+                return $elementOrSelector;
             }
-            throw new Exception( 'Wrong argument: ${$element_or_selector}' );
+            throw new Exception( 'Wrong argument: ${$elementOrSelector}' );
         }
         if ( $timeout === null ) {
             $timeout = 10;
         }
-        if ( $expected_condition ) {
-            $this->wait_for_condition(
-                $expected_condition( WebDriverBy::cssSelector($element_or_selector ) ),
+        if ( $expectedCondition ) {
+            $this->waitForCondition(
+                $expectedCondition( WebDriverBy::cssSelector($elementOrSelector ) ),
                 $timeout
             );
         }
         $parent = $parent ?? $this->driver;
         if ( $multiple ) {
-            return $parent->findElements( WebDriverBy::cssSelector( $element_or_selector )  );
-        } elseif ( $element_or_selector[0] == '#' && !preg_match( '[ .>]', $element_or_selector ) ) {
-            return $parent->findElement( WebDriverBy::id( substr( $element_or_selector, 1 ) ) );
+            return $parent->findElements( WebDriverBy::cssSelector( $elementOrSelector )  );
+        } elseif ( $elementOrSelector[0] == '#' && !preg_match( '[ .>]', $elementOrSelector ) ) {
+            return $parent->findElement( WebDriverBy::id( substr( $elementOrSelector, 1 ) ) );
         } else {
-            return $parent->findElement( WebDriverBy::cssSelector( $element_or_selector ) );
+            return $parent->findElement( WebDriverBy::cssSelector( $elementOrSelector ) );
         }
     }
 
-    private function all_elements_are_web_elements( $array ) : bool {
+    private function allElementsAreWebElements( $array ) : bool {
         foreach ($array as $value) {
             if ( !is_a( $value, 'Facebook\WebDriver\WebDriverElement' ) ) {
                 return false;
@@ -134,17 +134,17 @@ class SeleniumBrowser {
      * @param string $url
      * @return void
      */
-    function open_page( string $url ) {
+    function openPage( string $url ) {
         $this->driver->get( $url );
-        $this->wait_for_ajax_requests();
+        $this->waitForAjaxRequests();
     }
 
-    private function wait_for_ajax_requests() {
-        $this->wait_for_document_ready();
+    private function waitForAjaxRequests() {
+        $this->waitForDocumentReady();
         $this->wait();
     }
 
-    private function wait_for_document_ready() {
+    private function waitForDocumentReady() {
         $this->driver->wait()->until(
             function ($driver) {
                 return $driver->executeScript( 'return document.readyState === "complete"' );
@@ -159,7 +159,7 @@ class SeleniumBrowser {
      * @throws \Facebook\WebDriver\Exception\NoSuchElementException
      * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
-    function wait_for_condition($condition, int $timeout = 10 ) {
+    function waitForCondition($condition, int $timeout = 10 ) {
         $wait = new WebDriverWait( $this->driver, $timeout );
         return $wait->until( $condition );
     }
@@ -168,20 +168,20 @@ class SeleniumBrowser {
      * @param $script
      * @return mixed
      */
-    function execute_script( $script ) {
+    function executeScript( $script ) {
         return $this->driver->executeScript( $script );
     }
 
     /**
-     * @param $element_or_selector
+     * @param $elementOrSelector
      * @param $parent
      * @param $timeout
      * @return mixed
      * @throws Exception
      */
-    function click( $element_or_selector, $parent = null, $timeout = null ) {
-        $element = $this->wait_for(
-            $element_or_selector,
+    function click( $elementOrSelector, $parent = null, $timeout = null ) {
+        $element = $this->waitFor(
+            $elementOrSelector,
             $parent,
             $timeout,
             false,
@@ -198,23 +198,23 @@ class SeleniumBrowser {
      * @param bool $multiple
      * @return mixed|null
      */
-    function get_element_if_it_exists( string $selector, bool $multiple=false ) {
+    function getElementIfItExists( string $selector, bool $multiple=false ) {
         try {
-            return $this->wait_for( $selector, null, 1, $multiple );
+            return $this->waitFor( $selector, null, 1, $multiple );
         } catch ( Exception $ignore ) {
             return null;
         }
     }
 
     /**
-     * @param $input_or_selector
-     * @param $text
+     * @param $inputOrSelector
+     * @param string $text
      * @param $parent
      * @return mixed
      * @throws Exception
      */
-    function fill_text_input( $input_or_selector, $text='', $parent=null ) {
-        $element = $this->click( $input_or_selector, $parent );
+    function fillTextInput($inputOrSelector, string $text='', $parent=null ) {
+        $element = $this->click( $inputOrSelector, $parent );
         $this->click( $element );
         $element->sendKeys( WebDriverKeys::CONTROL, 'a' );
         $this->driver->wait( 0.1 );
@@ -229,14 +229,14 @@ class SeleniumBrowser {
      * @return void
      * @throws Exception
      */
-    function log_into_wordpress() {
-        $this->open_page( WP_LOGIN_URL );
-        $this->fill_text_input( '#user_login', 'organic' );
-        $this->fill_text_input( '#user_pass', 'organic' );
+    function logIntoWordPress() {
+        $this->openPage( WP_LOGIN_URL );
+        $this->fillTextInput( '#user_login', 'organic' );
+        $this->fillTextInput( '#user_pass', 'organic' );
         $this->click( '#wp-submit' );
-        $upgrade_database = $this->get_element_if_it_exists( '[href^="upgrade.php"]' );
-        if ( !empty( $upgrade_database ) ) {
-            $this->click( $upgrade_database );
+        $upgradeDatabase = $this->getElementIfItExists( '[href^="upgrade.php"]' );
+        if ( !empty( $upgradeDatabase ) ) {
+            $this->click( $upgradeDatabase );
         }
         $this->wait( .5 );
     }
@@ -245,9 +245,9 @@ class SeleniumBrowser {
      * @return void
      * @throws Exception
      */
-    function go_to_new_post() {
-        $this->open_page( WP_NEW_POST_URL );
-        $modal = $this->get_element_if_it_exists( '[aria-label="Close dialog"]' );
+    function goToNewPost() {
+        $this->openPage( WP_NEW_POST_URL );
+        $modal = $this->getElementIfItExists( '[aria-label="Close dialog"]' );
         if ( !empty( $modal ) ) {
             // Click out of the "getting started" modal if it exists.
             $this->click( $modal );
@@ -255,18 +255,18 @@ class SeleniumBrowser {
     }
 
     /**
-     * @param string $block_type
+     * @param string $blockType
      * @return void
      * Requires the browser to be in the editor.
      * @throws Exception
      */
-    function add_block( string $block_type ) {
+    function addBlock( string $blockType ) {
         // First, click the first Add block button.
         $this->click( '[aria-label="Toggle block inserter"]' );
         // Click the block search bar. Search for the block type.
-        $this->fill_text_input( '.components-search-control__input', $block_type );
+        $this->fillTextInput( '.components-search-control__input', $blockType );
         // Click the icon for the block type to insert it.
-        $this->click( '.editor-block-list-item-' . $block_type );
+        $this->click( '.editor-block-list-item-' . $blockType );
     }
 
     /**
@@ -274,8 +274,8 @@ class SeleniumBrowser {
      * @return mixed
      * @throws Exception
      */
-    function get_iframe_url( int $index ) {
-        $iframe = $this->wait_for('iframe', null, null, true )[$index];
+    function getIframeURL( int $index ) {
+        $iframe = $this->waitFor('iframe', null, null, true )[$index];
         return $iframe->getAttribute( 'src' );
     }
 
