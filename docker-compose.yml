@@ -4,6 +4,7 @@ x-vars:
   db-password: &db-password organicwpplugin
   db-user: &db-user root
 
+
 x-templates:
   base-build: &base-build
     context: ./docker-context
@@ -18,6 +19,15 @@ x-templates:
         condition: service_started
       nodejs:
         condition: service_started
+      selenium:
+        condition: service_started
+      nginx-proxy:
+        condition: service_started
+    networks:
+      default:
+        aliases:
+          # Shared by all WP services. The port distinguishes them.
+          - wpplugin.lcl.organic.ly
     volumes:
       - ./src:/var/www/html/wp-content/plugins/wordpress-plugin:ro
       - ./docker-context/fixtures/data.yml:/tmp/docker-context/fixtures/data.yml:ro
@@ -33,51 +43,75 @@ x-templates:
     ORGANIC_ENVIRONMENT: ${ORGANIC_ENVIRONMENT}
     ORGANIC_API_URL: ${ORGANIC_API_URL}
     ORGANIC_CDN_URL: ${ORGANIC_CDN_URL}
+    # This tells our reverse proxy which container services the wpplugin URL.
+    # Every wp service has the same alias/virtual host setting, but they differ
+    # in which ports they listen to.
+    VIRTUAL_HOST: wpplugin.lcl.organic.ly
 
 services:
   wp49-php72:
     build:
       <<: *base-build
       target: wp49-php72
+      args:
+        - WP49_PHP72_PORT=${WP49_PHP72_PORT}
     <<: *base-wordpress
     ports:
-      - 8031:80
+      - ${WP49_PHP72_PORT}:${WP49_PHP72_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp49_php72
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://wpplugin.lcl.organic.ly:8031');
+        define('WP_SITEURL', 'http://wpplugin.lcl.organic.ly:8031');
 
   wp59-php74:
     build:
       <<: *base-build
       target: wp59-php74
+      args:
+        - WP59_PHP74_PORT=${WP59_PHP74_PORT}
     <<: *base-wordpress
     ports:
-      - 8032:80
+      - ${WP59_PHP74_PORT}:${WP59_PHP74_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp59_php74
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://wpplugin.lcl.organic.ly:8032');
+        define('WP_SITEURL', 'http://wpplugin.lcl.organic.ly:8032');
 
   wp61-php74:
     build:
       <<: *base-build
       target: wp61-php74
+      args:
+        - WP61_PHP74_PORT=${WP61_PHP74_PORT}
     <<: *base-wordpress
     ports:
-      - 8033:80
+      - ${WP61_PHP74_PORT}:${WP61_PHP74_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp61_php74
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://wpplugin.lcl.organic.ly:8033');
+        define('WP_SITEURL', 'http://wpplugin.lcl.organic.ly:8033');
 
   wp61-php82:
     build:
       <<: *base-build
       target: wp61-php82
+      args:
+        - WP61_PHP82_PORT=${WP61_PHP82_PORT}
     <<: *base-wordpress
     ports:
-      - 8034:80
+      - ${WP61_PHP82_PORT}:${WP61_PHP82_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp61_php82
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://wpplugin.lcl.organic.ly:8034');
+        define('WP_SITEURL', 'http://wpplugin.lcl.organic.ly:8034');
 
   db:
     image: mysql:8.0.32-oracle
@@ -101,6 +135,8 @@ services:
     command: bash -c "sleep infinity"
     environment:
       COMPOSER_AUTH: ${COMPOSER_AUTH}
+      WP_HOME: 'http://wpplugin.lcl.organic.ly'
+      SELENIUM_URL: 'http://selenium:4444/wd/hub'
     volumes:
       - ./src:/app
 
@@ -115,6 +151,33 @@ services:
       - ./src/blocks:/blocks
       - blocks-node-modules:/blocks/node_modules
 
+  selenium:
+    # For ARM64 set `SELENIUM_IMAGE=seleniarm/standalone-chromium:4.0.0-20211213` in your `.env` file
+    image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:4.8.3}
+    shm_size: '1gb'
+    ports:
+      # Increment default port numbers by 1 to avoid conflict with organic dev.
+      - 4445:4444
+
+      # https://github.com/seleniumhq-community/docker-seleniarm#running-the-arm-container-images
+      # Visit http://localhost:7901 to see what's happening in the browser
+      # during selenium tests
+      #
+      # !!! VNC password is "secret" !!!
+      - 5901:5900  # port for external VNC client
+      - 7901:7900  # noVNC.com UI
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:1642
+    ports:
+      - "1080:1080"
+      - "10443:10443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    restart: unless-stopped
+    networks:
+      default:
+
   builder:
     build:
       <<: *base-build
@@ -123,8 +186,6 @@ services:
     volumes:
       - ./:/plugin
       - blocks-node-modules:/plugin/src/blocks/node_modules
-
-
 
 volumes:
   db-data: {}
