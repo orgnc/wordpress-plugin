@@ -26,9 +26,7 @@ x-templates:
     networks:
       default:
         aliases:
-          # Shared by all wp services. Without specifying a port, it goes
-          # to the last run service. Otherwise, the port routes to the desired
-          # service.
+          # Shared by all WP services. The port distinguishes them.
           - wpplugin.lcl.organic.ly
     volumes:
       - ./src:/var/www/html/wp-content/plugins/wordpress-plugin:ro
