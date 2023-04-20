@@ -33,7 +33,9 @@ def empty_dir(path):
 
 class ComposeConfig(dict):
     def get_service_port(self, service):
-        return self['services'][service]['ports'][0].split(':')[0]
+        port_raw = self['services'][service]['ports'][0].split(':')[0]
+        # The YAML has {$SOME_VAR}, but we need the actual value of SOME_VAR from .env.
+        return os.environ[port_raw[2:-1]]
 
     def get_db_creds(self, service):
         db_name = self['services'][service]['environment']['WORDPRESS_DB_NAME']
@@ -240,7 +242,7 @@ def up(config, services, build, reset, install_amp, pull_configs):
     up_cmd.append('--force-recreate')
     # Remove orphaned containers after docker-compose.yml edits
     up_cmd.append('--remove-orphans')
-    up_cmd.extend([*services, 'nginx-proxy'])
+    up_cmd.extend(services)
 
     info("Building/starting services..")
     host_run(up_cmd)
@@ -324,7 +326,7 @@ def run_tests(config, services, exclude):
             "Have you run the up command?",
             "red",
         )
-        return
+        sys.exit(1)
 
     if not services:
         if len(services := config.get_running_wp_services()) > 1:
@@ -333,23 +335,23 @@ def run_tests(config, services, exclude):
                 "Please specify which service(s) over which to run the tests.",
                 "red",
             )
-            return
+            sys.exit(1)
 
     for service in services:
         if not _service_is_running(service):
             info(f"Cannot run tests for {service}: {service} is not running.", "red")
-        else:
-            port = config.get_service_port(service)
-            version = config.get_wp_version(service)
-            info(f"Running tests for {service} (port {port})")
-            cmd = f'/bin/bash -c "export WP_PORT={port} WP_VERSION={version}; composer run phpunit'
-            if exclude:
-                cmd += f' -- --exclude-group {exclude}'
-            cmd += '"'
-            service_trigger(
-                "composer",
-                cmd,
-            )
+            continue
+        port = config.get_service_port(service)
+        version = config.get_wp_version(service)
+        info(f"Running tests for {service} (port {port})")
+        cmd = f'/bin/bash -c "export WP_PORT={port} WP_VERSION={version}; composer run phpunit'
+        if exclude:
+            cmd += f' -- --exclude-group {exclude}'
+        cmd += '"'
+        service_trigger(
+            "composer",
+            cmd,
+        )
 
 
 @cli.command()

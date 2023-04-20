@@ -21,6 +21,8 @@ x-templates:
         condition: service_started
       selenium:
         condition: service_started
+      nginx-proxy:
+        condition: service_started
     networks:
       default:
         aliases:
@@ -53,10 +55,11 @@ services:
     build:
       <<: *base-build
       target: wp49-php72
+      args:
+        - WP49_PHP72_PORT=${WP49_PHP72_PORT}
     <<: *base-wordpress
     ports:
-      # Make sure this port matches the Dockerfile port override for wp49-php72.
-      - 8031:8031
+      - ${WP49_PHP72_PORT}:${WP49_PHP72_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp49_php72
@@ -68,10 +71,11 @@ services:
     build:
       <<: *base-build
       target: wp59-php74
+      args:
+        - WP59_PHP74_PORT=${WP59_PHP74_PORT}
     <<: *base-wordpress
     ports:
-      # Make sure this port matches the Dockerfile port override for wp59-php74.
-      - 8032:8032
+      - ${WP59_PHP74_PORT}:${WP59_PHP74_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp59_php74
@@ -83,10 +87,11 @@ services:
     build:
       <<: *base-build
       target: wp61-php74
+      args:
+        - WP61_PHP74_PORT=${WP61_PHP74_PORT}
     <<: *base-wordpress
     ports:
-      # Make sure this port matches the Dockerfile port override for wp61-php74.
-      - 8033:8033
+      - ${WP61_PHP74_PORT}:${WP61_PHP74_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp61_php74
@@ -98,10 +103,11 @@ services:
     build:
       <<: *base-build
       target: wp61-php82
+      args:
+        - WP61_PHP82_PORT=${WP61_PHP82_PORT}
     <<: *base-wordpress
     ports:
-      # Make sure this port matches the Dockerfile port override for wp61-php82.
-      - 8034:8034
+      - ${WP61_PHP82_PORT}:${WP61_PHP82_PORT}
     environment:
       <<: *base-environment
       WORDPRESS_DB_NAME: wp61_php82
@@ -148,8 +154,8 @@ services:
       - blocks-node-modules:/blocks/node_modules
 
   selenium:
+    # For ARM64 set `SELENIUM_IMAGE=seleniarm/standalone-chromium:4.0.0-20211213` in your `.env` file
     image: ${SELENIUM_IMAGE:-selenium/standalone-chrome:4.8.3}
-    # image: ${SELENIUM_IMAGE:-seleniarm/standalone-chromium:4.8.3} # use this for ARM64
     shm_size: '1gb'
     ports:
       # Increment default port numbers by 1 to avoid conflict with organic dev.
@@ -166,11 +172,10 @@ services:
   nginx-proxy:
     image: nginxproxy/nginx-proxy:1642
     ports:
-      - "80:80"
-      - "443:443"
+      - "1080:1080"
+      - "10443:10443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      # - ./config/nginx.conf:/etc/nginx/nginx.conf:delegated
     restart: unless-stopped
     networks:
       default:

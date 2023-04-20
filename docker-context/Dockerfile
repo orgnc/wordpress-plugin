@@ -31,8 +31,9 @@ RUN { \
 	} > /usr/local/etc/php/conf.d/tap.ini;
 RUN wp --allow-root package install https://github.com/nlemoine/wp-cli-fixtures/archive/refs/tags/0.3.0.zip
 COPY apache_port_template.conf /etc/apache2/ports.conf
-# Make sure the port override below matches the docker-compose port for wp49-php72
-RUN sed -i 's/<PORT>/8031/g' /etc/apache2/ports.conf
+ARG WP49_PHP72_PORT
+# Tell WP service to listen to WP49_PHP72_PORT
+RUN sed -i "s/<PORT>/$WP49_PHP72_PORT/g" /etc/apache2/ports.conf
 COPY . /tmp/docker-context
 
 FROM wordpress:5.9-php7.4 AS wp59-php74
@@ -41,8 +42,9 @@ COPY --from=builder /root/.wp-cli /root/.wp-cli
 COPY --from=builder /tmp/base-theme.zip /tmp/base-theme.zip
 COPY --from=builder /tmp/wpamp-plugin.zip /tmp/wpamp-plugin.zip
 COPY apache_port_template.conf /etc/apache2/ports.conf
-# Make sure the port override below matches the docker-compose port for wp59-php74
-RUN sed -i 's/<PORT>/8032/g' /etc/apache2/ports.conf
+ARG WP59_PHP74_PORT
+# Tell WP apache to listen to WP59_PHP74_PORT
+RUN sed -i "s/<PORT>/$WP59_PHP74_PORT/g" /etc/apache2/ports.conf
 COPY . /tmp/docker-context
 
 FROM wordpress:6.1-php7.4 AS wp61-php74
@@ -51,8 +53,9 @@ COPY --from=builder /root/.wp-cli /root/.wp-cli
 COPY --from=builder /tmp/base-theme.zip /tmp/base-theme.zip
 COPY --from=builder /tmp/wpamp-plugin.zip /tmp/wpamp-plugin.zip
 COPY apache_port_template.conf /etc/apache2/ports.conf
-# Make sure the port override below matches the docker-compose port for wp61-php74
-RUN sed -i 's/<PORT>/8033/g' /etc/apache2/ports.conf
+ARG WP61_PHP74_PORT
+# Tell WP apache to listen to WP61_PHP74_PORT
+RUN sed -i "s/<PORT>/$WP61_PHP74_PORT/g" /etc/apache2/ports.conf
 COPY . /tmp/docker-context
 
 FROM wordpress:6.1-php8.2 AS wp61-php82
@@ -61,6 +64,7 @@ COPY --from=builder /root/.wp-cli /root/.wp-cli
 COPY --from=builder /tmp/base-theme.zip /tmp/base-theme.zip
 COPY --from=builder /tmp/wpamp-plugin.zip /tmp/wpamp-plugin.zip
 COPY apache_port_template.conf /etc/apache2/ports.conf
-# Make sure the port override below matches the docker-compose port for wp61-php82
-RUN sed -i 's/<PORT>/8034/g' /etc/apache2/ports.conf
+ARG WP61_PHP82_PORT
+# Tell WP apache to listen to WP61_PHP82_PORT
+RUN sed -i "s/<PORT>/$WP61_PHP82_PORT/g" /etc/apache2/ports.conf
 COPY . /tmp/docker-context
