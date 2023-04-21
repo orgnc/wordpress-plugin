@@ -137,7 +137,7 @@ class AdminSettings {
         $this->organic->updateOption(
             'organic::log_to_sentry',
             isset( $_POST['organic_log_to_sentry'] ) ? true : false,
-            true
+            false
         );
 
         // Organic Affiliate
