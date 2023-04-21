@@ -496,7 +496,7 @@ class OrganicSdk {
     }
 
     /**
-     * @throws \Exception
+     * @throws RuntimeException
      */
     public function queryWordPressConfig() {
         // Make a call to platform API for client-specific plugin config.
@@ -514,7 +514,7 @@ class OrganicSdk {
         try {
             $result = $this->runQuery( $gql );
         } catch ( \Exception $e ) {
-            throw new \RuntimeException( 'Failed to fetch WordPress Plugin config' );
+            throw new RuntimeException( 'Failed to fetch WordPress Plugin config' );
         }
         return $result['data']['wordpressPluginConfig'];
     }

@@ -296,7 +296,7 @@ class Organic {
         if ( ! empty( $config ) ) {
             $sentryDSN = $config['sentryDsn'];
             if ( ! empty( $sentryDSN ) && $sentryDSN != $this->sentryDSN ) {
-                initSentry( $sentryDSN, $this->environment );
+                init_sentry( $sentryDSN, $this->environment );
             }
         }
     }
