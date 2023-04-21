@@ -13,9 +13,7 @@ use function Sentry\captureException;
 const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
 const SYNC_META_KEY = 'empire_sync';
-// The DSN to use before we load client-specific DSNs.
-const DEFAULT_SENTRY_DSN = 'https://e1cf660e5b3947a4bdf7c516afaaa7d2@o472819.ingest.sentry.io/4505048050434048';
-\Sentry\init( [ 'dsn' => DEFAULT_SENTRY_DSN ] );
+
 
 /**
  * Client Plugin for the Organic Platform
@@ -298,7 +296,7 @@ class Organic {
         if ( ! empty( $config ) ) {
             $sentryDSN = $config['sentryDsn'];
             if ( ! empty( $sentryDSN ) && $sentryDSN != $this->sentryDSN ) {
-                \Sentry\init( [ 'dsn' => $sentryDSN ] );
+                initSentry( $sentryDSN, $this->environment );
             }
         }
     }
