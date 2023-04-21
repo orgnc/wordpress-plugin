@@ -11,6 +11,7 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Organic\Organic;
+use const Organic\DEFAULT_SENTRY_DSN;
 
 define( 'Organic\ORGANIC_PLUGIN_VERSION', 'ORGANIC_PLUGIN_VERSION_VALUE' );
 
@@ -31,8 +32,6 @@ function init_sentry( string $dsn, string $environment ) {
     );
 }
 
-// The DSN to use before we load client-specific DSNs.
-const DEFAULT_SENTRY_DSN = 'https://e1cf660e5b3947a4bdf7c516afaaa7d2@o472819.ingest.sentry.io/4505048050434048';
 init_sentry( DEFAULT_SENTRY_DSN, $environment );
 
 $organic = new Organic( $environment );
