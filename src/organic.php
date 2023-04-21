@@ -11,7 +11,6 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Organic\Organic;
-use const Organic\DEFAULT_SENTRY_DSN;
 
 define( 'Organic\ORGANIC_PLUGIN_VERSION', 'ORGANIC_PLUGIN_VERSION_VALUE' );
 
@@ -19,20 +18,6 @@ $environment = getenv( 'ORGANIC_ENVIRONMENT' ) ?: getenv( 'EMPIRE_ENVIRONMENT' )
 if ( ! $environment ) {
     $environment = 'PRODUCTION';
 }
-
-function init_sentry( string $dsn, string $environment ) {
-    if ( $environment != 'PRODUCTION' ) {
-        return;
-    }
-    \Sentry\init(
-        [
-            'dsn' => $dsn,
-            'environment' => strtolower( $environment ),
-        ]
-    );
-}
-
-init_sentry( DEFAULT_SENTRY_DSN, $environment );
 
 $organic = new Organic( $environment );
 $organic->init(

@@ -134,6 +134,11 @@ class AdminSettings {
             isset( $_POST['organic_ad_slots_prefill_enabled'] ) ? true : false,
             false
         );
+        $this->organic->updateOption(
+            'organic::log_to_sentry',
+            isset( $_POST['organic_log_to_sentry'] ) ? true : false,
+            true
+        );
 
         // Organic Affiliate
         $this->organic->updateOption(
@@ -193,6 +198,7 @@ class AdminSettings {
         $one_trust_id = $this->organic->getOption( 'organic::one_trust_id' );
         $amp_ads_enabled = $this->organic->getOption( 'organic::amp_ads_enabled' );
         $ad_slots_prefill_enabled = $this->organic->getOption( 'organic::ad_slots_prefill_enabled' );
+        $log_to_sentry = $this->organic->getOption( 'organic::log_to_sentry', true );
 
         $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
 
@@ -338,6 +344,16 @@ class AdminSettings {
                             <?php echo $ad_slots_prefill_enabled ? 'checked' : ''; ?>
                         />
                         Prefill Containers Enabled
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_log_to_sentry"
+                            <?php echo $log_to_sentry ? 'checked' : ''; ?>
+                        />
+                        Automatically send plugin errors to Organic
                     </label>
                 </p>
 

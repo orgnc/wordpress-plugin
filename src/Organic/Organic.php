@@ -14,9 +14,6 @@ const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
 const SYNC_META_KEY = 'empire_sync';
 
-// The DSN to use before we load client-specific DSNs.
-const DEFAULT_SENTRY_DSN = 'https://e1cf660e5b3947a4bdf7c516afaaa7d2@o472819.ingest.sentry.io/4505048050434048';
-
 
 /**
  * Client Plugin for the Organic Platform
@@ -28,6 +25,8 @@ class Organic {
     const DEFAULT_REST_API_URL = 'https://api.organiccdn.io/';
 
     private $isEnabled = false;
+
+    private $logToSentry = true;
 
     /**
      * @var AdsTxt
@@ -131,11 +130,6 @@ class Organic {
     private $affiliateDomain = null;
 
     /**
-     * @var string The DSN Sentry uses to route errors
-     */
-    private $sentryDSN = DEFAULT_SENTRY_DSN;
-
-    /**
      * Main purpose is to allow access to the plugin instance from the `wp shell`:
      *  >>> $organic = Organic\Organic::getInstance()
      *  => Organic\Organic {#1829
@@ -236,11 +230,15 @@ class Organic {
         $this->siteDomain = $this->getOption( 'organic::site_domain' );
         $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
 
-        $this->updateSentryDSN( $this->sdk );
-
         $this->adsTxt = new AdsTxt( $this );
 
         $this->isEnabled = $this->getOption( 'organic::enabled' );
+        $this->logToSentry = $this->getOption( 'organic::log_to_sentry' );
+        // Initialize Sentry as soon as possible.
+        if ( $this->isEnabled && $this->logToSentry ) {
+            $this->initSentry( $this->sdk );
+        }
+
         // Uses old `amp_ads_enabled` but controls AMP overall
         $this->ampEnabled = $this->getOption( 'organic::amp_ads_enabled' );
         $this->injectAdsConfig = $this->getOption( 'organic::inject_ads_config' );
@@ -287,10 +285,12 @@ class Organic {
     }
 
     /**
-     * Reinitialize Sentry with a client-specific DSN if applicable.
      * @param OrganicSdk $sdk
      */
-    public function updateSentryDSN( \Organic\SDK\OrganicSdk $sdk ) {
+    public function initSentry( \Organic\SDK\OrganicSdk $sdk ) {
+        if ( $this->environment != 'PRODUCTION' ) {
+            return;
+        }
         try {
             $config = $sdk->queryWordPressConfig();
         } catch ( \Exception $e ) {
@@ -298,8 +298,13 @@ class Organic {
         }
         if ( ! empty( $config ) ) {
             $sentryDSN = $config['sentryDsn'];
-            if ( ! empty( $sentryDSN ) && $sentryDSN != $this->sentryDSN ) {
-                init_sentry( $sentryDSN, $this->environment );
+            if ( ! empty( $sentryDSN ) ) {
+                \Sentry\init(
+                    [
+                        'dsn' => $sentryDSN,
+                        'environment' => strtolower( $this->environment ),
+                    ]
+                );
             }
         }
     }
