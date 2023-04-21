@@ -3,7 +3,6 @@
 namespace Organic;
 
 use DateTime;
-use GuzzleHttp\Exception\GuzzleException;
 use Organic\SDK\OrganicSdk;
 use Exception;
 use WP_Query;
@@ -14,7 +13,9 @@ use function Sentry\captureException;
 const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
 const SYNC_META_KEY = 'empire_sync';
-
+// The DSN to use before we load client-specific DSNs.
+const DEFAULT_SENTRY_DSN = 'https://e1cf660e5b3947a4bdf7c516afaaa7d2@o472819.ingest.sentry.io/4505048050434048';
+\Sentry\init( [ 'dsn' => DEFAULT_SENTRY_DSN ] );
 
 /**
  * Client Plugin for the Organic Platform
@@ -129,6 +130,11 @@ class Organic {
     private $affiliateDomain = null;
 
     /**
+     * @var string The DSN Sentry uses to route errors
+     */
+    private $sentryDSN = DEFAULT_SENTRY_DSN;
+
+    /**
      * Main purpose is to allow access to the plugin instance from the `wp shell`:
      *  >>> $organic = Organic\Organic::getInstance()
      *  => Organic\Organic {#1829
@@ -229,6 +235,8 @@ class Organic {
         $this->siteDomain = $this->getOption( 'organic::site_domain' );
         $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
 
+        $this->updateSentryDSN( $this->sdk );
+
         $this->adsTxt = new AdsTxt( $this );
 
         $this->isEnabled = $this->getOption( 'organic::enabled' );
@@ -275,6 +283,24 @@ class Organic {
         }
 
         add_action( 'save_post', [ $this, 'handleSavePostHook' ], 10, 3 );
+    }
+
+    /**
+     * Reinitialize Sentry with a client-specific DSN if applicable.
+     * @param OrganicSdk $sdk
+     */
+    public function updateSentryDSN( \Organic\SDK\OrganicSdk $sdk ) {
+        try {
+            $config = $sdk->queryWordPressConfig();
+        } catch ( \Exception $e ) {
+            self::captureException( $e );
+        }
+        if ( ! empty( $config ) ) {
+            $sentryDSN = $config['sentryDsn'];
+            if ( ! empty( $sentryDSN ) && $sentryDSN != $this->sentryDSN ) {
+                \Sentry\init( [ 'dsn' => $sentryDSN ] );
+            }
+        }
     }
 
     /**

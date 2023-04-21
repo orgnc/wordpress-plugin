@@ -23,7 +23,7 @@ use RuntimeException;
  */
 class OrganicSdk {
 
-    const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
+    const DEFAULT_API_URL = 'http://api.lcl.organic.ly:8000/graphql';
     const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
     const FALLBACK_PREBID_BUILD = 'prebid5.13.0.js';
     const SDK_V1 = 'v1';
@@ -493,6 +493,30 @@ class OrganicSdk {
             throw new \Exception( 'Could not verify affiliate site guid' );
         }
         return $json['affiliateConfig']['siteConf'];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function queryWordPressConfig() {
+        // Make a call to platform API for client-specific plugin config.
+        $gql = new Query( 'wordpressPluginConfig' );
+        $gql->setArguments(
+            [
+                'siteGuid' => $this->siteGuid,
+            ]
+        );
+        $gql->setSelectionSet(
+            [
+                'sentryDsn',
+            ]
+        );
+        try {
+            $result = $this->runQuery( $gql );
+        } catch ( \Exception $e ) {
+            throw new \RuntimeException( 'Failed to fetch WordPress Plugin config' );
+        }
+        return $result['data']['wordpressPluginConfig'];
     }
 
     /**
