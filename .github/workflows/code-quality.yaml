@@ -30,9 +30,9 @@ jobs:
 
   selenium-tests:
     name: Selenium Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
-      ECR_BACKEND_REPOSITORY: organic-platform-backend
+      # ECR_BACKEND_REPOSITORY: organic-platform-backend
       PROJECT: wordpress-plugin
     steps:
       - name: Checkout
