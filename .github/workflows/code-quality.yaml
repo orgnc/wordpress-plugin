@@ -41,7 +41,10 @@ jobs:
       - name: Build the stack
         id: build-stack
         run: |
-          docker compose -p ${{ env.PROJECT }} --env-file .env -f docker-compose.yml up -d
+          docker compose -p ${{ env.PROJECT }} \
+          --env ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}" \
+          --env COMPOSER_AUTH="${{ secrets.GITHUB_TOKEN }}" \
+          --env-file .env.ci -f docker-compose.yml up -d
 
       - name: Run selenium tests
         run: |
