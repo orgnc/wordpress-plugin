@@ -41,14 +41,11 @@ jobs:
       - name: Build the stack
         id: build-stack
         run: |
-          docker compose -p ${{ env.PROJECT }} -f docker-compose.yml build
-          docker compose -p ${{ env.PROJECT }} -f docker-compose.yml up -d
+          docker compose -p ${{ env.PROJECT }} --env-file .env -f docker-compose.yml up -d
 
       - name: Run selenium tests
         run: |
           docker compose -p ${{ env.PROJECT }} exec \
-          --env AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          --env AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
           bash -c "cd src && ./vendor/bin/phpunit --group selenium_test"
 
       # Stop running containers and clean-up
