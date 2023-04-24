@@ -30,7 +30,7 @@ function init_organic_sentry( string $dsn, string $environment ) : ?\Sentry\Stat
         return null;
     }
     // Initialize a new Sentry Hub and Client to avoid interfering with
-    // any client Sentry configuration.
+    // any publisher's pre-existing Sentry configuration.
     $options = [
         'dsn' => $dsn,
         'environment' => strtolower( $environment ),
