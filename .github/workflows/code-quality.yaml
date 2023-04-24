@@ -27,3 +27,32 @@ jobs:
 
       - name: Run ESLint
         run: cd src && composer run eslint
+
+  selenium-tests:
+    name: Selenium Tests
+    runs-on: self-hosted
+    env:
+      ECR_BACKEND_REPOSITORY: organic-platform-backend
+      PROJECT: wordpress-plugin
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build the stack
+        id: build-stack
+        run: |
+          docker compose -p ${{ env.PROJECT }} -f docker-compose.yaml build
+          docker compose -p ${{ env.PROJECT }} -f docker-compose.yaml up -d
+
+      - name: Run selenium tests
+        run: |
+          docker compose -p ${{ env.PROJECT }} exec \
+          --env AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          --env AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          bash -c "cd src && ./vendor/bin/phpunit --group selenium_test"
+
+      # Stop running containers and clean-up
+      - name: Clean up
+        if: always()
+        run: |
+          docker compose -p ${{ env.PROJECT }} -f docker-compose.yaml down --remove-orphans --volumes
