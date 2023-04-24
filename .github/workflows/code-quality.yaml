@@ -41,8 +41,8 @@ jobs:
       - name: Build the stack
         id: build-stack
         run: |
-          docker compose -p ${{ env.PROJECT }} -f docker-compose.yaml build
-          docker compose -p ${{ env.PROJECT }} -f docker-compose.yaml up -d
+          docker compose -p ${{ env.PROJECT }} -f docker-compose.yml build
+          docker compose -p ${{ env.PROJECT }} -f docker-compose.yml up -d
 
       - name: Run selenium tests
         run: |
@@ -55,4 +55,4 @@ jobs:
       - name: Clean up
         if: always()
         run: |
-          docker compose -p ${{ env.PROJECT }} -f docker-compose.yaml down --remove-orphans --volumes
+          docker compose -p ${{ env.PROJECT }} -f docker-compose.yml down --remove-orphans --volumes
