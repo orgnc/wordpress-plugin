@@ -278,7 +278,16 @@ class Organic {
         new ContentIdMapSyncCommand( $this );
         new AdConfigSyncCommand( $this );
         new AdsTxtSyncCommand( $this );
-        new AffiliateConfigSyncCommand( $this );
+        new AffiliateConfigSyncCommand(
+            $this,
+            'organic-sync-affiliate-config',
+            'organic_cron_sync_affiliate_config'
+        );
+        new PluginConfigSyncCommand(
+            $this,
+            'organic-sync-plugin-config',
+            'organic_cron_sync_plugin_config'
+        );
 
         // Set up our GraphQL hooks to expose settings
         $graphql = new GraphQL( $this );
@@ -293,19 +302,13 @@ class Organic {
     }
 
     /**
-     * @param OrganicSdk $sdk
+     * When applicable, configures the Organic Sentry client with a site-specific DSN.
+     * @return void
      */
-    public function configureSentryForSite( \Organic\SDK\OrganicSdk $sdk ) {
-        try {
-            $config = $sdk->queryWordPressConfig();
-        } catch ( \Exception $e ) {
-            self::captureException( $e );
-        }
-        if ( ! empty( $config ) ) {
-            $sentryDSN = $config['sentryDsn'];
-            if ( ! empty( $sentryDSN ) ) {
-                $this->sentryHub = init_organic_sentry( $sentryDSN, $this->getEnvironment() );
-            }
+    public function configureSentryForSite() {
+        $sentryDSN = $this->getOption( 'organic::sentry_dsn' );
+        if ( ! empty( $sentryDSN ) ) {
+            $this->sentryHub = init_organic_sentry( $sentryDSN, $this->getEnvironment() );
         }
     }
 
@@ -1244,7 +1247,6 @@ class Organic {
         ];
     }
 
-
     public function syncAffiliateConfig() {
         try {
             $config = $this->sdk->queryAffiliateConfig();
@@ -1258,7 +1260,27 @@ class Organic {
         $domain = $config['publicDomain'];
         $this->debug( 'Got affiliate domain: ' . $domain );
         $this->updateOption( 'organic::affiliate_domain', $domain, false );
+        return [
+            'updated' => true,
+        ];
+    }
 
+    public function syncPluginConfig() {
+        try {
+            $config = $this->sdk->queryWordPressConfig();
+        } catch ( \Exception $e ) {
+            self::captureException( $e );
+            return [
+                'updated' => false,
+            ];
+        }
+        if ( ! empty( $config ) ) {
+            $sentryDSN = $config['sentryDsn'];
+            if ( ! empty( $sentryDSN ) ) {
+                $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
+                $this->configureSentryForSite();
+            }
+        }
         return [
             'updated' => true,
         ];

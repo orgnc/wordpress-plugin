@@ -59,6 +59,7 @@ class AdminSettings {
                 break;
 
             case 'organic_force_pull_configs':
+                $this->organic->syncPluginConfig();
                 $this->organic->syncAdsTxt();
                 $this->organic->syncAdConfig();
                 $this->organic->syncAffiliateConfig();
