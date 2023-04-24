@@ -35,12 +35,6 @@ jobs:
       # ECR_BACKEND_REPOSITORY: organic-platform-backend
       PROJECT: wordpress-plugin
     steps:
-      - uses: isbang/compose-action@v1.4.1
-        with:
-          compose-file: "docker-compose.yml"
-          down-flags: "--remove-orphans --volumes"
-
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -48,9 +42,9 @@ jobs:
         id: build-stack
         run: |
           docker compose \
-          --e ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}" \
-          --e COMPOSER_AUTH="${{ secrets.GITHUB_TOKEN }}" \
-          --env-file .env.ci -p ${{ env.PROJECT }} \
+          -e ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}" \
+          -e COMPOSER_AUTH="${{ secrets.GITHUB_TOKEN }}" \
+          -env-file .env.ci -p ${{ env.PROJECT }} \
           -f docker-compose.yml up -d
 
       - name: Run selenium tests
