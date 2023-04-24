@@ -16,7 +16,7 @@ class GraphQLTest extends TestCase {
      * Set up a new, clean copy of the Organic wrapper for each test
      */
     public function setUp(): void {
-        $this->organic = new Organic( 'TEST' );
+        $this->organic = new Organic( 'TEST', null );
     }
 
     public function testNoErrorWhenNoGraphQL() {
