@@ -41,9 +41,9 @@ jobs:
       - name: Build the stack
         id: build-stack
         run: |
-          docker compose -p ${{ env.PROJECT }} \
           ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}" \
           COMPOSER_AUTH="${{ secrets.GITHUB_TOKEN }}" \
+          docker compose -p ${{ env.PROJECT }} \
           --env-file .env.ci \
           -f docker-compose.yml up -d
 
