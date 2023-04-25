@@ -8,26 +8,6 @@ on:
       - reopened
       - synchronize
 jobs:
-  build:
-    name: Code Quality
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: php-actions/composer@v5
-        with:
-          working_dir: src
-          php_version: "7.4"
-          php_extensions: zip
-
-      - name: Run PHPCS
-        run: cd src && composer run lint
-
-      - name: Run PHPUnit
-        run: cd src && composer run phpunit -- --exclude-group selenium_test
-
-      - name: Run ESLint
-        run: cd src && composer run eslint
-
   selenium-tests:
     name: Selenium Tests
     runs-on: ubuntu-latest
@@ -38,19 +18,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build the stack
-        id: build-stack
-        run: |
-          ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}" \
-          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}" \
-          docker compose -p ${{ env.PROJECT }} \
-          --env-file .env.ci \
-          -f docker-compose.yml up -d
+      - name: Setup Python
+        id: python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-      - name: Run selenium tests
+      - name: Install poetry
         run: |
-          docker compose -p ${{ env.PROJECT }} exec \
-          bash -c "cd src && ./vendor/bin/phpunit --group selenium_test"
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Configure poetry
+        run: |
+          poetry self add poetry-dotenv-plugin
+          poetry config virtualenvs.in-project true
+
+      # Testing
+      - name: Cache the virtualenv
+        uses: actions/cache@v2
+        with:
+          path: ./.venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install poetry dependencies
+        run: |
+          poetry install
+
+      - name: Build the environment
+        run: |
+          export ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
+          export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
+          poetry run ./dev.py up
+
+      - name: Run Tests
+        run: |
+          poetry run ./dev.py run-tests
 
       # Stop running containers and clean-up
       - name: Clean up
