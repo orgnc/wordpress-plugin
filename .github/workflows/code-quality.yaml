@@ -49,16 +49,16 @@ jobs:
           mv .env.ci .env
           export ORGANIC_DEMO_SITE_APIKEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
           export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
-          export COMPOSER_AUTH_DEBUG="{\"github-oauth\":{\"github.com\":\"${{ secrets.TEST_SECRET }}\"}}"
-          echo $COMPOSER_AUTH_DEBUG
           poetry run ./dev.py up
 
       - name: Run Tests
         run: |
+          export ORGANIC_DEMO_SITE_APIKEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
+          export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
           poetry run ./dev.py run-tests
 
       # Stop running containers and clean-up
       - name: Clean up
         if: always()
         run: |
-          docker compose -p ${{ env.PROJECT }} -f docker-compose.yml down --remove-orphans --volumes
+          poetry run ./dev.py down --nuke
