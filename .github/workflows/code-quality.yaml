@@ -27,4 +27,3 @@ jobs:
 
       - name: Run ESLint
         run: cd src && composer run eslint
-

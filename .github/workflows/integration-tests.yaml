@@ -31,7 +31,6 @@ jobs:
       - name: Configure poetry
         run: |
           poetry self add poetry-dotenv-plugin
-          poetry config virtualenvs.in-project true
           poetry install
 
       - name: Build the stack
@@ -44,5 +43,4 @@ jobs:
       - name: Run selenium tests
         run: |
           export ORGANIC_DEMO_SITE_APIKEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
-          export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
           poetry run ./dev.py run-tests --limit_to selenium_test
