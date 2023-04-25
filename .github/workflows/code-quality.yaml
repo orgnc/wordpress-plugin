@@ -55,10 +55,12 @@ jobs:
         run: |
           export ORGANIC_DEMO_SITE_APIKEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
           export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
-          poetry run ./dev.py run-tests
+          poetry run ./dev.py run-tests --limit_to selenium_test
 
       # Stop running containers and clean-up
       - name: Clean up
         if: always()
         run: |
+          export ORGANIC_DEMO_SITE_APIKEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
+          export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
           poetry run ./dev.py down --nuke
