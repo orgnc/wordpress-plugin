@@ -41,10 +41,10 @@ jobs:
       - name: Build the stack
         id: build-stack
         run: |
-          docker compose \
-          -e ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}" \
-          -e COMPOSER_AUTH="${{ secrets.GITHUB_TOKEN }}" \
-          -env-file .env.ci -p ${{ env.PROJECT }} \
+          docker compose -p ${{ env.PROJECT }} \
+          ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}" \
+          COMPOSER_AUTH="${{ secrets.GITHUB_TOKEN }}" \
+          --env-file .env.ci \
           -f docker-compose.yml up -d
 
       - name: Run selenium tests
