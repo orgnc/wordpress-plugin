@@ -1,0 +1,55 @@
+name: Build Plugin Dev Zip and Push to S3
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  deploy:
+    name: "Organic Ad Wordpress: Build Dev Release"
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-west-2
+      AWS_BUCKET: empire-wordpress-plugin
+      BUILD_NUMBER: dev-${{ github.event.pull_request.number }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      # Create a packaged up zip file
+      - name: Set Version Number & Build Zip
+        id: build-zip
+        run: ./build-zip.sh ${{ env.BUILD_NUMBER }}
+
+      # Set up our S3 Connection
+      - name: Set up S3cmd cli tool
+        uses: s3-actions/s3cmd@v1.1
+        with:
+          provider: aws # default is linode
+          region: ${{ env.AWS_REGION }}
+          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Upload Dev Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: organic-${{ env.BUILD_NUMBER }}.zip
+          path: build/organic-${{ env.BUILD_NUMBER }}.zip
+
+      # Push zip to S3 for easy integration with Organic Platform
+      - name: Deploy
+        run: |
+          s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/
+          s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-${{ env.BUILD_NUMBER }}.zip --acl-public
