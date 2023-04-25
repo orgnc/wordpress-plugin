@@ -49,6 +49,8 @@ jobs:
           mv .env.ci .env
           export ORGANIC_DEMO_SITE_APIKEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
           export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
+          export COMPOSER_AUTH_DEBUG="{\"github-oauth\":{\"github.com\":\"${{ secrets.TEST_SECRET }}\"}}"
+          echo $COMPOSER_AUTH_DEBUG
           poetry run ./dev.py up
 
       - name: Run Tests
