@@ -46,6 +46,7 @@ jobs:
 
       - name: Build the environment
         run: |
+          mv .env.ci .env
           export ORGANIC_DEMO_SITE_API_KEY="${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}"
           export COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GITHUB_TOKEN }}\"}}"
           poetry run ./dev.py up
