@@ -122,7 +122,7 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent" ]
       interval: 5s
       timeout: 3s
-      retries: 3
+      retries: 5
     environment:
       MYSQL_ROOT_PASSWORD: *db-password
     volumes:
