@@ -9,9 +9,8 @@ on:
       - synchronize
 
 jobs:
-  selenium-tests:
-    name: Selenium Tests
-    runs-on: ubuntu-latest
+  build:
+    name: Build the project
     env:
       PROJECT: wordpress-plugin
       ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
@@ -39,8 +38,33 @@ jobs:
         run: |
           mv .env.ci .env
           composer config --global github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
-          poetry run ./dev.py up
+          poetry run ./dev.py up wp49-php72 wp59-php74 wp61-php74 wp61-php82
 
-      - name: Run selenium tests
+
+  selenium-tests-wp59-php74:
+    name: Selenium Tests WP59-PHP74
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      PROJECT: wordpress-plugin
+      ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
+      COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
+    steps:
+      - name: Run selenium tests (WP59-PHP74)
         run: |
-          poetry run ./dev.py run-tests --limit_to selenium_test
+          poetry run ./dev.py run-tests wp59-php74 --limit_to selenium_test
+
+
+  selenium-tests-wp61-php74:
+    name: Selenium Tests WP61-PHP74
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      PROJECT: wordpress-plugin
+      ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
+      COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
+    steps:
+
+      - name: Run selenium tests (WP61-PHP74)
+        run: |
+          poetry run ./dev.py run-tests wp61-php74 --limit_to selenium_test
