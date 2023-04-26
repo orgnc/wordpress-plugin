@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     name: Build the project
+    runs-on: ubuntu-latest
     env:
       PROJECT: wordpress-plugin
       ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
