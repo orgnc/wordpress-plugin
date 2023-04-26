@@ -38,7 +38,7 @@ jobs:
       - name: Build the stack
         run: |
           mv .env.ci .env
-          composer config --global github-oauth.github.com ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
+          composer config --global github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
           poetry run ./dev.py up
 
       - name: Run selenium tests
