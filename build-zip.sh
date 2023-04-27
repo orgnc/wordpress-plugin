@@ -35,7 +35,6 @@ cp -r src/blocks/affiliate/productCard/build build/organic/blocks/affiliate/prod
 cp src/blocks/affiliate/productCard/block.json build/organic/blocks/affiliate/productCard/
 cp -r src/blocks/affiliate/productCarousel/build build/organic/blocks/affiliate/productCarousel/
 cp src/blocks/affiliate/productCarousel/block.json build/organic/blocks/affiliate/productCarousel/
-cp src/blocks/initSDKOnPostLoad.js build/organic/blocks/
 cd build
 zip -r organic-${BUILD_NUMBER}.zip organic
 cp organic-${BUILD_NUMBER}.zip organic.zip
