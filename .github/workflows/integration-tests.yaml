@@ -42,7 +42,7 @@ jobs:
       - name: Cache Composer dependencies
         uses: actions/cache@v3
         with:
-          path: /src/vendor
+          path: src/vendor
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
       - name: Build the stack
