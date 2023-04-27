@@ -61,7 +61,7 @@
             "liborm85/composer-vendor-cleaner": true
         },
         "platform": {
-            "php": "7.2"
+            "php": "7.2.5"
         },
         "match-case": false
     },

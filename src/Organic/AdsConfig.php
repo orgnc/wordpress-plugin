@@ -4,7 +4,6 @@ namespace Organic;
 
 class AdsConfig extends BaseConfig {
 
-
     /**
      * List of AdRules returned from Organic Platform API
      * Each AdRule must contain at least:
@@ -29,6 +28,7 @@ class AdsConfig extends BaseConfig {
 
     private $fallbackUrl;
     private $prebidUrl;
+    private $MODERN_PREBID_RE = '/.*sdk\/(prebid|prebid-stable|prebid-canary)\.js/';
 
     public function __construct( array $rawAdsConfig, array $rawAdsRefreshRates ) {
         parent::__construct( $rawAdsConfig );
@@ -52,7 +52,14 @@ class AdsConfig extends BaseConfig {
         $this->prebidUrl = $prebid['useBuild'] ?? $this->fallbackUrl;
     }
 
-    public function getPrebidBuildUrl() : string {
-        return $this->prebidUrl;
+    public function getPrebidBuildUrl() : array {
+        $moduleSrc = '';
+        if ( preg_match( $this->MODERN_PREBID_RE, $this->prebidUrl ) ) {
+            $moduleSrc = str_replace( '.js', '.m.js', $this->prebidUrl );
+        };
+        return [
+            'default' => $this->prebidUrl,
+            'module' => $moduleSrc,
+        ];
     }
 }
