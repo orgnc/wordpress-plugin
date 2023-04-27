@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         wp_service: [ 'wp59-php74', 'wp61-php74', 'wp61-php82' ]
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       PROJECT: wordpress-plugin
       ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
@@ -46,7 +46,3 @@ jobs:
       - name: Run selenium tests (${{ matrix.wp_service }})
         run: |
           poetry run ./dev.py run-tests ${{ matrix.wp_service }} --limit_to selenium_test
-
-      - name: Clean up
-        run: |
-          docker compose -p ${{ env.PROJECT }} -f docker-compose.yml down --remove-orphans --volumes
