@@ -24,19 +24,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up python
+      - name: Set up poetry
         id: python
+        run: curl -sSL https://install.python-poetry.org | python3 -
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           cache: 'poetry'
-
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-
-      - name: Configure poetry
-        run: |
+      - run: |
           poetry self add poetry-dotenv-plugin
           poetry install
 
