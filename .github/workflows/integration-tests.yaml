@@ -21,19 +21,15 @@ jobs:
       ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
       COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up poetry
-        id: python
+      - uses: actions/checkout@v3
+      - name: Configure poetry
         run: curl -sSL https://install.python-poetry.org | python3 -
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           cache: 'poetry'
-      - run: |
-          poetry self add poetry-dotenv-plugin
-          poetry install
+      - run: poetry self add poetry-dotenv-plugin
+      - run: poetry install
 
       - name: Cache Composer dependencies
         uses: actions/cache@v3
