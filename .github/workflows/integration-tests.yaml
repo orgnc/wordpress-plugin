@@ -35,11 +35,17 @@ jobs:
           poetry self add poetry-dotenv-plugin
           poetry install
 
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
       - name: Build the stack
         run: |
           mv .env.ci .env
           composer config --global github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
-          poetry run ./dev.py up wp49-php72 wp59-php74 wp61-php74 wp61-php82
+          poetry run ./dev.py up wp59-php74 wp61-php74
 
 
   selenium-tests-wp59-php74:
@@ -65,7 +71,6 @@ jobs:
       ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
       COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
     steps:
-
       - name: Run selenium tests (WP61-PHP74)
         run: |
           poetry run ./dev.py run-tests wp61-php74 --limit_to selenium_test
