@@ -8,7 +8,7 @@ COPY --from=node:17.9.1 /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 RUN ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 ARG COMPOSER_AUTH
-RUN wp --allow-root package install nlemoine/wp-cli-fixtures
+RUN wp --allow-root package install hellonico/wp-cli-fixtures
 WORKDIR /app
 
 FROM wordpress:4.9-php7.2 AS wp49-php72

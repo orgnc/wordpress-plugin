@@ -25,7 +25,7 @@ class OrganicSdk {
 
     const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
     const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
-    const FALLBACK_PREBID_BUILD = 'prebid5.13.0.js';
+    const FALLBACK_PREBID_BUILD = 'sdk/prebid-stable.js';
     const SDK_V1 = 'v1';
     const SDK_V2 = 'v2';
 
@@ -122,19 +122,27 @@ class OrganicSdk {
     /**
      * Builds the SDK V1 URL to embed the JS SDK into web pages
      *
-     * @return string
+     * @return array
      */
     public function getSdkV1Url() {
-        return $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid;
+        return [
+            'default' => $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid,
+            'module' => '',
+        ];
     }
 
     /**
      * Builds the SDK V2 URL to embed the JS SDK into web pages
      *
-     * @return string
+     * @return array
      */
     public function getSdkV2Url() {
-        return $this->cdnUrl . 'sdk/sdkv2?guid=' . $this->siteGuid;
+        $default = $this->cdnUrl . 'sdk/sdkv2?guid=' . $this->siteGuid;
+        $module = $default . '&usemodules=true';
+        return [
+            'default' => $default,
+            'module' => $module,
+        ];
     }
 
     /**
@@ -281,12 +289,6 @@ class OrganicSdk {
                                                 'relative',
                                             ]
                                         ),
-                                        ( new Query( 'indexServer' ) )->setSelectionSet(
-                                            [
-                                                'enabled',
-                                                'tag',
-                                            ]
-                                        ),
                                         ( new Query( 'nonRefresh' ) )->setSelectionSet(
                                             [
                                                 'advertiserIds',
@@ -332,8 +334,6 @@ class OrganicSdk {
                                         'adType',
                                         'connatixId',
                                         'adUnitId',
-                                        'relative',
-                                        'selectors',
                                         ( new Query( 'relativeSelectors' ) )->setSelectionSet(
                                             [
                                                 'relative',
@@ -374,7 +374,6 @@ class OrganicSdk {
                                     [
                                         'enabled',
                                         'timeout',
-                                        'loadBySdk',
                                         'useBuild',
                                         ( new Query( 'bidders' ) )->setSelectionSet(
                                             [

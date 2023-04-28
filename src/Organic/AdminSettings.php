@@ -494,8 +494,8 @@ class AdminSettings {
                 <?php $this->injectEnvInfo( 'ENVIRONMENT', $this->organic->getEnvironment() ); ?>
                 <?php $this->injectEnvInfo( 'API_URL', $this->organic->sdk->getAPIUrl() ); ?>
                 <?php $this->injectEnvInfo( 'CDN_URL', $this->organic->sdk->getCDNUrl() ); ?>
-                <?php $this->injectEnvInfo( 'SDK_URL', $this->organic->getSdkUrl() ); ?>
-                <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>
+                <?php $this->injectEnvInfo( 'SDK_URL', $this->organic->getSdkUrl()['default'] ); ?>
+                <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl()['default'] ); ?>
                 <?php $this->injectEnvInfo( 'PLATFORM_URL', $this->organic->getPlatformUrl() ); ?>
                 <?php $this->injectEnvInfo( 'ADS_TXT_URL', $this->organic->getAdsTxtManager()->getAdsTxtUrl() ); ?>
                 <?php if ( ! $ads_txt_redirect ) { ?>

@@ -32,7 +32,7 @@ class PageInjection {
         }
 
         add_action( 'wp_head', [ $this, 'injectBrowserSDK' ] );
-        add_action( 'wp_head', [ $this, 'injectOrganicCustomCss' ] );
+        add_action( 'admin_head', [ $this, 'injectBrowserSDKInAdmin' ] );
 
         if ( $this->organic->useFeedImages() ) {
             add_action( 'rss2_item', [ $this, 'injectRssImage' ] );
@@ -138,37 +138,76 @@ class PageInjection {
         );
     }
 
+    public function injectBrowserSDKInAdmin() {
+        // The only use case for SDK in admin are Affiliate blocks
+        if ( ! $this->organic->useAffiliate() ) {
+            return;
+        }
+
+        // "This function is defined on most admin pages, but not all."
+        if ( ! function_exists( 'get_current_screen' ) ) {
+            return;
+        }
+        $pt = get_current_screen()->post_type;
+        if ( $pt != 'post' && $pt != 'page' ) {
+            return;
+        }
+
+        $this->injectCoreSetup();
+        $this->injectAffiliateSetup();
+        ?>
+        <script id="organic-sdk-affiliate-admin-blocks-process">
+            // Make sure we re-process the page after all blocks loaded
+            window.addEventListener('pageshow', function() {
+                window.organic.cmd.push(function(apps) {
+                    var affiliate = apps.affiliate;
+                    if (!affiliate || !affiliate.isEnabled()) return;
+
+                    setTimeout(() => affiliate.processPage(), 0);
+                });
+            });
+        </script>
+        <?php
+        $this->injectScriptTag(
+            'organic-sdk',
+            $this->organic->getSdkUrl()['default'],
+            $this->organic->getSdkUrl()['module']
+        );
+    }
+
     public function injectBrowserSDK() {
         $this->injectPrefetchHeaders();
-        $this->injectBrowserSDKConfiguration();
+        $this->injectCoreSetup();
+        if ( $this->organic->useAdsOnPage() ) {
+            $this->injectAdsSetup();
+        }
+        if ( $this->organic->useAffiliateOnPage() ) {
+            $this->injectAffiliateSetup();
+        }
+
         if ( ! $this->organic->useSplitTest() ) {
             // If we are not running split test then we need to be loading up our ad stack as quickly as possible,
             // which means that we should do it with <script> tags directly.
+            $this->injectCustomCssTag();
             if ( $this->organic->useAdsOnPage() ) {
-                wp_print_script_tag(
-                    [
-                        'src' => 'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
-                        'id' => 'gpt',
-                        'async' => true,
-                    ]
+                $this->injectScriptTag(
+                    'gpt',
+                    'https://securepubads.g.doubleclick.net/tag/js/gpt.js'
                 );
-                wp_print_script_tag(
-                    [
-                        'src' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
-                        'id' => 'organic-prebid',
-                        'async' => true,
-                    ]
+                $this->injectScriptTag(
+                    'organic-prebid',
+                    $this->organic->getAdsConfig()->getPrebidBuildUrl()['default'],
+                    $this->organic->getAdsConfig()->getPrebidBuildUrl()['module']
                 );
             }
-            wp_print_script_tag(
-                [
-                    'src' => $this->organic->getSdkUrl(),
-                    'id' => 'organic-sdk',
-                    'async' => true,
-                ]
+            $this->injectScriptTag(
+                'organic-sdk',
+                $this->organic->getSdkUrl()['default'],
+                $this->organic->getSdkUrl()['module']
             );
         } else {
-            $this->injectSplitTestUtils(); ?>
+            $this->injectSplitTestUtils();
+            ?>
             <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript ?>
             <script id="organic-splittest-run">
                 (function (){
@@ -185,19 +224,19 @@ class PageInjection {
 
                     <?php if ( $this->organic->useAdsOnPage() ) { ?>
                     splitTest.loadScript('gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js');
-                    splitTest.loadScript('organic-prebid', "<?php echo esc_url( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>");
+                    splitTest.loadScript('organic-prebid',
+                        "<?php echo esc_url_raw( $this->organic->getAdsConfig()->getPrebidBuildUrl()['default'] ); ?>",
+                        "<?php echo esc_url_raw( $this->organic->getAdsConfig()->getPrebidBuildUrl()['module'] ); ?>",
+                    );
                     <?php } ?>
-                    splitTest.loadScript('organic-sdk', "<?php echo esc_url( $this->organic->getSdkUrl() ); ?>");
+                    splitTest.loadScript('organic-sdk',
+                        "<?php echo esc_url_raw( $this->organic->getSdkUrl()['default'] ); ?>",
+                        "<?php echo esc_url_raw( $this->organic->getSdkUrl()['module'] ); ?>",
+                    );
                 })();
             </script>
             <?php
         }
-    }
-
-    public function injectOrganicCustomCss() {
-        $siteId = $this->organic->getSiteId();
-        $cssUrl = $this->organic->getRestAPIUrl() . '/sdk/customcss/' . $siteId;
-        wp_enqueue_style( $siteId, $cssUrl, [], '1.0' );
     }
 
     public function injectPrefetchHeaders() {
@@ -211,9 +250,17 @@ class PageInjection {
         <?php
     }
 
-    public function injectBrowserSDKConfiguration() {
+    public function injectCustomCssTag() {
+        $cssUrl = $this->organic->getCustomCSSUrl();
         ?>
-        <script id="organic-sdk-preparation">
+        <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet ?>
+        <link rel="stylesheet" href="<?php echo esc_url( $cssUrl ); ?>" type="text/css" media="all" />
+        <?php
+    }
+
+    public function injectCoreSetup() {
+        ?>
+        <script id="organic-sdk-core-setup">
             window.__organic_usp_cookie = 'ne-opt-out';
             window.__trackadm_usp_cookie = 'ne-opt-out';
             window.__empire_usp_cookie = 'ne-opt-out';
@@ -224,13 +271,18 @@ class PageInjection {
 
             window.organic.cmd = window.organic.cmd || [];
             window.organic.disableSDKAutoInitialization = true;
-            // disable calling `processPage` during `init`
-            // TODO-sdk: do not call `processPage` if `disableSDKAutoInitialization` is true
-            window.organic._disableAffiliateAutoProcessing = true;
+
+            // Core SDK is always enabled in SDKv2 (for SDKv1 it will be just undefined)
+            window.organic.cmd.push(function(apps) {
+                if (!apps.core) return;
+                apps.core.init();
+            });
         </script>
         <?php
+    }
 
-        if ( $this->organic->useAdsOnPage() && $this->organic->useInjectedAdsConfig() ) {
+    public function injectAdsSetup() {
+        if ( $this->organic->useInjectedAdsConfig() ) {
             // TODO: get rid of it after switch to the SDKv2
             ?>
             <script id="organic-sdk-ads-inject-config">
@@ -247,81 +299,69 @@ class PageInjection {
             <?php
         }
 
-        // Core SDK is always enabled in SDKv2 (for SDKv1 it will be just undefined)
+        $sectionString = '';
+        $keywordString = '';
+        $targeting = $this->organic->getTargeting();
+        $keywords = $targeting['keywords'];
+        $sections = $targeting['sections'];
+        $gamPageId = $targeting['gamPageId'];
+        $gamExternalId = $targeting['gamExternalId'];
+
+        if ( ! empty( $sections ) ) {
+            $sectionString = esc_html( implode( ',', $sections ) );
+        }
+
+        if ( ! empty( $keywords ) ) {
+            $keywordString = esc_html( implode( ',', $keywords ) );
+        }
+
+        // Configure Ads SDK
         ?>
-        <script id="organic-sdk-core-init">
+        <script id="organic-sdk-ads-setup">
             window.organic.cmd.push(function(apps) {
-                if (!apps.core) return;
-                apps.core.init();
+                var ads = apps.ads;
+                if (!ads || !ads.isEnabled()) return;
+
+                function getSplitTestValue() {
+                    var organic = window.organic || {};
+                    if (!organic.splitTest) return;
+                    if (!((typeof organic.splitTest.getTargetingValue) == 'function')) return;
+
+                    return organic.splitTest.getTargetingValue();
+                }
+
+                ads.init();
+                ads.setTargeting({
+                    pageId: '<?php echo esc_js( $gamPageId ); ?>',
+                    externalId: '<?php echo esc_js( $gamExternalId ); ?>',
+                    keywords: '<?php echo esc_js( $keywordString ); ?>',
+                    disableKeywordReporting: false,
+                    section: '<?php echo esc_js( $sectionString ); ?>',
+                    disableSectionReporting: false,
+                    tests: getSplitTestValue(),
+                });
+                ads.waitForPageLoad(function(){
+                    ads.initializeAds();
+                });
             });
         </script>
         <?php
+    }
 
-        if ( $this->organic->useAdsOnPage() ) {
-            $sectionString = '';
-            $keywordString = '';
-            $targeting = $this->organic->getTargeting();
-            $keywords = $targeting['keywords'];
-            $sections = $targeting['sections'];
-            $gamPageId = $targeting['gamPageId'];
-            $gamExternalId = $targeting['gamExternalId'];
+    public function injectAffiliateSetup() {
+        ?>
+        <script id="organic-sdk-affiliate-setup">
+            window.organic.cmd.push(function(apps) {
+                var affiliate = apps.affiliate;
+                if (!affiliate || !affiliate.isEnabled()) return;
 
-            if ( ! empty( $sections ) ) {
-                $sectionString = esc_html( implode( ',', $sections ) );
-            }
-
-            if ( ! empty( $keywords ) ) {
-                $keywordString = esc_html( implode( ',', $keywords ) );
-            }
-
-            // Configure Ads SDK
-            ?>
-            <script id="organic-sdk-ads-init">
-                window.organic.cmd.push(function(apps) {
-                    var ads = apps.ads;
-                    if (!ads || !ads.isEnabled()) return;
-
-                    function getSplitTestValue() {
-                        var organic = window.organic || {};
-                        if (!organic.splitTest) return;
-                        if (!((typeof organic.splitTest.getTargetingValue) == 'function')) return;
-
-                        return organic.splitTest.getTargetingValue();
-                    }
-
-                    ads.init();
-                    ads.setTargeting({
-                        pageId: '<?php echo esc_js( $gamPageId ); ?>',
-                        externalId: '<?php echo esc_js( $gamExternalId ); ?>',
-                        keywords: '<?php echo esc_js( $keywordString ); ?>',
-                        disableKeywordReporting: false,
-                        section: '<?php echo esc_js( $sectionString ); ?>',
-                        disableSectionReporting: false,
-                        tests: getSplitTestValue(),
-                    });
-                    ads.waitForPageLoad(function(){
-                        ads.initializeAds();
-                    });
+                affiliate.init();
+                affiliate.waitForPageLoad(function(){
+                    affiliate.processPage();
                 });
-            </script>
-            <?php
-        }
-
-        if ( $this->organic->useAffiliateOnPage() ) {
-            ?>
-            <script id="organic-sdk-affiliate-init">
-                window.organic.cmd.push(function(apps) {
-                    var affiliate = apps.affiliate;
-                    if (!affiliate || !affiliate.isEnabled()) return;
-
-                    affiliate.init();
-                    affiliate.waitForPageLoad(function(){
-                        affiliate.processPage();
-                    });
-                });
-            </script>
-            <?php
-        }
+            });
+        </script>
+        <?php
     }
 
     public function injectSplitTestUtils() {
@@ -469,13 +509,23 @@ class PageInjection {
                  *
                  * @param id (str) The id for the script tag.
                  * @param src (str) The source for the script.
+                 * @param moduleSrc (str) The source for the js-module script.
                  */
-                function loadScript(id, src) {
+                function loadScript(id, src, moduleSrc) {
                     if (document.getElementById(id)) return;
                     var script = document.createElement('script');
                     script.id = id;
-                    script.src = src;
                     script.async = true;
+
+                    var useModules = (typeof script.noModule === 'boolean') && moduleSrc;
+                    if (useModules) {
+                        // If js-module provided and browser supports it
+                        script.type = 'module';
+                        script.src = moduleSrc;
+                    } else {
+                        // Using regular script
+                        script.src = src;
+                    }
                     document.getElementsByTagName('head')[0].appendChild(script);
                 }
 
@@ -487,10 +537,37 @@ class PageInjection {
                     loadScript: loadScript
                 }
             })();
-            // TODO: delete after full migration to organic.splitTest
-            window.BVTests = window.organic.splitTest
         </script>
         <?php
+    }
+
+    public function injectScriptTag( $id, $src, $modulesSrc = null ) {
+        if ( ! $modulesSrc ) {
+            wp_print_script_tag(
+                [
+                    'id' => $id,
+                    'src' => $src,
+                    'async' => true,
+                ]
+            );
+            return;
+        }
+        wp_print_script_tag(
+            [
+                'id' => $id . '-mjs',
+                'src' => $modulesSrc,
+                'async' => true,
+                'type' => 'module',
+            ]
+        );
+        wp_print_script_tag(
+            [
+                'id' => $id,
+                'src' => $src,
+                'async' => true,
+                'nomodule' => true,
+            ]
+        );
     }
 
     /**

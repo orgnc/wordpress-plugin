@@ -19,6 +19,10 @@ REQUIRED_ENVVARS = [
     'ORGANIC_DEMO_SITE_UUID',
     'ORGANIC_DEMO_SITE_APIKEY',
     'COMPOSER_AUTH',
+    'WP49_PHP72_PORT',
+    'WP59_PHP74_PORT',
+    'WP61_PHP74_PORT',
+    'WP61_PHP82_PORT',
 ]
 
 
@@ -317,8 +321,9 @@ def lint(filenames, php, js):
 @cli.command()
 @click.argument('services', nargs=-1, type=click.Choice(get_compose_config().get_wp_services()))
 @click.option('--exclude', type=click.Choice(['selenium_test']))
+@click.option('--limit_to', type=click.Choice(['selenium_test']))
 @click.pass_obj
-def run_tests(config, services, exclude):
+def run_tests(config, services, exclude, limit_to):
 
     if not _service_is_running("composer"):
         info(
@@ -347,6 +352,8 @@ def run_tests(config, services, exclude):
         cmd = f'/bin/bash -c "export WP_PORT={port} WP_VERSION={version}; composer run phpunit'
         if exclude:
             cmd += f' -- --exclude-group {exclude}'
+        if limit_to:
+            cmd += f' -- --group {limit_to}'
         cmd += '"'
         service_trigger(
             "composer",

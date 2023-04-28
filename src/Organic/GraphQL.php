@@ -60,8 +60,16 @@ class GraphQL {
                     'description' => $this->organic->t( 'Site ID for this site within Organic', 'organic' ),
                 ],
                 'sdkUrl' => [
-                    'type' => 'String',
+                    'type' => [ 'non_null' => 'String' ],
                     'description' => $this->organic->t( 'URL to load Organic SDK from', 'organic' ),
+                ],
+                'sdkUrlModule' => [
+                    'type' => [ 'non_null' => 'String' ],
+                    'description' => $this->organic->t( 'URL to load Organic SDK js-module from', 'organic' ),
+                ],
+                'sdkCustomCSSUrl' => [
+                    'type' => [ 'non_null' => 'String' ],
+                    'description' => $this->organic->t( 'URL to load Organic Custom CSS from', 'organic' ),
                 ],
                 'oneTrustEnabled' => [
                     'type' => [ 'non_null' => 'Boolean' ],
@@ -81,7 +89,11 @@ class GraphQL {
                 ],
                 'adsPrebidUrl' => [
                     'type' => [ 'non_null' => 'String' ],
-                    'description' => $this->organic->t( 'URL to load Organic SDK from', 'organic' ),
+                    'description' => $this->organic->t( 'URL to load Organic Prebid from', 'organic' ),
+                ],
+                'adsPrebidUrlModule' => [
+                    'type' => [ 'non_null' => 'String' ],
+                    'description' => $this->organic->t( 'URL to load Organic Prebid jsmodule-build from', 'organic' ),
                 ],
                 'affiliateEnabled' => [
                     'type' => [ 'non_null' => 'Boolean' ],
@@ -117,32 +129,7 @@ class GraphQL {
                     ),
                 ],
 
-                'adsTestEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t(
-                        '[DEPRECATED] If ads are enabled only for a subset of traffic',
-                        'organic'
-                    ),
-                ],
-                'adsTestPercentEnabled' => [
-                    'type' => 'Int',
-                    'description' => $this->organic->t(
-                        '[DEPRECATED] If testing ads, what % of traffic is enabled?',
-                        'organic'
-                    ),
-                ],
-                'adsTestSplitTestKey' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( '[DEPRECATED] If testing ads, key to send to GA and GAM', 'organic' ),
-                ],
-                'adsTxt' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( '[DEPRECATED] Contents of ads.txt Managed by Organic Ads', 'organic' ),
-                ],
-                'ampAdsEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t( '[DEPRECATED] If true, show ads on AMP pages', 'organic' ),
-                ],
+                // Delete after Futurism update/migration
                 'preloadConfigEnabled' => [
                     'type' => 'Boolean',
                     'description' => $this->organic->t( '[DEPRECATED] If true, preload config JSON in site code', 'organic' ),
@@ -174,47 +161,43 @@ class GraphQL {
                 'type' => 'OrganicConfig',
                 'description' => __( 'Sitewide Configuration for Organic Platform', 'organic' ),
                 'resolve' => function() {
-                    $testEnabled = $this->organic->useSplitTest();
+                    $organic = $this->organic;
+                    $adsConfig = $organic->getAdsConfig();
+                    $testEnabled = $organic->useSplitTest();
                     return [
-                        'organicEnabled' => $this->organic->isEnabledAndConfigured(),
-                        'sdkVersion' => $this->organic->getSdkVersion(),
-                        'siteDomain' => $this->organic->siteDomain,
-                        'siteId' => $this->organic->getSiteId(),
-                        'sdkUrl' => $this->organic->getSdkUrl(),
-                        'oneTrustEnabled' => $this->organic->useCmpOneTrust(),
-                        'oneTrustSiteId' => $this->organic->getOneTrustId(),
-                        'adsEnabled' => $this->organic->useAds(),
-                        'adsRawData' => $this->organic->getAdsConfig()->raw
-                            ? json_encode( $this->organic->getAdsConfig()->raw )
+                        'organicEnabled' => $organic->isEnabledAndConfigured(),
+                        'sdkVersion' => $organic->getSdkVersion(),
+                        'siteDomain' => $organic->siteDomain,
+                        'siteId' => $organic->getSiteId(),
+                        'sdkUrl' => $organic->getSdkUrl()['default'],
+                        'sdkUrlModule' => $organic->getSdkUrl()['module'],
+                        'sdkCustomCSSUrl' => $organic->getCustomCSSUrl(),
+                        'oneTrustEnabled' => $organic->useCmpOneTrust(),
+                        'oneTrustSiteId' => $organic->getOneTrustId(),
+                        'adsEnabled' => $organic->useAds(),
+                        'adsRawData' => $adsConfig->raw
+                            ? json_encode( $adsConfig->raw )
                             : null,
-                        'adsPrebidUrl' => $this->organic->getAdsConfig()->getPrebidBuildUrl(),
-                        'affiliateEnabled' => $this->organic->useAffiliate(),
+                        'adsPrebidUrl' => $adsConfig->getPrebidBuildUrl()['default'],
+                        'adsPrebidUrlModule' => $adsConfig->getPrebidBuildUrl()['module'],
+                        'affiliateEnabled' => $organic->useAffiliate(),
                         'splitTestEnabled' => $testEnabled,
                         'splitTestPercent' => $testEnabled
-                            ? $this->organic->getSplitTestPercent()
+                            ? $organic->getSplitTestPercent()
                             : null,
                         'splitTestKey' => $testEnabled
-                            ? $this->organic->getSplitTestKey()
+                            ? $organic->getSplitTestKey()
                             : null,
-                        'ampEnabled' => $this->organic->useAmp(),
-                        'prefillEnabled' => $this->organic->usePrefill(),
+                        'ampEnabled' => $organic->useAmp(),
+                        'prefillEnabled' => $organic->usePrefill(),
 
-                        'adsTestEnabled' => $testEnabled,
-                        'adsTestPercentEnabled' => $testEnabled
-                            ? $this->organic->getSplitTestPercent()
-                            : null,
-                        'adsTestSplitTestKey' => $testEnabled
-                            ? $this->organic->getSplitTestKey()
-                            : null,
-                        'adsTxt' => $this->organic->getAdsTxtManager()->get(),
-                        'ampAdsEnabled' => $this->organic->useAmp(),
-                        'preloadConfigEnabled' => $this->organic->useInjectedAdsConfig(),
-                        'preloadConfigRules' => $this->organic->getAdsConfig()->adRules
-                            ? json_encode( $this->organic->getAdsConfig()->adRules )
+                        'preloadConfigEnabled' => $organic->useInjectedAdsConfig(),
+                        'preloadConfigRules' => $adsConfig->adRules
+                            ? json_encode( $adsConfig->adRules )
                             : '[]',
-                        'preloadContainersEnabled' => $this->organic->usePrefill(),
-                        'preloadContainersConfig' => $this->organic->getAdsConfig()->forPlacement
-                            ? json_encode( $this->organic->getAdsConfig()->forPlacement )
+                        'preloadContainersEnabled' => $organic->usePrefill(),
+                        'preloadContainersConfig' => $adsConfig->forPlacement
+                            ? json_encode( $adsConfig->forPlacement )
                             : '[]',
                     ];
                 },
