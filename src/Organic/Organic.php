@@ -3,9 +3,9 @@
 namespace Organic;
 
 use DateTime;
-use GuzzleHttp\Exception\GuzzleException;
 use Organic\SDK\OrganicSdk;
 use Exception;
+use Sentry\State\Hub;
 use WP_Query;
 
 use function \get_user_by;
@@ -26,6 +26,13 @@ class Organic {
     const DEFAULT_REST_API_URL = 'https://api.organiccdn.io';
 
     private $isEnabled = false;
+
+    private $logToSentry = true;
+
+    /**
+     * @var ?Hub
+     */
+    private $sentryHub = null;
 
     /**
      * @var AdsTxt
@@ -148,8 +155,10 @@ class Organic {
      *
      * @param $environment string PRODUCTION or DEVELOPMENT
      */
-    public function __construct( string $environment ) {
+    public function __construct( string $environment, ?Hub $sentryHub ) {
         $this->environment = $environment;
+        // If enabled (the default), we'll send errors to Organic Sentry.
+        $this->sentryHub = $sentryHub;
         static::$instance = $this;
     }
 
@@ -232,6 +241,12 @@ class Organic {
         $this->adsTxt = new AdsTxt( $this );
 
         $this->isEnabled = $this->getOption( 'organic::enabled' );
+        $this->logToSentry = $this->getOption( 'organic::log_to_sentry' );
+        // Reinitialize Sentry with a client-specific key if applicable.
+        if ( $this->isEnabled && $this->logToSentry ) {
+            $this->configureSentryForSite( $this->sdk );
+        }
+
         // Uses old `amp_ads_enabled` but controls AMP overall
         $this->ampEnabled = $this->getOption( 'organic::amp_ads_enabled' );
         $this->injectAdsConfig = $this->getOption( 'organic::inject_ads_config' );
@@ -263,7 +278,16 @@ class Organic {
         new ContentIdMapSyncCommand( $this );
         new AdConfigSyncCommand( $this );
         new AdsTxtSyncCommand( $this );
-        new AffiliateConfigSyncCommand( $this );
+        new AffiliateConfigSyncCommand(
+            $this,
+            'organic-sync-affiliate-config',
+            'organic_cron_sync_affiliate_config'
+        );
+        new PluginConfigSyncCommand(
+            $this,
+            'organic-sync-plugin-config',
+            'organic_cron_sync_plugin_config'
+        );
 
         // Set up our GraphQL hooks to expose settings
         $graphql = new GraphQL( $this );
@@ -275,6 +299,17 @@ class Organic {
         }
 
         add_action( 'save_post', [ $this, 'handleSavePostHook' ], 10, 3 );
+    }
+
+    /**
+     * When applicable, configures the Organic Sentry client with a site-specific DSN.
+     * @return void
+     */
+    public function configureSentryForSite() {
+        $sentryDSN = $this->getOption( 'organic::sentry_dsn' );
+        if ( ! empty( $sentryDSN ) ) {
+            $this->sentryHub = init_organic_sentry( $sentryDSN, $this->getEnvironment() );
+        }
     }
 
     /**
@@ -1212,7 +1247,6 @@ class Organic {
         ];
     }
 
-
     public function syncAffiliateConfig() {
         try {
             $config = $this->sdk->queryAffiliateConfig();
@@ -1226,7 +1260,27 @@ class Organic {
         $domain = $config['publicDomain'];
         $this->debug( 'Got affiliate domain: ' . $domain );
         $this->updateOption( 'organic::affiliate_domain', $domain, false );
+        return [
+            'updated' => true,
+        ];
+    }
 
+    public function syncPluginConfig() {
+        try {
+            $config = $this->sdk->queryWordPressConfig();
+        } catch ( \Exception $e ) {
+            self::captureException( $e );
+            return [
+                'updated' => false,
+            ];
+        }
+        if ( ! empty( $config ) ) {
+            $sentryDSN = $config['sentryDsn'];
+            if ( ! empty( $sentryDSN ) ) {
+                $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
+                $this->configureSentryForSite();
+            }
+        }
         return [
             'updated' => true,
         ];
@@ -1285,12 +1339,18 @@ class Organic {
     }
 
     public static function captureException( \Exception $e ) {
-        if ( function_exists( '\Sentry\captureException' ) ) {
+        // If there is a current (non-Organic) hub, log the error using that hub.
+        if ( \Sentry\SentrySdk::getCurrentHub()->getClient() ) {
             \Sentry\captureException( $e );
+        }
+        if ( self::$instance->getEnvironment() != 'PRODUCTION' ) {
+            error_log( $e->getMessage() );
+        }
+        if ( ! self::$instance->sentryHub ) {
             return;
         }
-
-        error_log( $e->getMessage() );
+        // Also log the error to Organic if an Organic hub is configured.
+        self::$instance->sentryHub->captureException( $e );
     }
 
     public function loadCampaignsAssets() {

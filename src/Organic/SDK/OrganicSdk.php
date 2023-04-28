@@ -495,6 +495,30 @@ class OrganicSdk {
     }
 
     /**
+     * @throws RuntimeException
+     */
+    public function queryWordPressConfig() {
+        // Make a call to platform API for client-specific plugin config.
+        $gql = new Query( 'wordpressPluginConfig' );
+        $gql->setArguments(
+            [
+                'siteGuid' => $this->siteGuid,
+            ]
+        );
+        $gql->setSelectionSet(
+            [
+                'sentryDsn',
+            ]
+        );
+        try {
+            $result = $this->runQuery( $gql );
+        } catch ( \Exception $e ) {
+            throw new RuntimeException( 'Failed to fetch WordPress Plugin config' );
+        }
+        return $result['data']['wordpressPluginConfig'];
+    }
+
+    /**
      * Helper for standardized error handling when running a GraphQL query or mutation
      *
      * @param $query
