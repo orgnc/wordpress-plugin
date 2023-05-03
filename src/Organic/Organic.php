@@ -2,7 +2,6 @@
 
 namespace Organic;
 
-use Cassandra\Date;
 use DateTime;
 use Organic\SDK\OrganicSdk;
 use Exception;
@@ -224,8 +223,7 @@ class Organic {
 
             $updated = update_option( $name, $value, $autoload );
             if ( $updated ) {
-                $timestamp = ( new Datetime() );
-                update_option( 'organic::last_updated', $timestamp );
+                update_option( 'organic::last_updated', new Datetime() );
             }
             return $updated;
         } else {
@@ -242,7 +240,7 @@ class Organic {
         $this->sdkKey = $this->getOption( 'organic::sdk_key' );
         $this->siteId = $this->getOption( 'organic::site_id' );
         $this->siteDomain = $this->getOption( 'organic::site_domain' );
-        $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, null, null );
+        $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
 
         $this->adsTxt = new AdsTxt( $this );
 

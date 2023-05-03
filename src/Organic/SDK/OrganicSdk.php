@@ -23,7 +23,7 @@ use RuntimeException;
  */
 class OrganicSdk {
 
-    const DEFAULT_API_URL = 'http://api.lcl.organic.ly:8000/graphql';
+    const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
     const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
     const FALLBACK_PREBID_BUILD = 'sdk/prebid-stable.js';
     const SDK_V1 = 'v1';
