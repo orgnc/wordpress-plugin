@@ -510,7 +510,13 @@ class OrganicSdk {
         );
 
         # Note that this might be true even before the site is fully migrated.
-        $organicContentEnabled = function_exists( '\SWPCore\HeadlessFrontend\isAvailable' );
+        $organicContentEnabled = false;
+        if (
+            class_exists( '\SWPCore\HeadlessFrontend' ) &&
+            method_exists( '\SWPCore\HeadlessFrontend', 'isAvailable' )
+        ) {
+            $organicContentEnabled = \SWPCore\HeadlessFrontend::isAvailable();
+        }
 
         $variables = [
             'configInput' => [
