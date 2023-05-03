@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 
 include( __DIR__ . '/../SeleniumBrowser.php' );
 
+define( "Organic\WP_VERSION", getenv( 'WP_VERSION' ) ?? '' );
+
 class WidgetsTest extends TestCase {
 
     /**
@@ -15,17 +17,15 @@ class WidgetsTest extends TestCase {
      */
 
     function wordPressVersionTooLow() : bool {
-        global $wp_version;
-        if ( intval( substr( $wp_version, 0, 1 ) ) < 5 ) {
+        if ( !empty( WP_VERSION ) && intval( substr( WP_VERSION, 0, 1 ) ) < 5 ) {
             return true;
         }
         return false;
     }
 
     function checkWidgetIsAvailable( $blockType ) {
-        global $wp_version;
         if ( $this->wordPressVersionTooLow() ) {
-            $this->fail( 'WordPress version ' . $wp_version . ' does not support custom blocks.' );
+            $this->fail( 'WordPress version ' . WP_VERSION . ' does not support custom blocks.' );
         }
         $browser = SeleniumBrowser::getTestBrowser();
         try {
@@ -36,7 +36,7 @@ class WidgetsTest extends TestCase {
             // some other WP versions). The page content looks basically the same as for 6.1,
             // which works fine, and I can visually see the correct URL in Selenium Grid's live view.
             // Let's get rid of this when we figure out the issue.
-            if ( substr( $wp_version, 0, 3 ) == '5.9' ) {
+            if ( !empty( WP_VERSION ) && WP_VERSION == '5.9' ) {
                 $urlCorrect = true;
             } else {
                 $urlCorrect = str_contains( $browser->getIframeURL( 0 ), 'app.organic.ly' );
