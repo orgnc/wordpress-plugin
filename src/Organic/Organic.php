@@ -2,6 +2,7 @@
 
 namespace Organic;
 
+use Cassandra\Date;
 use DateTime;
 use Organic\SDK\OrganicSdk;
 use Exception;
@@ -190,7 +191,7 @@ class Organic {
      * Supports transitional backward compatibility with the name change to Organic.
      *
      * @param $name
-     * @return void
+     * @return mixed
      */
     public function getOption( $name, $default = false ) {
         if ( function_exists( 'get_option' ) ) {
@@ -221,7 +222,12 @@ class Organic {
             // Update old value as well for backward compatibility
             update_option( str_replace( 'organic::', 'empire::', $name ), $value, $autoload );
 
-            return update_option( $name, $value, $autoload );
+            $updated = update_option( $name, $value, $autoload );
+            if ( $updated ) {
+                $timestamp = ( new Datetime() );
+                update_option( 'organic::last_updated', $timestamp );
+            }
+            return $updated;
         } else {
             return null;
         }
@@ -236,7 +242,7 @@ class Organic {
         $this->sdkKey = $this->getOption( 'organic::sdk_key' );
         $this->siteId = $this->getOption( 'organic::site_id' );
         $this->siteDomain = $this->getOption( 'organic::site_domain' );
-        $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, $apiUrl, $cdnUrl );
+        $this->sdk = new OrganicSdk( $this->siteId, $this->sdkKey, null, null );
 
         $this->adsTxt = new AdsTxt( $this );
 
@@ -328,6 +334,15 @@ class Organic {
      */
     public function isEnabledAndConfigured() : bool {
         return $this->isEnabled() && $this->getSdkKey() && $this->getSiteId();
+    }
+
+    /**
+     * Returns the timestamp of the last update to the Organic settings.
+     *
+     * @return DateTime
+     */
+    public function lastUpdated() : DateTime {
+        return $this->getOption( 'organic::last_updated' );
     }
 
     /**
@@ -1267,7 +1282,7 @@ class Organic {
 
     public function syncPluginConfig() {
         try {
-            $config = $this->sdk->queryWordPressConfig();
+            $config = $this->sdk->mutateAndQueryWordPressConfig( $this );
         } catch ( \Exception $e ) {
             self::captureException( $e );
             return [

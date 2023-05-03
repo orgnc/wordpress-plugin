@@ -23,7 +23,7 @@ use RuntimeException;
  */
 class OrganicSdk {
 
-    const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
+    const DEFAULT_API_URL = 'http://api.lcl.organic.ly:8000/graphql';
     const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
     const FALLBACK_PREBID_BUILD = 'sdk/prebid-stable.js';
     const SDK_V1 = 'v1';
@@ -495,27 +495,38 @@ class OrganicSdk {
     }
 
     /**
+     * Run a mutation on the platform API to save important WordPress settings platform-side,
+     * then query the response to save important platform settings here on the WordPress side.
+     *
      * @throws RuntimeException
      */
-    public function queryWordPressConfig() {
-        // Make a call to platform API for client-specific plugin config.
-        $gql = new Query( 'wordpressPluginConfig' );
-        $gql->setArguments(
-            [
+    public function mutateAndQueryWordPressConfig( \Organic\Organic $organic ) {
+        global $wp_version;
+        $mutation = ( new Mutation( 'syncWordpressPluginConfig' ) );
+        $mutation->setVariables( [ new Variable( 'configInput', 'WordpressPluginConfigInput', true ) ] );
+        $mutation->setArguments( [ 'configInput' => '$configInput' ] );
+        $mutation->setSelectionSet(
+            [ ( new Query( 'config' ) )->setSelectionSet( [ 'sentryDsn' ] ) ]
+        );
+
+        $variables = [
+            'configInput' => [
                 'siteGuid' => $this->siteGuid,
-            ]
-        );
-        $gql->setSelectionSet(
-            [
-                'sentryDsn',
-            ]
-        );
-        try {
-            $result = $this->runQuery( $gql );
-        } catch ( \Exception $e ) {
-            throw new RuntimeException( 'Failed to fetch WordPress Plugin config' );
-        }
-        return $result['data']['wordpressPluginConfig'];
+                'organicIntegrationEnabled' => $organic->isEnabled(),
+                'organicContentEnabled' => false,
+                'phpVersion' => getenv( 'PHP_VERSION' ),
+                'wordpressVersion' => $wp_version,
+                'pluginVersion' => $organic->version,
+                'sdkVersion' => $organic->getSdkVersion(),
+                'adsTxtRedirectEnabled' => (bool) $organic->getOption( 'organic::ads_txt_redirect_enabled' ),
+                'splitTestEnabled' => $organic->useSplitTest(),
+                'consentManagementPlatform' => $organic->getOption( 'organic::cmp' ),
+                'pluginSettingsLastUpdated' => $organic->lastUpdated()->format( 'c' ),
+            ],
+        ];
+
+        $result = $this->runQuery( $mutation, $variables );
+        return $result['data']['config'];
     }
 
     /**
