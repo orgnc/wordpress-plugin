@@ -514,7 +514,7 @@ class OrganicSdk {
                 'siteGuid' => $this->siteGuid,
                 'organicIntegrationEnabled' => $organic->isEnabled(),
                 'organicContentEnabled' => false,
-                'phpVersion' => getenv( 'PHP_VERSION' ),
+                'phpVersion' => phpversion(),
                 'wordpressVersion' => $wp_version,
                 'pluginVersion' => $organic->version,
                 'sdkVersion' => $organic->getSdkVersion(),

@@ -54,10 +54,6 @@ class ComposeConfig(dict):
     def get_running_wp_services(self):
         return [s for s in ComposeConfig.get_wp_services(self) if _service_is_running(s)]
 
-    def get_wp_version(self, service):
-        # WordPress versions are always digit1.digit2.somethingsomething
-        return f'{service[2]}.{service[3]}'
-
 
 @functools.cache
 def get_compose_config():
@@ -347,9 +343,8 @@ def run_tests(config, services, exclude, limit_to):
             info(f"Cannot run tests for {service}: {service} is not running.", "red")
             continue
         port = config.get_service_port(service)
-        version = config.get_wp_version(service)
         info(f"Running tests for {service} (port {port})")
-        cmd = f'/bin/bash -c "export WP_PORT={port} WP_VERSION={version}; composer run phpunit'
+        cmd = f'/bin/bash -c "export WP_PORT={port}; composer run phpunit'
         if exclude:
             cmd += f' -- --exclude-group {exclude}'
         if limit_to:
