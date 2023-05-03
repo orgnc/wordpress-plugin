@@ -509,11 +509,14 @@ class OrganicSdk {
             [ ( new Query( 'config' ) )->setSelectionSet( [ 'sentryDsn' ] ) ]
         );
 
+        # Note that this might be true even before the site is fully migrated.
+        $organicContentEnabled = function_exists( '\SWPCore\HeadlessFrontend\isAvailable' );
+
         $variables = [
             'configInput' => [
                 'siteGuid' => $this->siteGuid,
                 'organicIntegrationEnabled' => $organic->isEnabled(),
-                'organicContentEnabled' => false,
+                'organicContentEnabled' => $organicContentEnabled,
                 'phpVersion' => phpversion(),
                 'wordpressVersion' => $wp_version,
                 'pluginVersion' => $organic->version,
