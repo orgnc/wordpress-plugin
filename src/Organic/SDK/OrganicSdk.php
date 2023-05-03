@@ -523,7 +523,7 @@ class OrganicSdk {
                 'sdkVersion' => $organic->getSdkVersion(),
                 'adsTxtRedirectEnabled' => (bool) $organic->getOption( 'organic::ads_txt_redirect_enabled' ),
                 'splitTestEnabled' => $organic->useSplitTest(),
-                'consentManagementPlatform' => $organic->getOption( 'organic::cmp' ),
+                'consentManagementPlatform' => $organic->getCmp(),
                 'pluginSettingsLastUpdated' => $organic->lastUpdated()->format( 'c' ),
             ],
         ];

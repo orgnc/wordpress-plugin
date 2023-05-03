@@ -360,12 +360,13 @@ class Organic {
     }
 
     /**
-     * Returns true if we are supposed to hide the footer links and URL injection for
-     * consent management (e.g. if it is being handled by a 3rd party like One Trust)
+     * Returns the content management platform. If it exists,
+     * we should hide the footer links and URL injection for
+     * consent management (since it is being handled by a 3rd party like One Trust)
      *
-     * @return bool
+     * @return string
      */
-    public function getCmp() : bool {
+    public function getCmp() : string {
         return $this->cmp;
     }
 

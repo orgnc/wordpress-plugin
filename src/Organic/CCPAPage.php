@@ -20,7 +20,7 @@ class CCPAPage {
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
 
-        if ( $this->organic->getCmp() ) {
+        if ( ! empty( $this->organic->getCmp() ) ) {
             add_action( 'init', [ $this, 'show' ] );
             add_action( 'wp_footer', [ $this, 'footer' ], 100 );
             add_action( 'footer_extra_nav', [ $this, 'footerExtraNav' ], 100 );
