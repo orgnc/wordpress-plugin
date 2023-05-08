@@ -19,6 +19,8 @@ jobs:
     env:
       PROJECT: wordpress-plugin
       ORGANIC_DEMO_SITE_APIKEY: ${{ secrets.ORGANIC_DEMO_SITE_API_KEY }}
+      ORGANIC_TEST_USER_EMAIL: ${{ secrets.ORGANIC_TEST_USER_EMAIL }}
+      ORGANIC_TEST_USER_PASSWORD: ${{ secrets.ORGANIC_TEST_USER_PASSWORD }}
       COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
     steps:
       - uses: actions/checkout@v3

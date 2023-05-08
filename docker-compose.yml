@@ -43,6 +43,7 @@ x-templates:
     ORGANIC_ENVIRONMENT: ${ORGANIC_ENVIRONMENT}
     ORGANIC_API_URL: ${ORGANIC_API_URL}
     ORGANIC_CDN_URL: ${ORGANIC_CDN_URL}
+
     # This tells our reverse proxy which container services the wpplugin URL.
     # Every wp service has the same alias/virtual host setting, but they differ
     # in which ports they listen to.
@@ -137,6 +138,8 @@ services:
       COMPOSER_AUTH: ${COMPOSER_AUTH}
       WP_HOME: 'http://wpplugin.lcl.organic.ly'
       SELENIUM_URL: 'http://selenium:4444/wd/hub'
+      ORGANIC_TEST_USER_EMAIL: ${ORGANIC_TEST_USER_EMAIL}
+      ORGANIC_TEST_USER_PASSWORD: ${ORGANIC_TEST_USER_PASSWORD}
     volumes:
       - ./src:/app
 
