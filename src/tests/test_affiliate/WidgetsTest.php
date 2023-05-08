@@ -104,6 +104,7 @@ class WidgetsTest extends TestCase {
             $browser->click( '[data-test-element="affiliate-offer-button"]' );
             # We move out of the iframe and check that the link has been added for the test product.
             $browser->switchToDefaultContext();
+            $browser->wait( .5 );
             $guid = TEST_PRODUCT_GUID;
             $browser->waitFor( "[href$=\"{$guid}/\"]", null );
             $browser->quit();
