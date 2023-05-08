@@ -34,18 +34,10 @@ class WidgetsTest extends TestCase {
         try {
             $browser->goToNewPost();
             $browser->addBlock( $blockType );
-
-            // Total hack. I cannot figure out why the iframe src attribute is empty in 5.9 (and presumably
-            // some other WP versions). The page content looks basically the same as for 6.1,
-            // which works fine, and I can visually see the correct URL in Selenium Grid's live view.
-            // Let's get rid of this when we figure out the issue.
-            if ( !empty( WP_VERSION ) && WP_VERSION == '5.9' ) {
-                $urlCorrect = true;
-            } else {
-                $urlCorrect = str_contains( $browser->getIframeURL( 0 ), 'app.organic.ly' );
-            }
+            // Check the Organic iframe appears.
+            $browser->getOrganicIframe();
             $browser->quit();
-            $this->assertTrue( $urlCorrect );
+            $this->assertTrue( true );
         } catch ( Exception $e ) {
             $browser->quit();
             $this->fail( $e->getMessage() );
@@ -92,19 +84,18 @@ class WidgetsTest extends TestCase {
             // Then we click the submenu item.
             $browser->click( 'button[role="menuitem"]' );
             // The Organic iframe should appear.
-            $iframe = $browser->getIframe( 0 );
+            $iframe = $browser->getOrganicIframe();
             $browser->switchToIframe( $iframe );
             # Log in with test account.
             $browser->fillTextInput( '#email', ORGANIC_TEST_USER_EMAIL );
             $browser->fillTextInput( '#password', ORGANIC_TEST_USER_PASSWORD );
             $browser->click( '#signin-button' );
-            $browser->wait();
             # Search for the test product.
             $browser->fillTextInput( '#affiliate-product-search-entry', 'Selenium Test Product' );
             $browser->click( '[data-test-element="affiliate-offer-button"]' );
             # We move out of the iframe and check that the link has been added for the test product.
             $browser->switchToDefaultContext();
-            $browser->wait( .5 );
+            $browser->wait();
             $guid = TEST_PRODUCT_GUID;
             $browser->waitFor( "[href$=\"{$guid}/\"]", null );
             $browser->quit();

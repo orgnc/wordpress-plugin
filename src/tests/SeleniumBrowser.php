@@ -270,22 +270,13 @@ class SeleniumBrowser {
     }
 
     /**
-     * @param int $index
      * @return mixed
      * @throws Exception
+     * Find and return the Organic widgets iframe.
      */
-    function getIframe( int $index ) {
-        return $this->waitFor('iframe', null, null, true )[$index];
-    }
-
-    /**
-     * @param int $index
-     * @return mixed
-     * @throws Exception
-     */
-    function getIframeURL( int $index ) {
-        $iframe = $this->getIframe( $index );
-        return $iframe->getAttribute( 'src' );
+    function getOrganicIframe( ) {
+        // TODO: The blocks should return a dynamic URL depending on the environment.
+        return $this->waitFor( 'iframe[src^="https://app.organic.ly"]', null );
     }
 
     /**
