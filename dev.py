@@ -25,6 +25,12 @@ REQUIRED_ENVVARS = [
     'WP61_PHP82_PORT',
 ]
 
+# Environment variables that are only required for some features, but not all.
+RECOMMENDED_ENVVARS = [
+    'ORGANIC_TEST_USER_EMAIL',
+    'ORGANIC_TEST_USER_PASSWORD',
+]
+
 
 def info(msg, color='bright_magenta'):
     click.echo()
@@ -160,11 +166,13 @@ def configure_organic_plugin_sql(db_name, site_id, api_key):
      """
 
 
-def get_env_var(varname):
+def get_env_var(varname, required: bool = True):
     value = os.environ.get(varname, '')
-    if not value:
+    if not value and required:
         click.secho(f"The {varname} is not passed! Ensure it's defined in `.env` file ", fg='red')
         sys.exit(1)
+    if not value:
+        click.secho(f"Warning: {varname} is not passed. Certain functionality might not work properly ", fg='yellow')
 
     return value
 
@@ -217,6 +225,8 @@ def cli(ctx):
 
     for envvar in REQUIRED_ENVVARS:
         get_env_var(envvar)
+    for envvar in RECOMMENDED_ENVVARS:
+        get_env_var(envvar, required=False)
 
     ctx.obj = get_compose_config()
 

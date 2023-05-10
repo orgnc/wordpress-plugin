@@ -270,13 +270,50 @@ class SeleniumBrowser {
     }
 
     /**
-     * @param int $index
      * @return mixed
      * @throws Exception
+     * Find and return the Organic widgets iframe.
      */
-    function getIframeURL( int $index ) {
-        $iframe = $this->waitFor('iframe', null, null, true )[$index];
-        return $iframe->getAttribute( 'src' );
+    function getOrganicIframe( ) {
+        // TODO: The blocks should return a dynamic URL depending on the environment.
+        return $this->waitFor( 'iframe[src^="https://app.organic.ly"]', null );
+    }
+
+    /**
+     * @param $elementOrSelector
+     */
+    function switchToIframe( $elementOrSelector ) {
+        $this->driver->switchTo()->frame( $elementOrSelector );
+        $this->waitForDocumentReady();
+    }
+
+    /**
+     * @return void
+     */
+    function switchToDefaultContext() {
+        $this->driver->switchTo()->defaultContent();
+    }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @return void
+     */
+    function moveCursor( int $x = 0, int $y = 0) {
+        $action = $this->driver->action();
+        $action->moveByOffset($x, $y)->Perform();
+    }
+
+    /**
+     * @param int $index
+     * @param string $text
+     * @return void
+     * @throws Exception
+     */
+    function fillParagraphBlock( int $index = 0, string $text = '' ) {
+        // WordPress does some annoying DOM manipulation, so we need to click the p element first.
+        $this->click( $this->getElementIfItExists( 'p', true )[$index] );
+        $this->fillTextInput( $this->getElementIfItExists( 'p', true )[$index], $text );
     }
 
 }
