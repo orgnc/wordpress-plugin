@@ -212,7 +212,7 @@ class AdminSettings {
 
         $ads_txt = $this->organic->getOption( 'organic::ads_txt' );
 
-        $settings_last_updated = $this->organic->lastUpdated();
+        $settings_last_updated = $this->organic->settingsLastUpdated();
 
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
@@ -230,7 +230,6 @@ class AdminSettings {
                 <?php AdminNotice::showNotices(); ?>
             </div>
             <h1>Organic Settings</h1>
-            <h2>Plugin settings last updated: <?php echo esc_attr( $settings_last_updated->format( 'y-m-d h:i:s T' ) ); ?></h2>
             <form method="post">
                 <?php wp_nonce_field( 'organic_settings_nonce' ); ?>
                 <p>
@@ -449,6 +448,7 @@ class AdminSettings {
                         Save settings
                     </button>
                 </p>
+                <p>Plugin settings last updated: <?php echo esc_attr( $settings_last_updated->format( 'y-m-d h:i:s T' ) ); ?></p>
             </form>
 
             <hr />

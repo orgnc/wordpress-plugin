@@ -223,7 +223,7 @@ class Organic {
 
             $updated = update_option( $name, $value, $autoload );
             if ( $updated ) {
-                update_option( 'organic::last_updated', new Datetime() );
+                update_option( 'organic::settings_last_updated', new Datetime() );
             }
             return $updated;
         } else {
@@ -334,13 +334,17 @@ class Organic {
         return $this->isEnabled() && $this->getSdkKey() && $this->getSiteId();
     }
 
+    public function adsTxtRedirectionEnabled() : bool {
+        return $this->getOption( 'organic::ads_txt_redirect_enabled' );
+    }
+
     /**
      * Returns the timestamp of the last update to the Organic settings.
      *
      * @return DateTime
      */
-    public function lastUpdated() : DateTime {
-        return $this->getOption( 'organic::last_updated' );
+    public function settingsLastUpdated() : DateTime {
+        return $this->getOption( 'organic::settings_last_updated' );
     }
 
     /**

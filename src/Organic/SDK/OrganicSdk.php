@@ -527,10 +527,10 @@ class OrganicSdk {
                 'wordpressVersion' => $wp_version,
                 'pluginVersion' => $organic->version,
                 'sdkVersion' => $organic->getSdkVersion(),
-                'adsTxtRedirectEnabled' => (bool) $organic->getOption( 'organic::ads_txt_redirect_enabled' ),
+                'adsTxtRedirectEnabled' => $organic->adsTxtRedirectionEnabled(),
                 'splitTestEnabled' => $organic->useSplitTest(),
                 'consentManagementPlatform' => $organic->getCmp(),
-                'pluginSettingsLastUpdated' => $organic->lastUpdated()->format( 'c' ),
+                'pluginSettingsLastUpdated' => $organic->settingsLastUpdated()->format( 'c' ),
             ],
         ];
 
