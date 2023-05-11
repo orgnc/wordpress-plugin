@@ -39,7 +39,7 @@ class AdsTxt {
             $enabled = $this->organic->getOption( 'organic::enabled' );
 
             if ( $enabled ) {
-                $adsTxtRedirect = $this->organic->getOption( 'organic::ads_txt_redirect_enabled' );
+                $adsTxtRedirect = $this->organic->adsTxtRedirectionEnabled();
                 if ( $adsTxtRedirect ) {
                     /*
                      * Only one redirect is allowed for /ads.txt per Ads.txt specification:

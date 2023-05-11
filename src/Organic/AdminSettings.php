@@ -211,6 +211,9 @@ class AdminSettings {
         $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
 
         $ads_txt = $this->organic->getOption( 'organic::ads_txt' );
+
+        $settings_last_updated = $this->organic->settingsLastUpdated();
+
         $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
         $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
 
@@ -445,6 +448,7 @@ class AdminSettings {
                         Save settings
                     </button>
                 </p>
+                <p>Plugin settings last updated: <?php echo esc_attr( $settings_last_updated->format( 'y-m-d h:i:s T' ) ); ?></p>
             </form>
 
             <hr />

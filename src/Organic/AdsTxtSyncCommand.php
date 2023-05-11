@@ -12,7 +12,7 @@ class AdsTxtSyncCommand {
 
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
-        $adsTxtRedirect = $this->organic->getOption( 'organic::ads_txt_redirect_enabled' );
+        $adsTxtRedirect = $this->organic->adsTxtRedirectionEnabled();
         if ( $adsTxtRedirect ) {
             return;
         }
@@ -42,7 +42,7 @@ class AdsTxtSyncCommand {
      * @return void
      */
     public function __invoke( $args ) {
-        $adsTxtRedirect = $this->organic->getOption( 'organic::ads_txt_redirect_enabled' );
+        $adsTxtRedirect = $this->organic->adsTxtRedirectionEnabled();
         if ( $adsTxtRedirect ) {
             $this->organic->warning( 'Ads.txt Sync is disabled for this site' );
             return;

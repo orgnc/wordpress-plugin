@@ -190,7 +190,7 @@ class Organic {
      * Supports transitional backward compatibility with the name change to Organic.
      *
      * @param $name
-     * @return void
+     * @return mixed
      */
     public function getOption( $name, $default = false ) {
         if ( function_exists( 'get_option' ) ) {
@@ -221,7 +221,11 @@ class Organic {
             // Update old value as well for backward compatibility
             update_option( str_replace( 'organic::', 'empire::', $name ), $value, $autoload );
 
-            return update_option( $name, $value, $autoload );
+            $updated = update_option( $name, $value, $autoload );
+            if ( $updated ) {
+                update_option( 'organic::settings_last_updated', new Datetime() );
+            }
+            return $updated;
         } else {
             return null;
         }
@@ -330,6 +334,24 @@ class Organic {
         return $this->isEnabled() && $this->getSdkKey() && $this->getSiteId();
     }
 
+    public function adsTxtRedirectionEnabled() : bool {
+        return $this->getOption( 'organic::ads_txt_redirect_enabled' );
+    }
+
+    /**
+     * Returns the timestamp of the last update to the Organic settings.
+     * Defaults to the current timestamp.
+     *
+     * @return DateTime
+     */
+    public function settingsLastUpdated() : DateTime {
+        $lastUpdate = $this->getOption( 'organic::settings_last_updated' );
+        if ( $lastUpdate ) {
+            return $lastUpdate;
+        }
+        return new DateTime();
+    }
+
     /**
      * Returns true if we need to load the SDK via JavaScript for a split test
      *
@@ -347,12 +369,13 @@ class Organic {
     }
 
     /**
-     * Returns true if we are supposed to hide the footer links and URL injection for
-     * consent management (e.g. if it is being handled by a 3rd party like One Trust)
+     * Returns the content management platform. If it exists,
+     * we should hide the footer links and URL injection for
+     * consent management (since it is being handled by a 3rd party like One Trust)
      *
-     * @return bool
+     * @return string
      */
-    public function getCmp() : bool {
+    public function getCmp() : string {
         return $this->cmp;
     }
 
@@ -1267,7 +1290,7 @@ class Organic {
 
     public function syncPluginConfig() {
         try {
-            $config = $this->sdk->queryWordPressConfig();
+            $config = $this->sdk->mutateAndQueryWordPressConfig( $this );
         } catch ( \Exception $e ) {
             self::captureException( $e );
             return [
