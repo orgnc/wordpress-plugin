@@ -340,11 +340,16 @@ class Organic {
 
     /**
      * Returns the timestamp of the last update to the Organic settings.
+     * Defaults to the current timestamp.
      *
      * @return DateTime
      */
     public function settingsLastUpdated() : DateTime {
-        return $this->getOption( 'organic::settings_last_updated' );
+        $lastUpdate = $this->getOption( 'organic::settings_last_updated' );
+        if ( $lastUpdate ) {
+            return $lastUpdate;
+        }
+        return new DateTime();
     }
 
     /**
