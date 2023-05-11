@@ -100,11 +100,6 @@ class AdminSettings {
 
         // General Settings
         $this->organic->updateOption(
-            'organic::sdk_version',
-            sanitize_text_field( $_POST['organic_sdk_version'] ) ?: $this->organic->sdk::SDK_V1,
-            false
-        );
-        $this->organic->updateOption(
             'organic::sdk_key',
             sanitize_text_field( $_POST['organic_sdk_key'] ) ?: '',
             false
@@ -157,11 +152,6 @@ class AdminSettings {
 
         // Organic Ads
         $this->organic->updateOption(
-            'organic::inject_ads_config',
-            isset( $_POST['organic_inject_ads_config'] ) ? true : false,
-            false
-        );
-        $this->organic->updateOption(
             'organic::feed_images',
             isset( $_POST['organic_feed_images'] ) ? true : false,
             false
@@ -192,7 +182,6 @@ class AdminSettings {
         $organic_test = $this->organic->getOption( 'organic::percent_test' );
         $organic_value = $this->organic->getOption( 'organic::test_value' );
 
-        $sdk_version = $this->organic->getSdkVersion();
         $sdk_key = $this->organic->getOption( 'organic::sdk_key' );
         $site_id = $this->organic->getOption( 'organic::site_id' );
         $cmp = $this->organic->getOption( 'organic::cmp' );
@@ -205,7 +194,6 @@ class AdminSettings {
 
         $campaigns_enabled = $this->organic->getOption( 'organic::campaigns_enabled' );
 
-        $inject_ads_config = $this->organic->getOption( 'organic::inject_ads_config' );
         $feed_images = $this->organic->getOption( 'organic::feed_images' );
         $ads_txt_redirect = $this->organic->getOption( 'organic::ads_txt_redirect_enabled' );
         $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
@@ -221,9 +209,6 @@ class AdminSettings {
         $amp_config = $this->organic->getAmpConfig();
         $prefill_config = $this->organic->getPrefillConfig();
         $affiliate_config = [ 'publicDomain' => $this->organic->getAffiliateDomain() ];
-
-        $isSDKv1 = ( $sdk_version == $this->organic->sdk::SDK_V1 );
-        $isSDKv2 = ( $sdk_version == $this->organic->sdk::SDK_V2 );
         ?>
         <div id="organic-settings-page" class="wrap">
             <div id="organic-notices">
@@ -278,15 +263,6 @@ class AdminSettings {
 
                 <hr />
                 <h2>General Settings</h2>
-                <p>
-                    <label>
-                        SDK version:
-                        <select id="organic-sdk-version" name="organic_sdk_version">
-                            <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V1 ); ?>" <?php echo esc_html( ( $isSDKv1 ? 'selected="selected"' : '' ) ); ?>>v1</option>
-                            <option value="<?php echo esc_attr( $this->organic->sdk::SDK_V2 ); ?>" <?php echo esc_html( ( $isSDKv2 ? 'selected="selected"' : '' ) ); ?>>v2</option>
-                        </select>
-                    </label>
-                </p>
                 <p>
                     <label>
                         Organic API Key:
@@ -363,7 +339,7 @@ class AdminSettings {
 
                 <hr />
                 <h2>Organic Affiliate</h2>
-                <p id="organic-affiliate" class="<?php echo ( ! $isSDKv2 ? 'organic-hidden' : '' ); ?>">
+                <p>
                     <label>
                         <input
                             type="checkbox"
@@ -372,9 +348,6 @@ class AdminSettings {
                         />
                         Organic Affiliate Enabled
                     </label>
-                </p>
-                <p id="organic-affiliate-warn" class="<?php echo ( $isSDKv2 ? 'organic-hidden' : '' ); ?>">
-                    Organic Affiliate does work only with SDKv2
                 </p>
 
                 <hr />
@@ -392,16 +365,6 @@ class AdminSettings {
 
                 <hr />
                 <h2>Organic Ads</h2>
-                <p id="organic-config-injection" class="<?php echo ( ! $isSDKv1 ? 'organic-hidden' : '' ); ?>">
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="organic_inject_ads_config"
-                            <?php echo $inject_ads_config ? 'checked' : ''; ?>
-                        />
-                        Ad Config Injection Enabled (needed only for SDKv1)
-                    </label>
-                </p>
                 <p>
                     <label>
                         <input
@@ -498,8 +461,8 @@ class AdminSettings {
                 <?php $this->injectEnvInfo( 'ENVIRONMENT', $this->organic->getEnvironment() ); ?>
                 <?php $this->injectEnvInfo( 'API_URL', $this->organic->sdk->getAPIUrl() ); ?>
                 <?php $this->injectEnvInfo( 'CDN_URL', $this->organic->sdk->getCDNUrl() ); ?>
-                <?php $this->injectEnvInfo( 'SDK_URL', $this->organic->getSdkUrl()['default'] ); ?>
-                <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl()['default'] ); ?>
+                <?php $this->injectEnvInfo( 'SDK_URL', $this->organic->getSdkUrl() ); ?>
+                <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>
                 <?php $this->injectEnvInfo( 'PLATFORM_URL', $this->organic->getPlatformUrl() ); ?>
                 <?php $this->injectEnvInfo( 'ADS_TXT_URL', $this->organic->getAdsTxtManager()->getAdsTxtUrl() ); ?>
                 <?php if ( ! $ads_txt_redirect ) { ?>
@@ -596,25 +559,6 @@ class AdminSettings {
                             splitTestConfig.classList.add('organic-hidden');
                         } else {
                             splitTestConfig.classList.remove('organic-hidden');
-                        }
-                    });
-
-                    // SDK version
-                    var SDKv2 = "<?php echo esc_attr( $this->organic->sdk::SDK_V2 ); ?>";
-                    var sdkVersionSelector = document.getElementById('organic-sdk-version');
-                    var affiliate = document.getElementById('organic-affiliate');
-                    var affiliateWarn = document.getElementById('organic-affiliate-warn');
-                    var configInjection = document.getElementById('organic-config-injection');
-                    sdkVersionSelector.addEventListener('change', function() {
-                        var isSDKv2 = sdkVersionSelector.value === SDKv2;
-                        if (isSDKv2) {
-                            affiliate.classList.remove('organic-hidden');
-                            affiliateWarn.classList.add('organic-hidden');
-                            configInjection.classList.add('organic-hidden');
-                        } else {
-                            affiliate.classList.add('organic-hidden');
-                            affiliateWarn.classList.remove('organic-hidden');
-                            configInjection.classList.remove('organic-hidden');
                         }
                     });
 

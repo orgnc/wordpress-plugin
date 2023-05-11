@@ -169,8 +169,8 @@ class GraphQL {
                         'sdkVersion' => $organic->getSdkVersion(),
                         'siteDomain' => $organic->siteDomain,
                         'siteId' => $organic->getSiteId(),
-                        'sdkUrl' => $organic->getSdkUrl()['default'],
-                        'sdkUrlModule' => $organic->getSdkUrl()['module'],
+                        'sdkUrl' => $organic->getSdkUrl(),
+                        'sdkUrlModule' => $organic->getSdkUrl( 'module' ),
                         'sdkCustomCSSUrl' => $organic->getCustomCSSUrl(),
                         'oneTrustEnabled' => $organic->useCmpOneTrust(),
                         'oneTrustSiteId' => $organic->getOneTrustId(),
@@ -178,8 +178,8 @@ class GraphQL {
                         'adsRawData' => $adsConfig->raw
                             ? json_encode( $adsConfig->raw )
                             : null,
-                        'adsPrebidUrl' => $adsConfig->getPrebidBuildUrl()['default'],
-                        'adsPrebidUrlModule' => $adsConfig->getPrebidBuildUrl()['module'],
+                        'adsPrebidUrl' => $adsConfig->getPrebidBuildUrl(),
+                        'adsPrebidUrlModule' => $adsConfig->getPrebidBuildUrl( 'module' ),
                         'affiliateEnabled' => $organic->useAffiliate(),
                         'splitTestEnabled' => $testEnabled,
                         'splitTestPercent' => $testEnabled
