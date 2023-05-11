@@ -170,8 +170,8 @@ class PageInjection {
         <?php
         $this->injectScriptTag(
             'organic-sdk',
-            $this->organic->getSdkUrl()['default'],
-            $this->organic->getSdkUrl()['module']
+            $this->organic->getSdkUrl(),
+            $this->organic->getSdkUrl( 'module' )
         );
     }
 
@@ -187,7 +187,7 @@ class PageInjection {
 
         if ( ! $this->organic->useSplitTest() ) {
             // If we are not running split test then we need to be loading up our ad stack as quickly as possible,
-            // which means that we should do it with <script> tags directly.
+            // which means that we should do it with <script> and <link> tags directly.
             $this->injectCustomCssTag();
             if ( $this->organic->useAdsOnPage() ) {
                 $this->injectScriptTag(
@@ -196,14 +196,14 @@ class PageInjection {
                 );
                 $this->injectScriptTag(
                     'organic-prebid',
-                    $this->organic->getAdsConfig()->getPrebidBuildUrl()['default'],
-                    $this->organic->getAdsConfig()->getPrebidBuildUrl()['module']
+                    $this->organic->getAdsConfig()->getPrebidBuildUrl(),
+                    $this->organic->getAdsConfig()->getPrebidBuildUrl( 'module' )
                 );
             }
             $this->injectScriptTag(
                 'organic-sdk',
-                $this->organic->getSdkUrl()['default'],
-                $this->organic->getSdkUrl()['module']
+                $this->organic->getSdkUrl(),
+                $this->organic->getSdkUrl( 'module' )
             );
         } else {
             $this->injectSplitTestUtils();
@@ -222,16 +222,19 @@ class PageInjection {
                         return;
                     }
 
+                    splitTest.loadCSS('organic-css',
+                        "<?php echo esc_url_raw( $this->organic->getCustomCSSUrl() ); ?>",
+                    );
                     <?php if ( $this->organic->useAdsOnPage() ) { ?>
                     splitTest.loadScript('gpt', 'https://securepubads.g.doubleclick.net/tag/js/gpt.js');
                     splitTest.loadScript('organic-prebid',
-                        "<?php echo esc_url_raw( $this->organic->getAdsConfig()->getPrebidBuildUrl()['default'] ); ?>",
-                        "<?php echo esc_url_raw( $this->organic->getAdsConfig()->getPrebidBuildUrl()['module'] ); ?>",
+                        "<?php echo esc_url_raw( $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>",
+                        "<?php echo esc_url_raw( $this->organic->getAdsConfig()->getPrebidBuildUrl( 'module' ) ); ?>",
                     );
                     <?php } ?>
                     splitTest.loadScript('organic-sdk',
-                        "<?php echo esc_url_raw( $this->organic->getSdkUrl()['default'] ); ?>",
-                        "<?php echo esc_url_raw( $this->organic->getSdkUrl()['module'] ); ?>",
+                        "<?php echo esc_url_raw( $this->organic->getSdkUrl() ); ?>",
+                        "<?php echo esc_url_raw( $this->organic->getSdkUrl( 'module' ) ); ?>",
                     );
                 })();
             </script>
@@ -254,7 +257,7 @@ class PageInjection {
         $cssUrl = $this->organic->getCustomCSSUrl();
         ?>
         <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet ?>
-        <link rel="stylesheet" href="<?php echo esc_url( $cssUrl ); ?>" type="text/css" media="all" />
+        <link id="organic-css" rel="stylesheet" href="<?php echo esc_url_raw( $cssUrl ); ?>" type="text/css" media="all" />
         <?php
     }
 
@@ -262,13 +265,7 @@ class PageInjection {
         ?>
         <script id="organic-sdk-core-setup">
             window.__organic_usp_cookie = 'ne-opt-out';
-            window.__trackadm_usp_cookie = 'ne-opt-out';
-            window.__empire_usp_cookie = 'ne-opt-out';
-
-            window.empire = window.empire || {};
-            // Use `empire` as a "source of truth"
-            window.organic = window.empire || window.organic; // now `organic` and `empire` reference the same js object
-
+            window.organic = window.organic || {};
             window.organic.cmd = window.organic.cmd || [];
             window.organic.disableSDKAutoInitialization = true;
 
@@ -282,23 +279,6 @@ class PageInjection {
     }
 
     public function injectAdsSetup() {
-        if ( $this->organic->useInjectedAdsConfig() ) {
-            // TODO: get rid of it after switch to the SDKv2
-            ?>
-            <script id="organic-sdk-ads-inject-config">
-                // Using deprecated configuration method to inject AdConfig for SDKv1
-                window.organic.apps = window.organic.apps || {};
-                window.organic.apps.ads = window.organic.apps.ads || {};
-                (function (){
-                    var siteDomain = "<?php echo esc_js( $this->organic->siteDomain ); ?>";
-                    var adConfig = <?php echo json_encode( $this->organic->getAdsConfig()->raw ); ?>;
-                    adConfig.site = siteDomain;
-                    window.organic.apps.ads.config = adConfig;
-                })();
-            </script>
-            <?php
-        }
-
         $sectionString = '';
         $keywordString = '';
         $targeting = $this->organic->getTargeting();
@@ -529,12 +509,23 @@ class PageInjection {
                     document.getElementsByTagName('head')[0].appendChild(script);
                 }
 
+                function loadCSS(id, src) {
+                    if (document.getElementById(id)) return;
+                    var link = document.createElement('link');
+                    link.id = id;
+                    link.rel = 'stylesheet';
+                    link.type = 'text/css';
+                    link.href = src;
+                    document.getElementsByTagName('head')[0].appendChild(link);
+                }
+
                 return {
                     create: create,
                     getValue: function(name) { return _userBuckets[name]; },
                     getUserBuckets: function() { return _userBuckets; },
                     getTargetingValue: getTargetingValue,
-                    loadScript: loadScript
+                    loadScript: loadScript,
+                    loadCSS: loadCSS
                 }
             })();
         </script>
@@ -552,6 +543,7 @@ class PageInjection {
             );
             return;
         }
+        // The script to be used if modules are supported
         wp_print_script_tag(
             [
                 'id' => $id . '-mjs',
@@ -560,6 +552,7 @@ class PageInjection {
                 'type' => 'module',
             ]
         );
+        // The script to be used if modules are not supported
         wp_print_script_tag(
             [
                 'id' => $id,

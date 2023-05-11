@@ -142,7 +142,6 @@ class Organic {
      *       +sdk: Organic\SDK\OrganicSdk {#1830},
      *       +"siteDomain": "domino.com",
      *       +"ampEnabled": "1",
-     *       +"injectAdsConfig": "1",
      *       +"prefillEnabled": "1",
      *     }
      */
@@ -248,12 +247,11 @@ class Organic {
         $this->logToSentry = $this->getOption( 'organic::log_to_sentry' );
         // Reinitialize Sentry with a client-specific key if applicable.
         if ( $this->isEnabled && $this->logToSentry ) {
-            $this->configureSentryForSite( $this->sdk );
+            $this->configureSentryForSite();
         }
 
         // Uses old `amp_ads_enabled` but controls AMP overall
         $this->ampEnabled = $this->getOption( 'organic::amp_ads_enabled' );
-        $this->injectAdsConfig = $this->getOption( 'organic::inject_ads_config' );
         // Uses old `ad_slots_prefill` but controls Prefill overall
         $this->prefillEnabled = $this->getOption( 'organic::ad_slots_prefill_enabled' );
         $this->cmp = $this->getOption( 'organic::cmp' );
@@ -440,7 +438,7 @@ class Organic {
      * @return bool
     */
     public function useAffiliate() : bool {
-        return $this->isEnabledAndConfigured() && ( $this->getSdkVersion() == $this->sdk::SDK_V2 ) && $this->affiliateEnabled;
+        return $this->isEnabledAndConfigured() && $this->affiliateEnabled;
     }
 
     /**
@@ -450,10 +448,6 @@ class Organic {
      */
     public function useAmp() : bool {
         return $this->isEnabledAndConfigured() && $this->ampEnabled;
-    }
-
-    public function useInjectedAdsConfig() : bool {
-        return $this->isEnabledAndConfigured() && ( $this->getSdkVersion() == $this->sdk::SDK_V1 ) && $this->injectAdsConfig;
     }
 
     public function usePrefill() : bool {
@@ -1438,14 +1432,11 @@ class Organic {
     }
 
     public function getSdkVersion() {
-        return $this->getOption( 'organic::sdk_version', $this->sdk::SDK_V1 );
+        return $this->sdk::SDK_V2;
     }
 
-    public function getSdkUrl() {
-        if ( $this->getSdkVersion() == $this->sdk::SDK_V2 ) {
-            return $this->sdk->getSdkV2Url();
-        }
-        return $this->sdk->getSdkV1Url();
+    public function getSdkUrl( string $type = 'default' ) {
+        return $this->sdk->getSdkV2Url( $type );
     }
 
     public function getCustomCSSUrl() {

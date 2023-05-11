@@ -26,7 +26,6 @@ class OrganicSdk {
     const DEFAULT_API_URL = 'https://api.organic.ly/graphql';
     const DEFAULT_ASSETS_URL = 'https://organiccdn.io/assets/';
     const FALLBACK_PREBID_BUILD = 'sdk/prebid-stable.js';
-    const SDK_V1 = 'v1';
     const SDK_V2 = 'v2';
 
     /**
@@ -119,30 +118,19 @@ class OrganicSdk {
         return $this->cdnUrl;
     }
 
-    /**
-     * Builds the SDK V1 URL to embed the JS SDK into web pages
-     *
-     * @return array
-     */
-    public function getSdkV1Url() {
-        return [
-            'default' => $this->cdnUrl . 'sdk/unit-sdk.js?' . $this->siteGuid,
-            'module' => '',
-        ];
-    }
 
     /**
      * Builds the SDK V2 URL to embed the JS SDK into web pages
      *
-     * @return array
+     * @return string
      */
-    public function getSdkV2Url() {
+    public function getSdkV2Url( string $type ) {
         $default = $this->cdnUrl . 'sdk/sdkv2?guid=' . $this->siteGuid;
-        $module = $default . '&usemodules=true';
-        return [
-            'default' => $default,
-            'module' => $module,
-        ];
+        if ( $type === 'module' ) {
+            return $default . '&usemodules=true';
+        }
+
+        return $default;
     }
 
     /**

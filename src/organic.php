@@ -23,7 +23,7 @@ if ( ! $environment ) {
 }
 
 function init_organic_sentry( string $dsn, string $environment ) : ?\Sentry\State\Hub {
-    if ( $environment != 'PRODUCTION' ) {
+    if ( ! in_array( $environment, [ 'PRODUCTION', 'STAGING' ] ) ) {
         return null;
     }
     if ( get_option( 'organic::log_to_sentry' ) === false ) {

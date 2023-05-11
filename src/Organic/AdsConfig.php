@@ -52,14 +52,15 @@ class AdsConfig extends BaseConfig {
         $this->prebidUrl = $prebid['useBuild'] ?? $this->fallbackUrl;
     }
 
-    public function getPrebidBuildUrl() : array {
+    public function getPrebidBuildUrl( string $type = 'default' ) : string {
+        if ( $type === 'default' ) {
+            return $this->prebidUrl;
+        }
+
         $moduleSrc = '';
         if ( preg_match( $this->MODERN_PREBID_RE, $this->prebidUrl ) ) {
             $moduleSrc = str_replace( '.js', '.m.js', $this->prebidUrl );
         };
-        return [
-            'default' => $this->prebidUrl,
-            'module' => $moduleSrc,
-        ];
+        return $moduleSrc;
     }
 }
