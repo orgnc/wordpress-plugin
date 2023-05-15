@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import ProductCard from './ProductCard';
 import ProductCardModal from './ProductCardModal';
 import { AttributesType } from './propTypes';
+import { refreshAffiliateWidgets } from "../../shared/helpers";
 
 const Edit = ({ attributes, setAttributes, productCardCreationURL }) => {
   const productCardRef = createRef();
@@ -41,7 +42,7 @@ const Edit = ({ attributes, setAttributes, productCardCreationURL }) => {
       if (productCardRef.current) {
         productCardRef.current.removeAttribute('data-organic-affiliate-processed');
       }
-      window.empire?.apps?.affiliate?.init?.();
+      refreshAffiliateWidgets();
     },
     [hideModal, productCardRef, setAttributes],
   );

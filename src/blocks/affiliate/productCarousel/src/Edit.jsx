@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import ProductCarousel from './ProductCarousel';
 import ProductCarouselModal from './ProductCarouselModal';
 import { AttributesType } from './propTypes';
+import { refreshAffiliateWidgets } from '../../shared/helpers'
 
 const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
   const productCarouselRef = createRef();
@@ -41,7 +42,7 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
       if (productCarouselRef.current) {
         productCarouselRef.current.removeAttribute('data-organic-affiliate-processed');
       }
-      window.empire?.apps?.affiliate?.init?.();
+      refreshAffiliateWidgets();
     },
     [hideModal, productCarouselRef, setAttributes],
   );
