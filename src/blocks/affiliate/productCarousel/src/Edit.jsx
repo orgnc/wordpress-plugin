@@ -13,10 +13,10 @@ import {
 } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
+import { refreshAffiliateWidgets } from '../../shared/helpers';
 import ProductCarousel from './ProductCarousel';
 import ProductCarouselModal from './ProductCarouselModal';
 import { AttributesType } from './propTypes';
-import { refreshAffiliateWidgets } from '../../shared/helpers'
 
 const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
   const productCarouselRef = createRef();

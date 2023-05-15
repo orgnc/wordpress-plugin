@@ -13,10 +13,10 @@ import {
 } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
+import { refreshAffiliateWidgets } from '../../shared/helpers';
 import ProductCard from './ProductCard';
 import ProductCardModal from './ProductCardModal';
 import { AttributesType } from './propTypes';
-import { refreshAffiliateWidgets } from "../../shared/helpers";
 
 const Edit = ({ attributes, setAttributes, productCardCreationURL }) => {
   const productCardRef = createRef();
