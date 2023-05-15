@@ -128,27 +128,6 @@ class GraphQL {
                         'organic'
                     ),
                 ],
-
-                // Delete after Futurism update/migration
-                'preloadConfigEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t( '[DEPRECATED] If true, preload config JSON in site code', 'organic' ),
-                ],
-                'preloadConfigRules' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( '[DEPRECATED] JSON of the display (blocking) rules', 'organic' ),
-                ],
-                'preloadContainersEnabled' => [
-                    'type' => 'Boolean',
-                    'description' => $this->organic->t(
-                        '[DEPRECATED] If true, include pre-sized divs in the DOM for optimal CLS scores',
-                        'organic'
-                    ),
-                ],
-                'preloadContainersConfig' => [
-                    'type' => 'String',
-                    'description' => $this->organic->t( '[DEPRECATED] JSON of the placement rules', 'organic' ),
-                ],
             ],
         ];
     }
@@ -190,15 +169,6 @@ class GraphQL {
                             : null,
                         'ampEnabled' => $organic->useAmp(),
                         'prefillEnabled' => $organic->usePrefill(),
-
-                        'preloadConfigEnabled' => $organic->useInjectedAdsConfig(),
-                        'preloadConfigRules' => $adsConfig->adRules
-                            ? json_encode( $adsConfig->adRules )
-                            : '[]',
-                        'preloadContainersEnabled' => $organic->usePrefill(),
-                        'preloadContainersConfig' => $adsConfig->forPlacement
-                            ? json_encode( $adsConfig->forPlacement )
-                            : '[]',
                     ];
                 },
             ]
