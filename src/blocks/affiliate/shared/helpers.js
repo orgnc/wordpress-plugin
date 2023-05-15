@@ -1,1 +1,1 @@
-export const refreshAffiliateWidgets = () => { window.organic?.cmd?.push(organic?.apps?.affiliate?.processPage?.()); }
+export const refreshAffiliateWidgets = () => { window.organic?.cmd?.push(window.organic?.apps?.affiliate?.processPage?.()); };
