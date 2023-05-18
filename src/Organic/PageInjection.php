@@ -159,13 +159,12 @@ class PageInjection {
         <script id="organic-sdk-affiliate-admin-blocks-process">
             // Make sure we re-process the page after all blocks loaded
             window.addEventListener('pageshow', function() {
-                setTimeout(() => {
-                    window.organic.cmd.push(function(apps) {
-                        var affiliate = apps.affiliate;
-                        if (!affiliate || !affiliate.isEnabled()) return;
-                        affiliate.processPage();
-                    })
-                }, 0);
+                window.organic.cmd.push(function(apps) {
+                    var affiliate = apps.affiliate;
+                    if (!affiliate || !affiliate.isEnabled()) return;
+
+                    setTimeout(() => affiliate.processPage(), 500);
+                });
             });
         </script>
         <?php
