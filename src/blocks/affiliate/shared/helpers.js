@@ -28,13 +28,9 @@ export const refreshAffiliateWidgetsOnEdit = () => {
 
 export const refreshAffiliateWidgetsOnSave = () => {
   whenEditorIsReady().then(() => {
-    window.organic.cmd.push((apps) => {
-      const affiliate = { apps };
-      if (!affiliate || !affiliate.isEnabled()) return;
-      if (!affiliate.wp_processed) {
-        affiliate.wp_processed = true;
-        refreshAffiliateWidgets();
-      }
-    });
+    if (!window.wp_organic_affiliate_processed) {
+      window.wp_organic_affiliate_processed = true;
+      refreshAffiliateWidgets();
+    }
   });
 };
