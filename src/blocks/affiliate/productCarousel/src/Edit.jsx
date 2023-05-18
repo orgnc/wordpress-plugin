@@ -13,7 +13,7 @@ import {
 } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
-import { refreshAffiliateWidgets } from '../../shared/helpers';
+import { refreshAffiliateWidgetsOnEdit } from '../../shared/helpers';
 import ProductCarousel from './ProductCarousel';
 import ProductCarouselModal from './ProductCarouselModal';
 import { AttributesType } from './propTypes';
@@ -42,7 +42,7 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
       if (productCarouselRef.current) {
         productCarouselRef.current.removeAttribute('data-organic-affiliate-processed');
       }
-      refreshAffiliateWidgets();
+      refreshAffiliateWidgetsOnEdit();
     },
     [hideModal, productCarouselRef, setAttributes],
   );
