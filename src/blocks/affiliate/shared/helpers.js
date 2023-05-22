@@ -33,7 +33,7 @@ export const refreshAffiliateWidgetsOnSave = () => {
       refreshAffiliateWidgets();
     }
   };
-  whenEditorIsReady().then(() => refreshWidgetsIfNecessary());
   // A hacky backup in case whenEditorIsReady fails.
-  setTimeout(() => refreshWidgetsIfNecessary(), 5000);
+  setTimeout(() => refreshWidgetsIfNecessary(), 500);
+  whenEditorIsReady().then(() => refreshWidgetsIfNecessary());
 };
