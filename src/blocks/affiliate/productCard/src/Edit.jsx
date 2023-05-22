@@ -3,8 +3,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  IconButton,
-  Toolbar,
 } from '@wordpress/components';
 import {
   createRef,
@@ -14,6 +12,7 @@ import {
 import PropTypes from 'prop-types';
 
 import { refreshAffiliateWidgetsOnEdit } from '../../shared/helpers';
+import WidgetToolbar from '../../shared/WidgetToolbar';
 import ProductCard from './ProductCard';
 import ProductCardModal from './ProductCardModal';
 import { AttributesType } from './propTypes';
@@ -58,13 +57,9 @@ const Edit = ({ attributes, setAttributes, productCardCreationURL }) => {
         />
       )}
       <BlockControls>
-        <Toolbar>
-          <IconButton
-            icon="edit"
-            label="Edit product card"
-            onClick={displayModal}
-          />
-        </Toolbar>
+        <BlockControls>
+          <WidgetToolbar onEdit={displayModal} />
+        </BlockControls>
       </BlockControls>
       <Card>
         <CardHeader>

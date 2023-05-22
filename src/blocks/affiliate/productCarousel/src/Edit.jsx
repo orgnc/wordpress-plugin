@@ -3,8 +3,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  IconButton,
-  Toolbar,
 } from '@wordpress/components';
 import {
   createRef,
@@ -14,6 +12,7 @@ import {
 import PropTypes from 'prop-types';
 
 import { refreshAffiliateWidgetsOnEdit } from '../../shared/helpers';
+import WidgetToolbar from '../../shared/WidgetToolbar';
 import ProductCarousel from './ProductCarousel';
 import ProductCarouselModal from './ProductCarouselModal';
 import { AttributesType } from './propTypes';
@@ -58,13 +57,7 @@ const Edit = ({ attributes, setAttributes, productCarouselCreationURL }) => {
         />
       )}
       <BlockControls>
-        <Toolbar>
-          <IconButton
-            icon="edit"
-            label="Edit carousel"
-            onClick={displayModal}
-          />
-        </Toolbar>
+        <WidgetToolbar onEdit={displayModal} />
       </BlockControls>
       <Card>
         <CardHeader>
