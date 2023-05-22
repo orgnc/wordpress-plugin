@@ -4,8 +4,7 @@ import { select, subscribe } from '@wordpress/data';
 async function whenEditorIsReady() {
   return new Promise((resolve) => {
     const unsubscribe = subscribe(() => {
-      // eslint-disable-next-line no-underscore-dangle
-      if (select('core/editor').__unstableIsEditorReady()) {
+      if (select('core/editor').isCleanNewPost() || select('core/block-editor').getBlockCount() > 0) {
         unsubscribe();
         resolve();
       }
