@@ -18,7 +18,7 @@ const refreshAffiliateWidgets = () => {
     window.organic ||= {};
     window.organic.cmd ||= [];
     window.organic.cmd.push(({ affiliate }) => affiliate?.processPage());
-  }, 0);
+  }, 500);
 };
 
 export const refreshAffiliateWidgetsOnEdit = () => {
