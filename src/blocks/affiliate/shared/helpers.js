@@ -4,9 +4,8 @@ import { select, subscribe } from '@wordpress/data';
 async function whenEditorIsReady() {
   return new Promise((resolve) => {
     const unsubscribe = subscribe(() => {
-      // This will trigger after the initial render blocking, before the window load event
-      // This seems currently more reliable than using __unstableIsEditorReady
-      if (select('core/editor').isCleanNewPost() || select('core/block-editor').getBlockCount() > 0) {
+      // eslint-disable-next-line no-underscore-dangle
+      if (select('core/editor').__unstableIsEditorReady()) {
         unsubscribe();
         resolve();
       }
@@ -28,8 +27,13 @@ export const refreshAffiliateWidgetsOnEdit = () => {
 
 export const refreshAffiliateWidgetsOnSave = () => {
   whenEditorIsReady().then(() => {
-    if (!window.wp_organic_affiliate_processed) {
-      window.wp_organic_affiliate_processed = true;
+    // This will be called by all affiliate widgets on the page,
+    // so we put a check here to only refresh the widgets once.
+
+    // eslint-disable-next-line no-underscore-dangle
+    if (!window.__wpOrganicAffiliateProcessed) {
+      // eslint-disable-next-line no-underscore-dangle
+      window.__wpOrganicAffiliateProcessed = true;
       refreshAffiliateWidgets();
     }
   });
