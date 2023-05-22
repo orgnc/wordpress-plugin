@@ -17,7 +17,7 @@ const refreshAffiliateWidgets = () => {
     window.organic ||= {};
     window.organic.cmd ||= [];
     window.organic.cmd.push(({ affiliate }) => affiliate?.processPage());
-  }, 500);
+  }, 0);
 };
 
 export const refreshAffiliateWidgetsOnEdit = () => {
@@ -25,15 +25,15 @@ export const refreshAffiliateWidgetsOnEdit = () => {
 };
 
 export const refreshAffiliateWidgetsOnSave = () => {
-  whenEditorIsReady().then(() => {
-    // This will be called by all affiliate widgets on the page,
-    // so we put a check here to only refresh the widgets once.
-
+  const refreshWidgetsIfNecessary = () => {
     // eslint-disable-next-line no-underscore-dangle
     if (!window.__wpOrganicAffiliateProcessed) {
       // eslint-disable-next-line no-underscore-dangle
       window.__wpOrganicAffiliateProcessed = true;
       refreshAffiliateWidgets();
     }
-  });
+  };
+  whenEditorIsReady().then(() => refreshWidgetsIfNecessary());
+  // A hacky backup in case whenEditorIsReady fails.
+  setTimeout(() => refreshWidgetsIfNecessary(), 500);
 };
