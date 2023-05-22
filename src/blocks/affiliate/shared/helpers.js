@@ -34,6 +34,5 @@ export const refreshAffiliateWidgetsOnSave = () => {
       refreshAffiliateWidgets();
     }
   };
-  // The below seems to work consistently Chromium browsers.
   whenEditorIsReady().then(() => refreshWidgetsIfNecessary());
 };
