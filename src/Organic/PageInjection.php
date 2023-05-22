@@ -163,7 +163,7 @@ class PageInjection {
                     var affiliate = apps.affiliate;
                     if (!affiliate || !affiliate.isEnabled()) return;
 
-                    setTimeout(() => affiliate.processPage(), 0);
+                    setTimeout(() => affiliate.processPage(), 500);
                 });
             });
         </script>
