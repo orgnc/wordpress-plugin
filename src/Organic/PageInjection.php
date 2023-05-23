@@ -155,19 +155,6 @@ class PageInjection {
 
         $this->injectCoreSetup();
         $this->injectAffiliateSetup();
-        ?>
-        <script id="organic-sdk-affiliate-admin-blocks-process">
-            // Make sure we re-process the page after all blocks loaded
-            window.addEventListener('pageshow', function() {
-                window.organic.cmd.push(function(apps) {
-                    var affiliate = apps.affiliate;
-                    if (!affiliate || !affiliate.isEnabled()) return;
-
-                    setTimeout(() => affiliate.processPage(), 0);
-                });
-            });
-        </script>
-        <?php
         $this->injectScriptTag(
             'organic-sdk',
             $this->organic->getSdkUrl(),

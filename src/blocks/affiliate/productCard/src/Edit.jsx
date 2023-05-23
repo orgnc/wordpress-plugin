@@ -3,8 +3,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  IconButton,
-  Toolbar,
 } from '@wordpress/components';
 import {
   createRef,
@@ -13,7 +11,8 @@ import {
 } from '@wordpress/element';
 import PropTypes from 'prop-types';
 
-import { refreshAffiliateWidgets } from '../../shared/helpers';
+import { refreshAffiliateWidgetsOnEdit } from '../../shared/helpers';
+import WidgetToolbar from '../../shared/WidgetToolbar';
 import ProductCard from './ProductCard';
 import ProductCardModal from './ProductCardModal';
 import { AttributesType } from './propTypes';
@@ -42,7 +41,7 @@ const Edit = ({ attributes, setAttributes, productCardCreationURL }) => {
       if (productCardRef.current) {
         productCardRef.current.removeAttribute('data-organic-affiliate-processed');
       }
-      refreshAffiliateWidgets();
+      refreshAffiliateWidgetsOnEdit();
     },
     [hideModal, productCardRef, setAttributes],
   );
@@ -58,13 +57,9 @@ const Edit = ({ attributes, setAttributes, productCardCreationURL }) => {
         />
       )}
       <BlockControls>
-        <Toolbar>
-          <IconButton
-            icon="edit"
-            label="Edit product card"
-            onClick={displayModal}
-          />
-        </Toolbar>
+        <BlockControls>
+          <WidgetToolbar onEdit={displayModal} />
+        </BlockControls>
       </BlockControls>
       <Card>
         <CardHeader>
