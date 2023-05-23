@@ -64,6 +64,10 @@ class PrefillAdsInjector {
                 continue;
             }
 
+            if ( $placement['prefillDisabled'] ?? false ) {
+                continue;
+            }
+
             $relativeSelectors = $slotsInjector::getRelativeSelectors( $placement );
             $limit = $placement['limit'];
 
