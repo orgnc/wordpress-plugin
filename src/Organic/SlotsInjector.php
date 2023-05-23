@@ -99,57 +99,68 @@ class SlotsInjector {
         return self::copyFragment( $this->dom, $node );
     }
 
-    public static function getBlockRule( $adRules, $targeting ) {
-        foreach ( $adRules as $rule ) {
-            if ( ! $rule['enabled'] ) {
-                continue;
-            }
+    public static function getBlockRules( $adRules, $targeting ) {
+        return array_filter(
+            $adRules,
+            function( $rule ) use ( $targeting ) {
+                if ( ! $rule['enabled'] ) {
+                    return false;
+                }
 
-            $url = $targeting['url'];
-            $components = [];
-            switch ( $rule['component'] ) {
-                case 'PATH':
-                    $components = [ parse_url( $url )['path'] ?? '/' ];
-                    break;
-                case 'TAG':
-                    $components = $targeting['keywords'];
-                    break;
-                case 'CATEGORY':
-                    $category = $targeting['category'];
-                    if ( $category ) {
-                        $components = [ $category->slug ];
+                $components = [];
+                $url = $targeting['url'];
+                switch ( $rule['component'] ) {
+                    case 'PATH':
+                        $components = [ parse_url( $url )['path'] ?? '/' ];
+                        break;
+                    case 'URL':
+                        $components = [ $url ];
+                        break;
+                    case 'TAG':
+                        $components = $targeting['keywords'];
+                        break;
+                    case 'CATEGORY':
+                        $components = $targeting['sections'];
+                        break;
+                    default:
+                        return false;
+                }
+
+                $checkRule = function ( $component ) use ( $rule ) {
+                    switch ( $rule['comparator'] ) {
+                        case 'CONTAINS':
+                            return ( strpos( $component, $rule['value'] ) !== false );
+                        case 'STARTS_WITH':
+                            return ( strpos( $component, $rule['value'] ) === 0 );
+                        case 'EXACTLY_MATCHES':
+                            return ( $component === $rule['value'] );
+                        default:
+                            return false;
                     }
-                    break;
-            }
+                };
 
-            $blocked = array_reduce(
-                array_map(
-                    function ( $component ) use ( $rule ) {
-                        switch ( $rule['comparator'] ) {
-                            case 'CONTAINS':
-                                return ( strpos( $component, $rule['value'] ) !== false );
-                            case 'STARTS_WITH':
-                                return ( strpos( $component, $rule['value'] ) === 0 );
-                            case 'EXACTLY_MATCHES':
-                                return ( $component === $rule['value'] );
-                            default:
-                                return false;
-                        }
-                    },
-                    $components
-                ),
-                function ( $accumulator, $matched ) {
-                    return $accumulator || $matched;
+                foreach ( $components as $component ) {
+                    if ( $checkRule( $component ) ) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        );
+    }
+
+    public static function getBlockedPlacementKeys( $adRules, $targeting ) {
+        $blockRules = self::getBlockRules( $adRules, $targeting );
+        return array_merge(
+            ...array_map(
+                function( $rule ) {
+                    $placementKeys = $rule['placementKeys'];
+                    return empty( $placementKeys ) ? [ 'ALL' ] : $placementKeys;
                 },
-                false
-            );
-
-            if ( $blocked ) {
-                return $rule;
-            }
-        }
-
-        return null;
+                $blockRules
+            )
+        );
     }
 
     // For compatibility during the first deploy before new config pulled

@@ -43,16 +43,19 @@ class PrefillAdsInjector {
             }
         );
 
-        $rule = $slotsInjector::getBlockRule( $this->adsConfig->adRules, $this->targeting );
+        $blockedKeys = slotsInjector::getBlockedPlacementKeys(
+            $this->adsConfig->adRules,
+            $this->targeting
+        );
         // all placements are blocked by rule
-        if ( $rule && ! $rule['placementKeys'] ) {
+        if ( in_array( 'ALL', $blockedKeys ) ) {
             return $content;
         }
 
         $styles = '';
         foreach ( $this->prefillConfig->forPlacement as $key => $prefill ) {
             // certain placement is blocked
-            if ( $rule && in_array( $key, $rule['placementKeys'] ) ) {
+            if ( in_array( $key, $blockedKeys ) ) {
                 continue;
             }
 
