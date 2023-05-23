@@ -38,15 +38,18 @@ class AmpAdsInjector extends \AMP_Base_Sanitizer {
         $ampConfig = $this->args['ampConfig'];
         $adsConfig = $this->args['adsConfig'];
 
-        $rule = $this->slotsInjector::getBlockRule( $adsConfig->adRules, $this->targeting );
+        $blockedKeys = $this->slotsInjector::getBlockedPlacementKeys(
+            $adsConfig->adRules,
+            $this->targeting
+        );
         // all placements are blocked by rule
-        if ( $rule && ! $rule['placementKeys'] ) {
+        if ( in_array( 'ALL', $blockedKeys ) ) {
             return;
         }
 
         foreach ( $ampConfig->forPlacement as $key => $amp ) {
             // certain placement is blocked
-            if ( $rule && in_array( $key, $rule['placementKeys'] ) ) {
+            if ( in_array( $key, $blockedKeys ) ) {
                 continue;
             }
 
