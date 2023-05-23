@@ -539,8 +539,7 @@ class Organic {
         }
 
         $rawAdsConfig = $this->getOption( 'organic::ad_settings', [] );
-        $rawAdsRefreshRates = $this->getOption( 'organic::ads_refresh_rates', [] );
-        $this->adsConfig = new AdsConfig( $rawAdsConfig, $rawAdsRefreshRates );
+        $this->adsConfig = new AdsConfig( $rawAdsConfig );
 
         return $this->adsConfig;
     }
@@ -1211,18 +1210,9 @@ class Organic {
         $this->debug( 'Got Prefill Config: ', $prefillConfig );
         $this->updateOption( 'organic::ad_prefill_config', $prefillConfig, false );
 
-        $this->syncAdsRefreshRates();
-
         return [
             'updated' => true,
         ];
-    }
-
-    public function syncAdsRefreshRates() {
-        $rates = $this->sdk->queryAdsRefreshRates();
-
-        $this->debug( 'Got ads refresh rates: ', $rates );
-        $this->updateOption( 'organic::ads_refresh_rates', $rates, false );
     }
 
     public function syncAdsTxt() {
