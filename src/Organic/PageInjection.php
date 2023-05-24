@@ -149,7 +149,7 @@ class PageInjection {
             return;
         }
         $pt = get_current_screen()->post_type;
-        if ( $pt != 'post' && $pt != 'page' ) {
+        if ( $pt != 'post' && $pt != 'page' && $pt != 'guides' ) {
             return;
         }
 
