@@ -1,7 +1,8 @@
 FROM wordpress:6.1-php7.4 AS builder
+RUN apt update && apt install -y zip
 RUN curl -L -o /tmp/base-theme.zip https://downloads.wordpress.org/theme/newspaperss.2.10.0.zip
 RUN curl -L -o /tmp/wpamp-plugin.zip https://downloads.wordpress.org/plugin/amp.2.4.1.zip
-COPY --from=composer/composer:2-bin /composer /usr/bin/composer
+COPY --from=composer/composer:2.5.5-bin /composer /usr/bin/composer
 COPY --from=wordpress:cli-php7.4 /usr/local/bin/wp /usr/local/bin/wp
 COPY --from=node:17.9.1 /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:17.9.1 /usr/local/lib/node_modules /usr/local/lib/node_modules
