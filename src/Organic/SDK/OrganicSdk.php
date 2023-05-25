@@ -252,8 +252,55 @@ class OrganicSdk {
                             [
                                 ( new Query( 'adSettings' ) )->setSelectionSet(
                                     [
+                                        'enableRefresh',
+                                        'adsRefreshRate',
                                         'tabletBreakpointMin',
                                         'desktopBreakpointMin',
+                                        ( new Query( 'amazon' ) )->setSelectionSet(
+                                            [
+                                                'enabled',
+                                                'deals',
+                                                'pubId',
+                                            ]
+                                        ),
+                                        ( new Query( 'audigent' ) )->setSelectionSet(
+                                            [
+                                                'partnerId',
+                                                'tagEnabled',
+                                                'gamEnabled',
+                                            ]
+                                        ),
+                                        ( new Query( 'outbrain' ) )->setSelectionSet(
+                                            [
+                                                'enabled',
+                                                'selectors',
+                                                'relative',
+                                            ]
+                                        ),
+                                        ( new Query( 'nonRefresh' ) )->setSelectionSet(
+                                            [
+                                                'advertiserIds',
+                                                'lineitemIds',
+                                            ]
+                                        ),
+                                        ( new Query( 'lazyload' ) )->setSelectionSet(
+                                            [
+                                                'marginMobile',
+                                                'marginDesktop',
+                                            ]
+                                        ),
+                                        ( new Query( 'adpulse' ) )->setSelectionSet(
+                                            [
+                                                'enabled',
+                                            ]
+                                        ),
+                                        ( new Query( 'consent' ) )->setSelectionSet(
+                                            [
+                                                'gdpr',
+                                                'ccpa',
+                                            ]
+                                        ),
+                                        'pixelSettings',
                                     ]
                                 ),
                                 ( new Query( 'adRules' ) )->setSelectionSet(
@@ -271,6 +318,9 @@ class OrganicSdk {
                                         'guid',
                                         'key',
                                         'name',
+                                        'description',
+                                        'adType',
+                                        'connatixId',
                                         'adUnitId',
                                         ( new Query( 'relativeSelectors' ) )->setSelectionSet(
                                             [
@@ -278,18 +328,54 @@ class OrganicSdk {
                                                 'selector',
                                             ]
                                         ),
+                                        'relativeSettings',
                                         'prefillContainerCssClass',
                                         'limit',
+                                        'isOutOfPage',
                                         'sizes',
+                                        'pinHeightTo',
                                         'css',
                                         'prefillDisabled',
                                         'slotSize',
                                         'slotAspectRatio',
+                                        'customTargeting',
                                         'enabled',
                                         'desktopEnabled',
                                         'tabletEnabled',
                                         'mobileEnabled',
+                                        'lazyloadEnabled',
                                         'refreshEnabled',
+                                        'refreshStrategy',
+                                        'disablePrebid',
+                                        'disableAmazon',
+                                        'indicatorEnabled',
+                                        ( new Query( 'indicatorSettings' ) )->setSelectionSet(
+                                            [
+                                                'topCaption',
+                                                'bottomCaption',
+                                                'topDivider',
+                                                'bottomDivider',
+                                                'captionColor',
+                                                'dividerColor',
+                                            ]
+                                        ),
+                                    ]
+                                ),
+                                ( new Query( 'prebid' ) )->setSelectionSet(
+                                    [
+                                        'enabled',
+                                        'timeout',
+                                        'useBuild',
+                                        ( new Query( 'bidders' ) )->setSelectionSet(
+                                            [
+                                                'key',
+                                                'name',
+                                                'enabled',
+                                                'placementSettings',
+                                                'bidAssignment',
+                                                'bidCpmAdjustment',
+                                            ]
+                                        ),
                                     ]
                                 ),
                             ]
@@ -322,6 +408,48 @@ class OrganicSdk {
         );
         $result = $this->runQuery( $gql );
         return $result['data']['appAds']['sites'][0];
+    }
+
+    public function queryAdsRefreshRates() {
+        $gql = new Query( 'adsRefreshRates' );
+        $gql->setArguments(
+            [
+                'siteGuids' => [ $this->siteGuid ],
+            ]
+        );
+        $gql->setSelectionSet(
+            [
+                'guid',
+                'targetType',
+                'targetGuid',
+                'value',
+                ( new Query( 'restrictions' ) )->setSelectionSet(
+                    [
+                        ( new Query( 'devices' ) )->setSelectionSet(
+                            [
+                                'deviceType',
+                                'os',
+                            ]
+                        ),
+                        ( new Query( 'timeRanges' ) )->setSelectionSet(
+                            [
+                                'start',
+                                'end',
+                            ]
+                        ),
+                        ( new Query( 'placements' ) )->setSelectionSet(
+                            [
+                                'guid',
+                                'name',
+                                'key',
+                            ]
+                        ),
+                    ]
+                ),
+            ]
+        );
+        $result = $this->runQuery( $gql );
+        return $result['data']['adsRefreshRates'];
     }
 
     public function queryAdsTxt(): string {
