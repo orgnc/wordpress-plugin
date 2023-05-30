@@ -397,8 +397,8 @@ class AdminSettings {
                 </p>
                 <fieldset>
                     <p>
-                        Which post types from your CMS should be treated as Content for synchronization with
-                        the Organic Platform and eligible for Ads to be injected?
+                        Which post types from your CMS should be treated as content for synchronization with
+                        the Organic Platform and as eligible for the Organic SDK to be loaded on?
                         <ul>
                             <?php $this->injectPostTypesList(); ?>
                         </ul>

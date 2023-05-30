@@ -149,7 +149,7 @@ class PageInjection {
             return;
         }
         $pt = get_current_screen()->post_type;
-        if ( $pt != 'post' && $pt != 'page' ) {
+        if ( ! in_array( $pt, $this->organic->getPostTypes() ) ) {
             return;
         }
 
