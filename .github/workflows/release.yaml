@@ -67,8 +67,6 @@ jobs:
           SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
           BUILD_DIR: build/organic
           SLUG: organic
-        with:
-          dry-run: true
 
       # Pre-configured step to send notification on build success
       - name: Notify slack success
