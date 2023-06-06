@@ -1,4 +1,4 @@
-name: Build Plugin Zip and Push to S3
+name: Build and publish plugin
 
 on:
   release:
@@ -16,7 +16,6 @@ jobs:
       BUILD_NUMBER: ${{ github.event.release.tag_name }}
 
     steps:
-      # This is a pre-configured step to send build notifications to slack
       - uses: voxmedia/github-action-slack-notify-build@v1
         id: slack
         with:
@@ -37,12 +36,10 @@ jobs:
           php_extensions: zip
           version: "2.5.5"
 
-      # Create a packaged up zip file
-      - name: Set Version Number & Build Zip
+      - name: Build plugin
         id: build-zip
         run: ./build-zip.sh ${{ env.BUILD_NUMBER }}
 
-      # Set up our S3 Connection
       - name: Set up S3cmd cli tool
         uses: s3-actions/s3cmd@v1.1
         with:
@@ -51,19 +48,27 @@ jobs:
           access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # Push zip to GitHub Release Archive
-      - name: Upload the artifacts to GitHub
+      - name: Upload plugin to GitHub Release Archive
         uses: skx/github-action-publish-binaries@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: 'build/organic.zip'
 
-      # Push zip to S3 for easy integration with Organic Platform
-      - name: Deploy
+      - name: Upload plugin to S3
         run: |
           s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
           s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
+
+      - name: Upload plugin to Wordpress.org
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
+          BUILD_DIR: build/organic
+          SLUG: organic
+        with:
+          dry-run: true
 
       # Pre-configured step to send notification on build success
       - name: Notify slack success

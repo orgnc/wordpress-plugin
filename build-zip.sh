@@ -28,7 +28,6 @@ cd build/organic
 composer install --no-dev
 cd $ROOT_DIR
 
-# cp -r vendor build/organic/
 (cd src/blocks/ && npm ci && npm run build)
 mkdir -p build/organic/blocks/affiliate/productCard build/organic/blocks/affiliate/productCarousel
 cp -r src/blocks/affiliate/productCard/build build/organic/blocks/affiliate/productCard/
