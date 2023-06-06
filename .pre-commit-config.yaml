@@ -7,6 +7,10 @@ repos:
     -   id: trailing-whitespace
     -   id: check-yaml
     -   id: check-added-large-files
+        exclude: |
+            (?x)^(
+                \.wordpress-org/.*
+            )$
 -   repo: local
     hooks:
     -   id: php
