@@ -16,7 +16,7 @@ class PageInjection {
     private $organic;
 
     public function __construct( Organic $organic ) {
-        if ( ! $organic->isEnabledAndConfigured() ) {
+        if ( ! $organic->isConfigured() ) {
             return;
         }
         $this->organic = $organic;
