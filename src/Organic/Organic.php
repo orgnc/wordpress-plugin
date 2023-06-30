@@ -812,11 +812,13 @@ class Organic {
             return null;
         }
 
-        $canonical = get_permalink( $post->ID );
+        $canonical = get_permalink( $post );
+        $edit_url = get_edit_post_link( $post );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
         $external_id = \apply_filters( 'organic_post_id', $post->ID );
         $canonical = \apply_filters( 'organic_post_url', $canonical, $post->ID );
+        $featured_image_url = \apply_filters( 'organic_featured_image_url', get_the_post_thumbnail_url( $post ), $post->ID );
         $title = \htmlspecialchars_decode( $post->post_title );
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
@@ -876,7 +878,9 @@ class Organic {
                 $authors,
                 $categories,
                 $tags,
-                $campaign_asset_guid
+                $campaign_asset_guid,
+                $edit_url,
+                $featured_image_url
             );
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API

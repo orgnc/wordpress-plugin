@@ -172,7 +172,9 @@ class OrganicSdk {
         array $authors = [],
         array $categories = [],
         array $tags = [],
-        string $campaign_asset_guid = null
+        string $campaign_asset_guid = null,
+        string $editUrl = null,
+        string $featured_image_url = null
     ) {
         // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
@@ -197,6 +199,8 @@ class OrganicSdk {
                 'tags' => $tags,
                 'title' => $title,
                 'campaignAssetGuid' => $campaign_asset_guid,
+                'editUrl' => $editUrl,
+                'featuredImageUrl' => $featured_image_url,
             ],
         ];
 
