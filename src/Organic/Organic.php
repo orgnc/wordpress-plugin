@@ -818,7 +818,7 @@ class Organic {
         # In order to support non-standard post metadata, we have a filter for each attribute
         $external_id = \apply_filters( 'organic_post_id', $post->ID );
         $canonical = \apply_filters( 'organic_post_url', $canonical, $post->ID );
-        $featured_image_url = \apply_filters( 'organic_featured_image_url', get_the_post_thumbnail_url( $post ), $post->ID );
+        $featured_image_url = \apply_filters( 'organic_post_featured_image_url', get_the_post_thumbnail_url( $post ), $post->ID );
         $title = \htmlspecialchars_decode( $post->post_title );
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
@@ -831,6 +831,12 @@ class Organic {
                 $campaign_asset_guid = null;
             }
         }
+
+        $meta_description = get_the_excerpt( $post );
+        if ( is_plugin_active('wordpress-seo/wp-seo.php') ) {
+            $meta_description = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true );
+        }
+        $meta_description = \apply_filters( 'organic_post_meta_description', $meta_description, $post->ID );
 
         $authors = [];
         // Assume the default Wordpress author structure
@@ -880,7 +886,8 @@ class Organic {
                 $tags,
                 $campaign_asset_guid,
                 $edit_url,
-                $featured_image_url
+                $featured_image_url,
+                $meta_description
             );
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API
