@@ -833,7 +833,7 @@ class Organic {
         }
 
         $meta_description = get_the_excerpt( $post );
-        if ( is_plugin_active('wordpress-seo/wp-seo.php') ) {
+        if ( is_plugin_active( 'wordpress-seo/wp-seo.php' ) ) {
             $meta_description = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true );
         }
         $meta_description = \apply_filters( 'organic_post_meta_description', $meta_description, $post->ID );
