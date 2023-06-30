@@ -6,6 +6,7 @@ use DateTime;
 use Organic\SDK\OrganicSdk;
 use Exception;
 use Sentry\State\Hub;
+use WP_Post;
 use WP_Query;
 
 use function \get_user_by;
@@ -794,7 +795,7 @@ class Organic {
     /**
      * Synchronizes a single Post to Organic
      *
-     * @param $post
+     * @param WP_Post $post
      * @return void|null
      */
     public function syncPost( $post ) {
@@ -830,17 +831,20 @@ class Organic {
         }
 
         $authors = [];
-
         // Assume the default Wordpress author structure
-        if ( $post->post_author ) {
-            $user = get_user_by( 'id', $post->post_author );
-            if ( $user ) {
+        $author_id = get_post_field( 'post_author', $post->ID );
+        if ( $author_id ) {
+            if ( get_user_by( 'id', $author_id ) ) {
                 $authors[] = [
-                    'externalId' => (string) $post->post_author,
-                    'name' => $user->display_name,
+                    'externalId' => (string) $author_id,
+                    'name' => get_the_author_meta( 'display_name', $author_id ),
+                    'email' => get_the_author_meta( 'email', $author_id ),
+                    'imageUrl' => get_avatar_url( $author_id ),
                 ];
             }
         }
+        unset( $author_id ); // Cleanup after ourselves
+        // Allow sites to augment the assumed author data
         $authors = \apply_filters( 'organic_post_authors', $authors, $post->ID );
 
         $categories = [];
