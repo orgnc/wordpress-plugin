@@ -25,7 +25,7 @@ cp src/composer.json build/organic/
 cp src/composer.lock build/organic/
 
 cd build/organic
-composer install --no-dev
+composer install --no-dev -vvv
 cd $ROOT_DIR
 
 (cd src/blocks/ && npm ci && npm run build)
