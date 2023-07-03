@@ -40,7 +40,9 @@ of the Synchronization to Organic Platform.
 * `organic_post_content` - transform the body of the post
 * `organic_post_publish_date` - transform the publish date of the post
 * `organic_post_modified_date` - transform the modified date of the post
-* `organic_post_authors` - accepts array with one author info based on $post->post_author data and $post->ID; expects an array of dicts with 'externalId' and 'name' keys
+* `organic_post_authors` - accepts array with one author info based on $post->post_author data and $post->ID; expects an associative array with 'externalId', 'name', 'email', and 'imageUrl' keys
+* `organic_post_featured_image_url` - transform the post thumbnail url for Organic
+* `organic_post_meta_description` - transform the post meta_description for Organic; uses the post excerpt or Yoast meta description by default
 * `organic_eligible_for_ads` - enable or disable ads injection, overlapping plugin settings
 * `organic_eligible_for_affiliate` - enable or disable affiliate injection, overlapping plugin settings
 
