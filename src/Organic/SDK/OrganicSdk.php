@@ -513,10 +513,10 @@ class OrganicSdk {
             'configInput' => [
                 'siteGuid' => $this->siteGuid,
                 'organicIntegrationConfigured' => $organic->isConfigured(),
-                'organicContentEnabled' => $organicContentEnabled,
                 'organicAdsEnabled' => $organic->adsEnabled(),
-                'organicCampaignsEnabled' => $organic->campaignsEnabled(),
                 'organicAffiliateEnabled' => $organic->affiliateEnabled(),
+                'organicCampaignsEnabled' => $organic->campaignsEnabled(),
+                'organicContentEnabled' => $organicContentEnabled,
                 'phpVersion' => phpversion(),
                 'wordpressVersion' => $wp_version,
                 'pluginVersion' => $organic->version,

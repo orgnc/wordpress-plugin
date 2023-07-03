@@ -348,6 +348,8 @@ class AdminSettings {
                         Ads.txt Redirect Enabled
                     </label>
                 </p>
+                <hr />
+                <h2>Content Sync Settings</h2>
                 <fieldset>
                     <p>
                         Which post types from your CMS should be treated as content for synchronization with
@@ -358,6 +360,16 @@ class AdminSettings {
                     </p>
 
                 </fieldset>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_content_foreground"
+                            <?php echo $content_foreground ? 'checked' : ''; ?>
+                        />
+                        Force content sync on Save (use only if CRON is disabled on your site)
+                    </label>
+                </p>
                 <hr />
                 <h2>Organic Ads</h2>
                 <p>
@@ -368,16 +380,6 @@ class AdminSettings {
                             <?php echo $ads_enabled ? 'checked' : ''; ?>
                         />
                         Organic Ads Enabled
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input
-                                type="checkbox"
-                                name="organic_content_foreground"
-                            <?php echo $content_foreground ? 'checked' : ''; ?>
-                        />
-                        Force content sync on Save (use only if CRON is disabled on your site)
                     </label>
                 </p>
                 <hr />

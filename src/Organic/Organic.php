@@ -441,27 +441,31 @@ class Organic {
         return $this->oneTrustId;
     }
 
-    // TODO: we should be able to enabled/disable Ads too
+    /**
+     * Returns true if integration is configured and Ads app is enabled
+     *
+     * @return bool
+     */
     public function useAds() : bool {
         return $this->isConfigured() && $this->adsEnabled();
     }
 
     /**
-     * Returns if Campaigns app is enabled
+     * Returns true if integration is configured and Affiliate app is enabled
+     *
+     * @return bool
+     */
+    public function useAffiliate() : bool {
+        return $this->isConfigured() && $this->affiliateEnabled();
+    }
+
+    /**
+     * Returns true if integration is configured and Campaigns app is enabled
      *
      * @return bool
      */
     public function useCampaigns() : bool {
-        return $this->isConfigured() && $this->campaignsEnabled;
-    }
-
-    /**
-     * Returns if Affiliate app is enabled
-     *
-     * @return bool
-    */
-    public function useAffiliate() : bool {
-        return $this->isConfigured() && $this->affiliateEnabled;
+        return $this->isConfigured() && $this->campaignsEnabled();
     }
 
     /**
