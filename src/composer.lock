@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d3236390803a7998420b6508a0ddcee",
+    "content-hash": "d7a04ca60d30b8224557c7fe9354cd0e",
     "packages": [
         {
             "name": "carica/phpcss",
@@ -855,16 +855,16 @@
         },
         {
             "name": "liborm85/composer-vendor-cleaner",
-            "version": "1.7.0",
+            "version": "1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liborm85/composer-vendor-cleaner.git",
-                "reference": "e4ebaf2a65ac74fd4cc6dcf2b92e2f68cc4bb23c"
+                "reference": "3d0feeb847c764d6eed2d993041101efbac67dcc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liborm85/composer-vendor-cleaner/zipball/e4ebaf2a65ac74fd4cc6dcf2b92e2f68cc4bb23c",
-                "reference": "e4ebaf2a65ac74fd4cc6dcf2b92e2f68cc4bb23c",
+                "url": "https://api.github.com/repos/liborm85/composer-vendor-cleaner/zipball/3d0feeb847c764d6eed2d993041101efbac67dcc",
+                "reference": "3d0feeb847c764d6eed2d993041101efbac67dcc",
                 "shasum": ""
             },
             "require": {
@@ -911,7 +911,7 @@
                 "issues": "https://github.com/liborm85/composer-vendor-cleaner/issues",
                 "source": "https://github.com/liborm85/composer-vendor-cleaner"
             },
-            "time": "2022-07-29T12:33:34+00:00"
+            "time": "2023-06-02T14:36:46+00:00"
         },
         {
             "name": "masterminds/html5",
