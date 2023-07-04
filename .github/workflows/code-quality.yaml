@@ -13,12 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: php-actions/composer@v6
+      - uses: shivammathur/setup-php@v2
         with:
-          working_dir: src
-          php_version: "7.4"
-          php_extensions: zip
-          version: "2.5.5"
+          php-version: '7.4'
+          extensions: zip
+          tools: composer:2.5.5
+
+      - name: Install dependencies
+        run: cd src && composer install
 
       - name: Run PHPCS
         run: cd src && composer run lint

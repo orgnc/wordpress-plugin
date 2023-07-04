@@ -28,13 +28,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup PHP
-        uses: php-actions/composer@v6
+      - name: Setup PHP with composer
+        uses: shivammathur/setup-php@v2
         with:
-          working_dir: src
-          php_version: "7.4"
-          php_extensions: zip
-          version: "2.5.5"
+          php-version: '7.4'
+          extensions: zip
+          tools: composer:2.5.5
 
       - name: Build plugin
         id: build-zip
