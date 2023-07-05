@@ -521,7 +521,10 @@ class OrganicSdk {
         $variables = [
             'configInput' => [
                 'siteGuid' => $this->siteGuid,
-                'organicIntegrationEnabled' => $organic->isEnabled(),
+                'organicIntegrationConfigured' => $organic->isConfigured(),
+                'organicAdsEnabled' => $organic->adsEnabled(),
+                'organicAffiliateEnabled' => $organic->affiliateEnabled(),
+                'organicCampaignsEnabled' => $organic->campaignsEnabled(),
                 'organicContentEnabled' => $organicContentEnabled,
                 'phpVersion' => phpversion(),
                 'wordpressVersion' => $wp_version,

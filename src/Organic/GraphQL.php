@@ -144,7 +144,7 @@ class GraphQL {
                     $adsConfig = $organic->getAdsConfig();
                     $testEnabled = $organic->useSplitTest();
                     return [
-                        'organicEnabled' => $organic->isEnabledAndConfigured(),
+                        'organicEnabled' => $organic->isConfigured(),
                         'sdkVersion' => $organic->getSdkVersion(),
                         'siteDomain' => $organic->siteDomain,
                         'siteId' => $organic->getSiteId(),

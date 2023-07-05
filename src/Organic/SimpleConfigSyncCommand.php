@@ -55,7 +55,7 @@ abstract class SimpleConfigSyncCommand {
      */
     public function __invoke( $args ) {
         // Only worth trying if the API key is set
-        if ( ! $this->organic->isEnabledAndConfigured() ) {
+        if ( ! $this->organic->isConfigured() ) {
             $this->organic->warning( 'Cannot sync data without Organic SDK API Key and Site ID' );
             return;
         }

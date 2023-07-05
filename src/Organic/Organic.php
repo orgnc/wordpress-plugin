@@ -26,8 +26,6 @@ class Organic {
     const DEFAULT_PLATFORM_URL = 'https://app.organic.ly';
     const DEFAULT_REST_API_URL = 'https://api.organiccdn.io';
 
-    private $isEnabled = false;
-
     private $logToSentry = true;
 
     /**
@@ -120,12 +118,17 @@ class Organic {
     private $postTypes;
 
     /**
-     * @var bool If Organic App is enabled in the Platform
+     * @var bool If Organic Ads is enabled in the Platform
+     */
+    private $adsEnabled = false;
+
+    /**
+     * @var bool If Organic Campaigns is enabled in the Platform
      */
     private $campaignsEnabled = false;
 
     /**
-     * @var bool If Organic App is enabled in the Platform
+     * @var bool If Organic Affiliate is enabled in the Platform
      */
     private $affiliateEnabled = false;
 
@@ -244,10 +247,9 @@ class Organic {
 
         $this->adsTxt = new AdsTxt( $this );
 
-        $this->isEnabled = $this->getOption( 'organic::enabled' );
         $this->logToSentry = $this->getOption( 'organic::log_to_sentry' );
         // Reinitialize Sentry with a client-specific key if applicable.
-        if ( $this->isEnabled && $this->logToSentry ) {
+        if ( $this->logToSentry ) {
             $this->configureSentryForSite();
         }
 
@@ -264,6 +266,8 @@ class Organic {
         $this->feedImages = $this->getOption( 'organic::feed_images' );
 
         $this->postTypes = $this->getOption( 'organic::post_types', [ 'post', 'page' ] );
+
+        $this->adsEnabled = $this->getOption( 'organic::ads_enabled' );
 
         $this->campaignsEnabled = $this->getOption( 'organic::campaigns_enabled' );
         $this->contentForeground = $this->getOption( 'organic::content_foreground' );
@@ -316,21 +320,39 @@ class Organic {
     }
 
     /**
-     * Returns true if Organic integration is Enabled
+     * Returns true if Organic integration is properly configured
      *
      * @return bool
      */
-    public function isEnabled() : bool {
-        return $this->isEnabled;
+    public function isConfigured() : bool {
+        return $this->getSdkKey() && $this->getSiteId();
     }
 
     /**
-     * Returns true if Organic integration is enabled and properly configured
+     * Returns true if Organic Ads is enabled
      *
      * @return bool
      */
-    public function isEnabledAndConfigured() : bool {
-        return $this->isEnabled() && $this->getSdkKey() && $this->getSiteId();
+    public function adsEnabled() : bool {
+        return $this->adsEnabled;
+    }
+
+    /**
+     * Returns true if Organic Campaigns is enabled
+     *
+     * @return bool
+     */
+    public function campaignsEnabled() : bool {
+        return $this->campaignsEnabled;
+    }
+
+    /**
+     * Returns true if Organic Affiliate is enabled
+     *
+     * @return bool
+     */
+    public function affiliateEnabled() : bool {
+        return $this->affiliateEnabled;
     }
 
     public function adsTxtRedirectionEnabled() : bool {
@@ -358,7 +380,8 @@ class Organic {
      */
     public function useSplitTest() : bool {
         return (
-            $this->isEnabledAndConfigured() &&
+            $this->adsEnabled() &&
+            $this->isConfigured() &&
             $this->splitTestEnabled &&
             $this->getSplitTestKey() &&
             ( $this->getSplitTestPercent() !== null ) &&
@@ -400,14 +423,14 @@ class Organic {
      * @return bool
      */
     public function useCmpBuiltIn() : bool {
-        return $this->isEnabled() && $this->cmp == 'built-in';
+        return $this->adsEnabled() && $this->cmp == 'built-in';
     }
 
     /**
      * Checks if we are using One Trust
      */
     public function useCmpOneTrust() : bool {
-        return $this->isEnabled() && $this->cmp === 'one-trust' && $this->getOneTrustId();
+        return $this->adsEnabled() && $this->cmp === 'one-trust' && $this->getOneTrustId();
     }
 
     /**
@@ -419,27 +442,31 @@ class Organic {
         return $this->oneTrustId;
     }
 
-    // TODO: we should be able to enabled/disable Ads too
+    /**
+     * Returns true if integration is configured and Ads app is enabled
+     *
+     * @return bool
+     */
     public function useAds() : bool {
-        return $this->isEnabledAndConfigured();
+        return $this->isConfigured() && $this->adsEnabled();
     }
 
     /**
-     * Returns if Campaigns app is enabled
+     * Returns true if integration is configured and Affiliate app is enabled
+     *
+     * @return bool
+     */
+    public function useAffiliate() : bool {
+        return $this->isConfigured() && $this->affiliateEnabled();
+    }
+
+    /**
+     * Returns true if integration is configured and Campaigns app is enabled
      *
      * @return bool
      */
     public function useCampaigns() : bool {
-        return $this->isEnabledAndConfigured() && $this->campaignsEnabled;
-    }
-
-    /**
-     * Returns if Affiliate app is enabled
-     *
-     * @return bool
-    */
-    public function useAffiliate() : bool {
-        return $this->isEnabledAndConfigured() && $this->affiliateEnabled;
+        return $this->isConfigured() && $this->campaignsEnabled();
     }
 
     /**
@@ -448,11 +475,11 @@ class Organic {
      * @return bool
      */
     public function useAmp() : bool {
-        return $this->isEnabledAndConfigured() && $this->ampEnabled;
+        return $this->useAds() && $this->ampEnabled;
     }
 
     public function usePrefill() : bool {
-        return $this->isEnabledAndConfigured() && $this->prefillEnabled;
+        return $this->useAds() && $this->prefillEnabled;
     }
 
     public function getAffiliateDomain() {
@@ -1194,7 +1221,7 @@ class Organic {
      * @param $update
      */
     public function handleSavePostHook( $post_ID, $post, $update ) {
-        if ( ! $this->isEnabledAndConfigured() ) {
+        if ( ! $this->isConfigured() ) {
             return;
         }
 

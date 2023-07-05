@@ -38,7 +38,7 @@ class ContentIdMapSyncCommand {
      * @return void
      */
     public function __invoke( $args ) {
-        if ( ! $this->organic->isEnabledAndConfigured() ) {
+        if ( ! $this->organic->isConfigured() ) {
             $this->organic->warning( 'Cannot sync Content Id Map without enabled integration with SDK API Key and Site ID' );
             return;
         }

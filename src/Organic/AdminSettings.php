@@ -78,11 +78,6 @@ class AdminSettings {
 
         // Organic Settings
         $this->organic->updateOption(
-            'organic::enabled',
-            isset( $_POST['organic_enabled'] ) ? true : false,
-            false
-        );
-        $this->organic->updateOption(
             'organic::test_mode',
             isset( $_POST['organic_test_mode'] ) ? true : false,
             false
@@ -136,21 +131,6 @@ class AdminSettings {
             false
         );
 
-        // Organic Affiliate
-        $this->organic->updateOption(
-            'organic::affiliate_enabled',
-            isset( $_POST['organic_affiliate_enabled'] ) ? true : false,
-            false
-        );
-
-        // Organic Campaigns
-        $this->organic->updateOption(
-            'organic::campaigns_enabled',
-            isset( $_POST['organic_campaigns_enabled'] ) ? true : false,
-            false
-        );
-
-        // Organic Ads
         $this->organic->updateOption(
             'organic::feed_images',
             isset( $_POST['organic_feed_images'] ) ? true : false,
@@ -168,16 +148,36 @@ class AdminSettings {
         );
         $this->organic->setPostTypes( $val );
 
+        // Organic Ads
+        $this->organic->updateOption(
+            'organic::ads_enabled',
+            isset( $_POST['organic_ads_enabled'] ) ? true : false,
+            false
+        );
+
         $this->organic->updateOption(
             'organic::content_foreground',
             isset( $_POST['organic_content_foreground'] ) ? true : false,
             false
         );
 
+        // Organic Affiliate
+        $this->organic->updateOption(
+            'organic::affiliate_enabled',
+            isset( $_POST['organic_affiliate_enabled'] ) ? true : false,
+            false
+        );
+
+        // Organic Campaigns
+        $this->organic->updateOption(
+            'organic::campaigns_enabled',
+            isset( $_POST['organic_campaigns_enabled'] ) ? true : false,
+            false
+        );
+
     }
 
     public function showSettings() {
-        $enabled = $this->organic->getOption( 'organic::enabled' );
         $test_mode = $this->organic->getOption( 'organic::test_mode' );
         $organic_test = $this->organic->getOption( 'organic::percent_test' );
         $organic_value = $this->organic->getOption( 'organic::test_value' );
@@ -189,6 +189,8 @@ class AdminSettings {
         $amp_ads_enabled = $this->organic->getOption( 'organic::amp_ads_enabled' );
         $ad_slots_prefill_enabled = $this->organic->getOption( 'organic::ad_slots_prefill_enabled' );
         $log_to_sentry = $this->organic->getOption( 'organic::log_to_sentry', true );
+
+        $ads_enabled = $this->organic->getOption( 'organic::ads_enabled' );
 
         $affiliate_enabled = $this->organic->getOption( 'organic::affiliate_enabled' );
 
@@ -217,16 +219,6 @@ class AdminSettings {
             <h1>Organic Settings</h1>
             <form method="post">
                 <?php wp_nonce_field( 'organic_settings_nonce' ); ?>
-                <p>
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="organic_enabled"
-                            <?php echo $enabled ? 'checked' : ''; ?>
-                        >
-                        Organic Integration Enabled
-                    </label>
-                </p>
                 <p>
                     <label>
                         <input
@@ -336,7 +328,60 @@ class AdminSettings {
                         Automatically send plugin errors to Organic
                     </label>
                 </p>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_feed_images"
+                            <?php echo $feed_images ? 'checked' : ''; ?>
+                        />
+                        Inject Images into RSS Feed (for Connatix Playspace player)
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_enable_ads_txt_redirect"
+                            <?php echo $ads_txt_redirect ? 'checked' : ''; ?>
+                        />
+                        Ads.txt Redirect Enabled
+                    </label>
+                </p>
+                <hr />
+                <h2>Content Sync Settings</h2>
+                <fieldset>
+                    <p>
+                        Which post types from your CMS should be treated as content for synchronization with
+                        the Organic Platform and as eligible for the Organic SDK to be loaded on?
+                    <ul>
+                        <?php $this->injectPostTypesList(); ?>
+                    </ul>
+                    </p>
 
+                </fieldset>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_content_foreground"
+                            <?php echo $content_foreground ? 'checked' : ''; ?>
+                        />
+                        Force content sync on Save (use only if CRON is disabled on your site)
+                    </label>
+                </p>
+                <hr />
+                <h2>Organic Ads</h2>
+                <p>
+                    <label>
+                        <input
+                                type="checkbox"
+                                name="organic_ads_enabled"
+                            <?php echo $ads_enabled ? 'checked' : ''; ?>
+                        />
+                        Organic Ads Enabled
+                    </label>
+                </p>
                 <hr />
                 <h2>Organic Affiliate</h2>
                 <p>
@@ -364,48 +409,6 @@ class AdminSettings {
                 </p>
 
                 <hr />
-                <h2>Organic Ads</h2>
-                <p>
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="organic_feed_images"
-                            <?php echo $feed_images ? 'checked' : ''; ?>
-                        />
-                        Inject Images into RSS Feed (for Connatix Playspace player)
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="organic_enable_ads_txt_redirect"
-                            <?php echo $ads_txt_redirect ? 'checked' : ''; ?>
-                        />
-                        Ads.txt Redirect Enabled
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="organic_content_foreground"
-                            <?php echo $content_foreground ? 'checked' : ''; ?>
-                        />
-                        Force content sync on Save (use only if CRON is disabled on your site)
-                    </label>
-                </p>
-                <fieldset>
-                    <p>
-                        Which post types from your CMS should be treated as content for synchronization with
-                        the Organic Platform and as eligible for the Organic SDK to be loaded on?
-                        <ul>
-                            <?php $this->injectPostTypesList(); ?>
-                        </ul>
-                    </p>
-
-                </fieldset>
-
                 <p>
                     <button type="submit" name="organic_action" value="organic_update_settings">
                         Save settings
