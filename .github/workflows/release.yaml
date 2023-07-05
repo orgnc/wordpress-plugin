@@ -58,14 +58,6 @@ jobs:
           s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
           s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
 
-      - name: Upload plugin to Wordpress.org
-        uses: 10up/action-wordpress-plugin-deploy@stable
-        env:
-          SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
-          SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
-          BUILD_DIR: build/organic
-          SLUG: organic
-
       # Pre-configured step to send notification on build success
       - name: Notify slack success
         if: success()
