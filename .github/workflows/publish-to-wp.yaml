@@ -1,19 +1,20 @@
-name: Build and publish plugin
+name: Publish plugin to Wordpress.org
 
 on:
-  release:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
     types:
-      - published
+      - opened
+      - reopened
+      - synchronize
+
 
 jobs:
-  deploy:
-    name: Organic Wordpress Plugin - Build & Publish Package
+  publish:
+    name: Publish plugin to Wordpress.org
     runs-on: ubuntu-latest
-
-    env:
-      AWS_REGION: us-west-2
-      AWS_BUCKET: empire-wordpress-plugin
-      BUILD_NUMBER: ${{ github.event.release.tag_name }}
 
     steps:
       - uses: voxmedia/github-action-slack-notify-build@v1
@@ -25,8 +26,17 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
+      - uses: cardinalby/git-get-release-action@v1
+        id: latest_release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          latest: true
+
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.latest_release.outputs.tag_name }}
 
       - name: Setup PHP with composer
         uses: shivammathur/setup-php@v2
@@ -36,30 +46,12 @@ jobs:
           tools: composer:2.5.5
 
       - name: Build plugin
-        run: ./build-zip.sh ${{ env.BUILD_NUMBER }}
-
-      - name: Set up S3cmd cli tool
-        uses: s3-actions/s3cmd@v1.1
-        with:
-          provider: aws # default is linode
-          region: ${{ env.AWS_REGION }}
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Upload plugin to GitHub Release Archive
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: 'build/organic.zip'
-
-      - name: Upload plugin to S3
-        run: |
-          s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
-          s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
+        run: ./build-zip.sh ${{ steps.latest_release.outputs.tag_name }}
 
       - name: Upload plugin to Wordpress.org
         uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          dry-run: true
         env:
           SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
