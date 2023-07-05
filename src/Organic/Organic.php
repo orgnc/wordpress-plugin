@@ -6,6 +6,7 @@ use DateTime;
 use Organic\SDK\OrganicSdk;
 use Exception;
 use Sentry\State\Hub;
+use WP_Post;
 use WP_Query;
 
 use function \get_user_by;
@@ -794,7 +795,7 @@ class Organic {
     /**
      * Synchronizes a single Post to Organic
      *
-     * @param $post
+     * @param WP_Post $post
      * @return void|null
      */
     public function syncPost( $post ) {
@@ -811,11 +812,13 @@ class Organic {
             return null;
         }
 
-        $canonical = get_permalink( $post->ID );
+        $canonical = get_permalink( $post );
+        $edit_url = get_edit_post_link( $post );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
         $external_id = \apply_filters( 'organic_post_id', $post->ID );
         $canonical = \apply_filters( 'organic_post_url', $canonical, $post->ID );
+        $featured_image_url = \apply_filters( 'organic_post_featured_image_url', get_the_post_thumbnail_url( $post ), $post->ID );
         $title = \htmlspecialchars_decode( $post->post_title );
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
         $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
@@ -829,18 +832,27 @@ class Organic {
             }
         }
 
-        $authors = [];
+        $meta_description = get_the_excerpt( $post );
+        if ( is_plugin_active( 'wordpress-seo/wp-seo.php' ) ) {
+            $meta_description = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true );
+        }
+        $meta_description = \apply_filters( 'organic_post_meta_description', $meta_description, $post->ID );
 
+        $authors = [];
         // Assume the default Wordpress author structure
-        if ( $post->post_author ) {
-            $user = get_user_by( 'id', $post->post_author );
-            if ( $user ) {
+        $author_id = get_post_field( 'post_author', $post->ID );
+        if ( $author_id ) {
+            if ( get_user_by( 'id', $author_id ) ) {
                 $authors[] = [
-                    'externalId' => (string) $post->post_author,
-                    'name' => $user->display_name,
+                    'externalId' => (string) $author_id,
+                    'name' => get_the_author_meta( 'display_name', $author_id ),
+                    'email' => get_the_author_meta( 'email', $author_id ),
+                    'imageUrl' => get_avatar_url( $author_id ),
                 ];
             }
         }
+        unset( $author_id ); // Cleanup after ourselves
+        // Allow sites to augment the assumed author data
         $authors = \apply_filters( 'organic_post_authors', $authors, $post->ID );
 
         $categories = [];
@@ -872,7 +884,10 @@ class Organic {
                 $authors,
                 $categories,
                 $tags,
-                $campaign_asset_guid
+                $campaign_asset_guid,
+                $edit_url,
+                $featured_image_url,
+                $meta_description
             );
         } catch ( \Exception $e ) {
             // We should manually let Sentry know about this, since theoretically the API

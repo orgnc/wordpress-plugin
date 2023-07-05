@@ -159,7 +159,10 @@ class OrganicSdk {
      * @param array $authors
      * @param array $categories
      * @param array $tags
-     * @param string $campaign_asset_guid
+     * @param string|null $campaign_asset_guid
+     * @param string|null $editUrl
+     * @param string|null $featured_image_url
+     * @param string|null $meta_description
      * @return array|object
      */
     public function contentCreateOrUpdate(
@@ -172,7 +175,10 @@ class OrganicSdk {
         array $authors = [],
         array $categories = [],
         array $tags = [],
-        string $campaign_asset_guid = null
+        string $campaign_asset_guid = null,
+        string $editUrl = null,
+        string $featured_image_url = null,
+        string $meta_description = null
     ) {
         // Validate the structure of the referenced metadata
         $authors = $this->metaArrayToObjects( $authors, 'authors' );
@@ -197,6 +203,9 @@ class OrganicSdk {
                 'tags' => $tags,
                 'title' => $title,
                 'campaignAssetGuid' => $campaign_asset_guid,
+                'editUrl' => $editUrl,
+                'featuredImageUrl' => $featured_image_url,
+                'metaDescription' => $meta_description,
             ],
         ];
 
