@@ -42,8 +42,6 @@ jobs:
 
       - name: Upload plugin to Wordpress.org
         uses: 10up/action-wordpress-plugin-deploy@stable
-        with:
-          dry-run: true
         env:
           SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
           SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
