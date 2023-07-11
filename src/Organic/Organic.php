@@ -1337,7 +1337,7 @@ class Organic {
                 $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
                 $this->configureSentryForSite();
             }
-            if ( $config['triggerContentResync'] &&  ! $this->contentResyncTriggeredRecently()  ) {
+            if ( $config['triggerContentResync'] && ! $this->contentResyncTriggeredRecently() ) {
                 global $wpdb;
                 $wpdb->get_results(
                     $wpdb->prepare(
