@@ -531,7 +531,7 @@ class OrganicSdk {
                 'splitTestEnabled' => $organic->useSplitTest(),
                 'consentManagementPlatform' => $organic->getCmp(),
                 'pluginSettingsLastUpdated' => $organic->settingsLastUpdated()->format( 'c' ),
-                'contentResyncStarted' => false, // TODO: add some logic here
+                'contentResyncStarted' => $organic->contentResyncTriggeredRecently(),
             ],
         ];
 

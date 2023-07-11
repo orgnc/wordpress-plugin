@@ -1073,6 +1073,14 @@ class Organic {
     }
 
     /**
+     * Indicates whether a full re-sync of content has been triggered recently
+     * @return bool
+     */
+    public function contentResyncTriggeredRecently(): bool {
+        return false;
+    }
+
+    /**
      * Pulls current Content Id Map and updates GAM Ids for articles
      */
     public function syncContentIdMap() {
