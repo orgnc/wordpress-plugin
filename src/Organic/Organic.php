@@ -1041,10 +1041,7 @@ class Organic {
      * @throws Exception if posts have invalid published or modified dates
      */
     public function fullResyncContent( $batch = 50, $offset = 0, $sleep_between = 0 ) : int {
-        $this->updateOption(
-            'organic::content_resync_started_at',
-            current_datetime()->format( DATE_ATOM )
-        );
+        $this->updateContentResyncStartedAt();
 
         $updated = 0;
 
@@ -1340,20 +1337,15 @@ class Organic {
                 $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
                 $this->configureSentryForSite();
             }
-            $triggerContentResync = (bool) $config['triggerContentResync'];
-            if ( $triggerContentResync ) {
-                $lastResyncStartedAt = $this->getContentResyncStartedAt();
-                // For a bit of protection, we're only going to allow a resync to be triggered once per day
-                if ( ! $this->contentResyncTriggeredRecently() ) {
-                    global $wpdb;
-                    $wpdb->get_results(
-                        $wpdb->prepare(
-                            "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
-                            SYNC_META_KEY
-                        )
-                    );
-                    $this->updateContentResyncStartedAt();
-                }
+            if ( $config['triggerContentResync'] &&  ! $this->contentResyncTriggeredRecently()  ) {
+                global $wpdb;
+                $wpdb->get_results(
+                    $wpdb->prepare(
+                        "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
+                        SYNC_META_KEY
+                    )
+                );
+                $this->updateContentResyncStartedAt();
             }
         }
         return [
