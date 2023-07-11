@@ -1079,7 +1079,7 @@ class Organic {
             DATE_ATOM,
             $this->getOption(
                 'organic::content_resync_started_at',
-                '2003-05-27T00:00:00+00:00'
+                '2003-05-27T05:07:53+00:00'
             )
         );
     }
