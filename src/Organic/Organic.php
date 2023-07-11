@@ -3,6 +3,7 @@
 namespace Organic;
 
 use DateTime;
+use DateTimeImmutable;
 use Organic\SDK\OrganicSdk;
 use Exception;
 use Sentry\State\Hub;
@@ -1040,6 +1041,8 @@ class Organic {
      * @throws Exception if posts have invalid published or modified dates
      */
     public function fullResyncContent( $batch = 50, $offset = 0, $sleep_between = 0 ) : int {
+        $this->updateContentResyncStartedAt();
+
         $updated = 0;
 
         while ( true ) {
@@ -1069,6 +1072,28 @@ class Organic {
         }
 
         return $updated;
+    }
+
+    public function getContentResyncStartedAt(): DateTimeImmutable {
+        return DateTimeImmutable::createFromFormat(
+            DATE_ATOM,
+            $this->getOption(
+                'organic::content_resync_started_at',
+                '2003-05-27T05:07:53+00:00'
+            )
+        );
+    }
+
+    public function updateContentResyncStartedAt(): bool {
+        $this->updateOption(
+            'organic::content_resync_started_at',
+            current_datetime()->format( DATE_ATOM )
+        );
+        return true;
+    }
+
+    public function contentResyncTriggeredRecently(): bool {
+        return 1 > $this->getContentResyncStartedAt()->diff( current_datetime(), true )->days;
     }
 
     /**
@@ -1312,6 +1337,16 @@ class Organic {
                 $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
                 $this->configureSentryForSite();
             }
+            if ( $config['triggerContentResync'] && ! $this->contentResyncTriggeredRecently() ) {
+                global $wpdb;
+                $wpdb->get_results(
+                    $wpdb->prepare(
+                        "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
+                        SYNC_META_KEY
+                    )
+                );
+                $this->updateContentResyncStartedAt();
+            }
         }
         return [
             'updated' => true,
@@ -1324,8 +1359,8 @@ class Organic {
 
     /**
      * Check if we are configured for foreground synchronization.
-     * This does not block background / cron based synchronization as well, but may make your saves slower for
-     * the editors.
+     * This does not block background / cron based synchronization as well,
+     * but may make your saves slower for the editors.
      *
      * @return bool
      */
