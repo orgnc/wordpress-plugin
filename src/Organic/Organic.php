@@ -1041,6 +1041,11 @@ class Organic {
      * @throws Exception if posts have invalid published or modified dates
      */
     public function fullResyncContent( $batch = 50, $offset = 0, $sleep_between = 0 ) : int {
+        $this->updateOption(
+            'organic::content_resync_started_at',
+            current_datetime()->format( DATE_ATOM )
+        );
+
         $updated = 0;
 
         while ( true ) {
@@ -1072,12 +1077,26 @@ class Organic {
         return $updated;
     }
 
-    /**
-     * Indicates whether a full re-sync of content has been triggered recently
-     * @return bool
-     */
+    public function getContentResyncStartedAt(): DateTimeImmutable {
+        return DateTimeImmutable::createFromFormat(
+            DATE_ATOM,
+            $this->getOption(
+                'organic::content_resync_started_at',
+                '2003-05-27T00:00:00+00:00'
+            )
+        );
+    }
+
+    public function updateContentResyncStartedAt(): bool {
+        $this->updateOption(
+            'organic::content_resync_started_at',
+            current_datetime()->format( DATE_ATOM )
+        );
+        return true;
+    }
+
     public function contentResyncTriggeredRecently(): bool {
-        return false;
+        return 1 > $this->getContentResyncStartedAt()->diff( current_datetime(), true )->days;
     }
 
     /**
@@ -1323,23 +1342,14 @@ class Organic {
             }
             $triggerContentResync = (bool) $config['triggerContentResync'];
             if ( $triggerContentResync ) {
-                $lastResyncStartedAt = DateTimeImmutable::createFromFormat(
-                    DATE_ATOM,
-                    $this->getOption(
-                        'organic::content_resync_started_at',
-                        '2003-05-27T00:00:00+00:00'
-                    )
-                );
+                $lastResyncStartedAt = $this->getContentResyncStartedAt();
                 // For a bit of protection, we're only going to allow a resync to be triggered once per day
-                if ( $lastResyncStartedAt->diff( current_datetime() )->days > 0 ) {
+                if ( ! $this->contentResyncTriggeredRecently() ) {
                     $key = SYNC_META_KEY;
                     global $wpdb;
                     $query = "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = '$key'";
                     $wpdb->query( $query );
-                    $this->updateOption(
-                        'organic::content_resync_started_at',
-                        current_datetime()->format( DATE_ATOM )
-                    );
+                    $this->updateContentResyncStartedAt();
                 }
             }
         }
