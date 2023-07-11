@@ -506,7 +506,7 @@ class OrganicSdk {
         $mutation->setVariables( [ new Variable( 'configInput', 'WordpressPluginConfigInput', true ) ] );
         $mutation->setArguments( [ 'configInput' => '$configInput' ] );
         $mutation->setSelectionSet(
-            [ ( new Query( 'config' ) )->setSelectionSet( [ 'sentryDsn' ] ) ]
+            [ ( new Query( 'config' ) )->setSelectionSet( [ 'sentryDsn', 'triggerContentResync' ] ) ]
         );
 
         # Note that this might be true even before the site is fully migrated.
@@ -531,6 +531,7 @@ class OrganicSdk {
                 'splitTestEnabled' => $organic->useSplitTest(),
                 'consentManagementPlatform' => $organic->getCmp(),
                 'pluginSettingsLastUpdated' => $organic->settingsLastUpdated()->format( 'c' ),
+                'contentResyncStarted' => false, // TODO: add some logic here
             ],
         ];
 
