@@ -8,7 +8,7 @@ class ContentSyncCommand {
     /**
      * @var Organic
      */
-    private $organic;
+    protected $organic;
 
     public function __construct( Organic $organic ) {
         $this->organic = $organic;
@@ -17,10 +17,21 @@ class ContentSyncCommand {
             \WP_CLI::add_command( 'organic-sync-content', $this );
         }
 
+        add_filter(
+            'cron_schedules',
+            function ( $schedules ) {
+                $schedules['organic_content_sync'] = [
+                    'interval' => 600,
+                    'display' => __( 'Organic Content Sync' ),
+                ];
+                return $schedules;
+            }
+        );
+
         // Include this command in cron schedule every minute
         add_action( 'organic_cron_sync_content', [ $this, 'run' ] );
         if ( ! wp_next_scheduled( 'organic_cron_sync_content' ) ) {
-            wp_schedule_event( time(), 'hourly', 'organic_cron_sync_content' );
+            wp_schedule_event( time(), 'organic_content_sync', 'organic_cron_sync_content' );
         }
     }
 
@@ -85,7 +96,7 @@ class ContentSyncCommand {
             return;
         }
 
-        $updated = $this->organic->syncContent();
+        $updated = $this->organic->syncContent( 200 );
         $this->organic->info( 'Organic Sync stats', [ 'updated' => $updated ] );
     }
 }
