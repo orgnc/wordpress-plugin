@@ -1345,10 +1345,13 @@ class Organic {
                 $lastResyncStartedAt = $this->getContentResyncStartedAt();
                 // For a bit of protection, we're only going to allow a resync to be triggered once per day
                 if ( ! $this->contentResyncTriggeredRecently() ) {
-                    $key = SYNC_META_KEY;
                     global $wpdb;
-                    $query = "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = '$key'";
-                    $wpdb->query( $query );
+                    $wpdb->get_results(
+                        $wpdb->prepare(
+                            "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
+                            SYNC_META_KEY
+                        )
+                    );
                     $this->updateContentResyncStartedAt();
                 }
             }
