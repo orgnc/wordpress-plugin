@@ -67,7 +67,7 @@ class WidgetsTest extends TestCase {
         $test_product_guid = TEST_PRODUCT_GUID;
         $browser->fillTextInput( '#affiliate-product-search-entry', 'Selenium Test Product' );
         try {
-            $browser->click("[data-test-element=\"affiliate-product-select-{$test_product_guid}\"]" );
+            $browser->click( "[data-test-element=\"affiliate-product-select-{$test_product_guid}\"]" );
         } catch ( Exception $e ) {
             $browser->quit();
             $this->fail( 'Was Organic Demo\'s Selenium Test Product deleted? ' . $e->getMessage() );
@@ -116,6 +116,7 @@ class WidgetsTest extends TestCase {
      */
     function getRenderedWidgetIFrame( SeleniumBrowser $browser, string $blockType ) {
         $blockTypeTruncated = $this->truncateBlockType( $blockType );
+        $browser->wait();
         return $browser->waitFor(
             "div[data-organic-affiliate-integration={$blockTypeTruncated}] > iframe", null
         );
