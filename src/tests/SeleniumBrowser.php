@@ -3,7 +3,6 @@
 namespace Organic;
 
 use Exception;
-use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -330,7 +329,7 @@ class SeleniumBrowser {
      * @return void
      * @throws Exception
      */
-    function savePostDraft() {
+    function savePostAsDraft() {
         $this->click( 'button[aria-label="Save draft"]' );
         // Once saved, we are redirected to a URL with a post ID. We wait for the save to complete.
         $condition = WebDriverExpectedCondition::urlContains( 'post=' );

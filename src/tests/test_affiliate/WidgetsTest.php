@@ -31,7 +31,6 @@ class WidgetsTest extends TestCase {
             error_log( 'Failed to delete test posts: ' . $e->getMessage() );
         } finally {
             $browser->quit();
-            parent::tearDownAfterClass();
         }
     }
 
@@ -44,7 +43,7 @@ class WidgetsTest extends TestCase {
 
     /**
      * When the user selects an Organic Affiliate widgets block, an IFrame with login fields will appear.
-     * This function logs the test user in so that we can customize and insert the widget.
+     * This function logs us in as the test user so that we can customize and insert the widget.
      * @param SeleniumBrowser $browser
      * @return void
      * @throws Exception
@@ -140,7 +139,7 @@ class WidgetsTest extends TestCase {
             $this->getRenderedWidgetIFrame( $browser, $blockType );
             // Next, we'll check that the widget is still rendered after refreshing the page.
             // To refresh the page, we need to save.
-            $browser->savePostDraft();
+            $browser->savePostAsDraft();
             // We mark the post for eventual deletion when we tear down the tests.
             WidgetsTest::$postIDsToDelete[] = $browser->getCurrentPostID();
             $browser->refreshPage();
