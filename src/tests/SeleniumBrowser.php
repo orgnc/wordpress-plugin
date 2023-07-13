@@ -342,7 +342,7 @@ class SeleniumBrowser {
     function getCurrentPostID(): string
     {
         $url = $this->driver->getCurrentUrl();
-        preg_match('/post=(\d+)(&|$)/', $url, $matches );
+        preg_match( '/post=(\d+)(&|$)/', $url, $matches );
         return $matches[1];
     }
 
@@ -359,21 +359,21 @@ class SeleniumBrowser {
             $this->click( "#cb-select-{$postID}" );
         }
         // Specify we want to move them to the trash.
-        $this->click('#bulk-action-selector-top' );
+        $this->click( '#bulk-action-selector-top' );
         $this->click('option[value="trash"]' );
         // Move them to the trash.
-        $this->click('#doaction' );
+        $this->click( '#doaction' );
         // Now we need to go to the Trash tab.
-        $this->click('li.trash' );
+        $this->click( 'li.trash' );
         // Select all the posts to delete permanently.
         foreach ( $postIDs as $postID ) {
             $this->click( "#cb-select-{$postID}" );
         }
         // Specify we want to delete them.
-        $this->click('#bulk-action-selector-top' );
-        $this->click('option[value="delete"]' );
+        $this->click( '#bulk-action-selector-top' );
+        $this->click( 'option[value="delete"]' );
         // Delete them.
-        $this->click('#doaction' );
+        $this->click( '#doaction' );
     }
 
 }
