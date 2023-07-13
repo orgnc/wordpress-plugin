@@ -354,25 +354,25 @@ class SeleniumBrowser {
      */
     function deletePosts( array $postIDs ) {
         $this->openPage( WP_POSTS_HOME );
-        # Select all the posts to move to the trash.
+        // Select all the posts to move to the trash.
         foreach ( $postIDs as $postID ) {
             $this->click( "#cb-select-{$postID}" );
         }
-        # Specify we want to move them to the trash.
+        // Specify we want to move them to the trash.
         $this->click('#bulk-action-selector-top' );
         $this->click('option[value="trash"]' );
-        # Move them to the trash.
+        // Move them to the trash.
         $this->click('#doaction' );
-        # Now we need to go to the Trash tab.
+        // Now we need to go to the Trash tab.
         $this->click('li.trash' );
-        # Select all the posts to delete permanently.
+        // Select all the posts to delete permanently.
         foreach ( $postIDs as $postID ) {
             $this->click( "#cb-select-{$postID}" );
         }
-        # Specify we want to delete them.
+        // Specify we want to delete them.
         $this->click('#bulk-action-selector-top' );
         $this->click('option[value="delete"]' );
-        # Delete them.
+        // Delete them.
         $this->click('#doaction' );
     }
 

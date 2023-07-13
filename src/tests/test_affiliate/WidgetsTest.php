@@ -51,7 +51,7 @@ class WidgetsTest extends TestCase {
     private function logIntoWidgetsSelectionIFrame( SeleniumBrowser $browser ) {
         $iframe = $browser->getOrganicIframe();
         $browser->switchToIframe( $iframe );
-        # Log in with test account.
+        // Log in with test account.
         $browser->fillTextInput( '#email', ORGANIC_TEST_USER_EMAIL );
         $browser->fillTextInput( '#password', ORGANIC_TEST_USER_PASSWORD );
         $browser->click( '#signin-button' );
@@ -105,6 +105,7 @@ class WidgetsTest extends TestCase {
     private function confirmWidgetSelection( SeleniumBrowser $browser, string $blockType ) {
         $blockTypeTruncated = $this->truncateBlockType( $blockType );
         $browser->click( "[data-test-element=\"affiliate-create-{$blockTypeTruncated}-confirm\"]" );
+        // The IFrame will disappear and the widget will be inserted, so we toggle Selenium out of the IFrame.
         $browser->switchToDefaultContext();
     }
 
@@ -135,7 +136,7 @@ class WidgetsTest extends TestCase {
             $this->logIntoWidgetsSelectionIFrame( $browser );
             $this->selectTestProduct( $browser );
             $this->confirmWidgetSelection( $browser, $blockType );
-            # First, check that the widget is rendered (as an IFrame) upon insertion.
+            // First, check that the widget is rendered (as an IFrame) upon insertion.
             $this->getRenderedWidgetIFrame( $browser, $blockType );
             // Next, we'll check that the widget is still rendered after refreshing the page.
             // To refresh the page, we need to save.
@@ -193,11 +194,11 @@ class WidgetsTest extends TestCase {
             $browser->click( '[aria-label="Organic Tools"]' );
             // Then we click the submenu item.
             $browser->click( 'button[role="menuitem"]' );
-            # The Organic IFrame should appear. We log in.
+            // The Organic IFrame should appear. We log in.
             $this->logIntoWidgetsSelectionIFrame( $browser );
-            # Then we search for and select the test product.
+            // Then we search for and select the test product.
             $this->selectTestProductOfferLink( $browser );
-            # We move out of the iframe and check that the link has been added for the test product.
+            // We move out of the iframe and check that the link has been added for the test product.
             $browser->switchToDefaultContext();
             $browser->wait();
             $guid = TEST_PRODUCT_GUID;
