@@ -13,7 +13,8 @@
         "fluentdom/selectors-symfony": "^4.0",
         "liborm85/composer-vendor-cleaner": "1.7.1",
         "php-webdriver/webdriver": "^1.13.0",
-        "sentry/sdk": "^3.3.0",
+        "sentry/sdk": "3.2.0",
+        "sentry/sentry": "3.5.0",
         "seravo/wp-custom-bulk-actions": "^0.1.4"
     },
     "authors": [
