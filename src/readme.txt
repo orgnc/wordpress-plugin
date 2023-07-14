@@ -1,5 +1,5 @@
 === Organic ===
-Contributors: jdemaris
+Contributors: jdemaris, ryandial
 Tags: ads affiliate organic platform publishing
 Requires at least: 5.0
 Tested up to: 6.1
@@ -65,6 +65,12 @@ add_filter( 'organic_post_title', 'get_custom_post_title', 10, 2);
 
 
 == Changelog ==
+= 1.13.1 =
+* Fix clash with wp-sentry-integration
+
+= 1.13.0 =
+* Additional data requirements for Organic Analytics
+
 = 1.11.1 =
 * Add Admin SDK injection for "guides" post type
 
