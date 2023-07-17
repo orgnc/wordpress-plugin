@@ -465,6 +465,7 @@ class AdminSettings {
                 <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>
                 <?php $this->injectEnvInfo( 'PLATFORM_URL', $this->organic->getPlatformUrl() ); ?>
                 <?php $this->injectEnvInfo( 'ADS_TXT_URL', $this->organic->getAdsTxtManager()->getAdsTxtUrl() ); ?>
+                <?php $this->injectEnvInfo( 'Content Re-Sync Started At', $this->organic->getContentResyncStartedAt() ); ?>
                 <?php if ( ! $ads_txt_redirect ) { ?>
                     <p>
                         <label>

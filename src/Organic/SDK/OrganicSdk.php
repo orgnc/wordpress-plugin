@@ -502,7 +502,7 @@ class OrganicSdk {
      */
     public function mutateAndQueryWordPressConfig( \Organic\Organic $organic ) {
         global $wp_version;
-        $mutation = ( new Mutation( 'syncWordpressPluginConfig' ) );
+        $mutation = new Mutation( 'syncWordpressPluginConfig' );
         $mutation->setVariables( [ new Variable( 'configInput', 'WordpressPluginConfigInput', true ) ] );
         $mutation->setArguments( [ 'configInput' => '$configInput' ] );
         $mutation->setSelectionSet(
@@ -536,7 +536,7 @@ class OrganicSdk {
         ];
 
         $result = $this->runQuery( $mutation, $variables );
-        return $result['data']['config'];
+        return $result['data']['syncWordpressPluginConfig']['config'];
     }
 
     /**

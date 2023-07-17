@@ -198,7 +198,7 @@ class Organic {
             $result = get_option( $name );
 
             // Fallback to old version if it exists instead
-            if ( ! $result ) {
+            if ( false === $result ) {
                 $result = get_option( str_replace( 'organic::', 'empire::', $name ), $default );
             }
             return $result;
@@ -930,7 +930,7 @@ class Organic {
      * @return int # of posts sync-ed
      * @throws Exception
      */
-    private function _syncPosts( $posts ) {
+    private function _syncPosts( $posts ): int {
         $updated = 0;
         foreach ( $posts as $post ) {
             $this->syncPost( $post );
@@ -1027,7 +1027,7 @@ class Organic {
 
         // If we are under the limit, find posts that have been recently updated
         $query = $this->buildQueryNewlyUnsyncedPosts( $max_to_sync - $updated );
-        $this->_syncPosts( $query->posts );
+        $updated += $this->_syncPosts( $query->posts );
 
         return $updated;
     }
@@ -1094,6 +1094,20 @@ class Organic {
 
     public function contentResyncTriggeredRecently(): bool {
         return 1 > $this->getContentResyncStartedAt()->diff( current_datetime(), true )->days;
+    }
+
+    public function triggerContentResync(): DateTimeImmutable {
+        if ( false === $this->contentResyncTriggeredRecently() ) {
+            global $wpdb;
+            $wpdb->get_results(
+                $wpdb->prepare(
+                    "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
+                    SYNC_META_KEY
+                )
+            );
+            $this->updateContentResyncStartedAt();
+        }
+        return $this->getContentResyncStartedAt();
     }
 
     /**
@@ -1337,15 +1351,8 @@ class Organic {
                 $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
                 $this->configureSentryForSite();
             }
-            if ( $config['triggerContentResync'] && ! $this->contentResyncTriggeredRecently() ) {
-                global $wpdb;
-                $wpdb->get_results(
-                    $wpdb->prepare(
-                        "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
-                        SYNC_META_KEY
-                    )
-                );
-                $this->updateContentResyncStartedAt();
+            if ( true === $config['triggerContentResync'] ) {
+                $this->triggerContentResync();
             }
         }
         return [
