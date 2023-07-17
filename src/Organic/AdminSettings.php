@@ -209,6 +209,10 @@ class AdminSettings {
         $amp_config = $this->organic->getAmpConfig();
         $prefill_config = $this->organic->getPrefillConfig();
         $affiliate_config = [ 'publicDomain' => $this->organic->getAffiliateDomain() ];
+
+        $contentSyncCron = wp_next_scheduled( 'organic_cron_sync_content' ) ?
+            new \DateTimeImmutable( '@' . wp_next_scheduled( 'organic_cron_sync_content' ) ) :
+            false;
         ?>
         <div id="organic-settings-page" class="wrap">
             <div id="organic-notices">
@@ -465,7 +469,8 @@ class AdminSettings {
                 <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>
                 <?php $this->injectEnvInfo( 'PLATFORM_URL', $this->organic->getPlatformUrl() ); ?>
                 <?php $this->injectEnvInfo( 'ADS_TXT_URL', $this->organic->getAdsTxtManager()->getAdsTxtUrl() ); ?>
-                <?php $this->injectEnvInfo( 'Content Re-Sync Started At', $this->organic->getContentResyncStartedAt() ); ?>
+                <?php $this->injectEnvInfo( 'Next Content Sync', $contentSyncCron ? $contentSyncCron->format( DATE_ATOM ) : 'false' ); ?>
+                <?php $this->injectEnvInfo( 'Content Re-Sync Triggered At', $this->organic->getContentResyncStartedAt() ); ?>
                 <?php if ( ! $ads_txt_redirect ) { ?>
                     <p>
                         <label>
