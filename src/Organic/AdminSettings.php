@@ -210,9 +210,7 @@ class AdminSettings {
         $prefill_config = $this->organic->getPrefillConfig();
         $affiliate_config = [ 'publicDomain' => $this->organic->getAffiliateDomain() ];
 
-        $contentSyncCron = wp_next_scheduled( 'organic_cron_sync_content' ) ?
-            new \DateTimeImmutable( '@' . wp_next_scheduled( 'organic_cron_sync_content' ) ) :
-            false;
+        $contentSyncCron = \DateTimeImmutable::createFromFormat( 'U', wp_next_scheduled( 'organic_cron_sync_content' ) );
         ?>
         <div id="organic-settings-page" class="wrap">
             <div id="organic-notices">
