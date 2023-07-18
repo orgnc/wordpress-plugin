@@ -799,7 +799,7 @@ class Organic {
      * @param WP_Post $post
      * @return void|null
      */
-    public function syncPost( $post ) {
+    public function syncPost( WP_Post $post ) {
         if ( ! $this->isPostEligibleForSync( $post ) ) {
             $this->debug(
                 'Organic Sync: SKIPPED',
@@ -926,11 +926,11 @@ class Organic {
     /**
      * Helper function to actually execute sync calls to Organic Platform for posts
      *
-     * @param $posts
+     * @param WP_Post[] $posts
      * @return int # of posts sync-ed
      * @throws Exception
      */
-    private function _syncPosts( $posts ): int {
+    private function _syncPosts( array $posts ): int {
         $updated = 0;
         foreach ( $posts as $post ) {
             $this->syncPost( $post );
