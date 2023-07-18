@@ -470,7 +470,7 @@ class AdminSettings {
                 <?php $this->injectEnvInfo( 'PLATFORM_URL', $this->organic->getPlatformUrl() ); ?>
                 <?php $this->injectEnvInfo( 'ADS_TXT_URL', $this->organic->getAdsTxtManager()->getAdsTxtUrl() ); ?>
                 <?php $this->injectEnvInfo( 'Next Content Sync', $contentSyncCron ? $contentSyncCron->format( DATE_ATOM ) : 'false' ); ?>
-                <?php $this->injectEnvInfo( 'Content Re-Sync Triggered At', $this->organic->getContentResyncStartedAt() ); ?>
+                <?php $this->injectEnvInfo( 'Content Re-Sync Triggered At', $this->organic->getContentResyncStartedAt()->format( DATE_ATOM ) ); ?>
                 <?php if ( ! $ads_txt_redirect ) { ?>
                     <p>
                         <label>
