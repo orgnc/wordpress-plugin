@@ -29,11 +29,13 @@ function is_valid_uuid( string $uuid ) {
 }
 
 /**
- * Copy of the WordPress `get_edit_post_link` function without a permission check
+ * Copy of the built-in WordPress function `get_edit_post_link`.
+ * Retrieves the edit post link for post without a permissions check.
  *
- * @param WP_Post|int $id
- * @param string $context
- * @return mixed|void|null
+ * @param int|WP_Post $id      Optional. Post ID or post object. Default is the global `$post`.
+ * @param string      $context Optional. How to output the '&' character. Default '&amp;'.
+ * @return string|null|void    The edit post link for the given post. Null if the post type does not
+ *                             exist or does not allow an editing UI.
  */
 function get_edit_post_link($id = 0, string $context = 'display' ) {
     $post = get_post( $id );
