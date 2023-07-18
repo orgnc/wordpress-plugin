@@ -191,22 +191,24 @@ class OrganicSdk {
         $mutation->setSelectionSet( [ 'ok', 'gamId' ] );
 
         $variables = [
-            'input' => array_filter( [
-                'authors' => $authors,
-                'canonicalUrl' => $canonicalUrl,
-                'categories' => $categories,
-                'content' => $content,
-                'externalId' => $externalId,
-                'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
-                'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
-                'siteGuid' => $this->siteGuid,
-                'tags' => $tags,
-                'title' => $title,
-                'campaignAssetGuid' => $campaign_asset_guid,
-                'editUrl' => $editUrl,
-                'featuredImageUrl' => $featured_image_url,
-                'metaDescription' => $meta_description,
-            ] ),
+            'input' => array_filter(
+                [
+                    'authors' => $authors,
+                    'canonicalUrl' => $canonicalUrl,
+                    'categories' => $categories,
+                    'content' => $content,
+                    'externalId' => $externalId,
+                    'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
+                    'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
+                    'siteGuid' => $this->siteGuid,
+                    'tags' => $tags,
+                    'title' => $title,
+                    'campaignAssetGuid' => $campaign_asset_guid,
+                    'editUrl' => $editUrl,
+                    'featuredImageUrl' => $featured_image_url,
+                    'metaDescription' => $meta_description,
+                ]
+            ),
         ];
 
         $result = $this->runQuery( $mutation, $variables );

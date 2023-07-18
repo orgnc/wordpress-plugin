@@ -69,7 +69,10 @@ class ContentSyncCommand {
      * @since 0.1.0
      */
     public function __invoke( $args, $opts ) {
-        $this->organic->info( __CLASS__ . ' invoked', [ 'args' => $args, 'opts' => $opts ] );
+        $this->organic->info( __CLASS__ . ' invoked', [
+            'args' => $args,
+            'opts' => $opts
+        ] );
         if ( ! $this->organic->isEnabledAndConfigured() ) {
             $this->organic->warning( 'Cannot sync articles without enabled integration with SDK API Key and Site ID' );
             return;

@@ -37,7 +37,7 @@ function is_valid_uuid( string $uuid ) {
  * @return string|null|void    The edit post link for the given post. Null if the post type does not
  *                             exist or does not allow an editing UI.
  */
-function get_edit_post_link($id = 0, string $context = 'display' ) {
+function get_edit_post_link( $id = 0, string $context = 'display' ) {
     $post = get_post( $id );
     if ( ! $post ) {
         return;
