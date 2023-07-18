@@ -315,7 +315,7 @@ class AdminSettings {
                             name="organic_amp_ads_enabled"
                             <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
-                        AMP Intergation Enabled
+                        AMP Integration Enabled
                     </label>
                 </p>
                 <p>
