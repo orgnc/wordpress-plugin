@@ -1342,20 +1342,20 @@ class Organic {
             if ( empty( $config ) ) {
                 throw new \UnexpectedValueException( 'Empty response from sdk->mutateAndQueryWordPressConfig', 204 );
             }
+
+            $sentryDSN = $config['sentryDsn'];
+            if ( ! empty( $sentryDSN ) ) {
+                $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
+                $this->configureSentryForSite();
+            }
+            if ( true === $config['triggerContentResync'] ) {
+                $this->triggerContentResync();
+            }
         } catch ( \Exception $e ) {
             self::captureException( $e );
             return [
                 'updated' => false,
             ];
-        }
-
-        $sentryDSN = $config['sentryDsn'];
-        if ( ! empty( $sentryDSN ) ) {
-            $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
-            $this->configureSentryForSite();
-        }
-        if ( true === $config['triggerContentResync'] ) {
-            $this->triggerContentResync();
         }
 
         return [
