@@ -191,22 +191,24 @@ class OrganicSdk {
         $mutation->setSelectionSet( [ 'ok', 'gamId' ] );
 
         $variables = [
-            'input' => [
-                'authors' => $authors,
-                'canonicalUrl' => $canonicalUrl,
-                'categories' => $categories,
-                'content' => $content,
-                'externalId' => $externalId,
-                'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
-                'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
-                'siteGuid' => $this->siteGuid,
-                'tags' => $tags,
-                'title' => $title,
-                'campaignAssetGuid' => $campaign_asset_guid,
-                'editUrl' => $editUrl,
-                'featuredImageUrl' => $featured_image_url,
-                'metaDescription' => $meta_description,
-            ],
+            'input' => array_filter(
+                [
+                    'authors' => $authors,
+                    'canonicalUrl' => $canonicalUrl,
+                    'categories' => $categories,
+                    'content' => $content,
+                    'externalId' => $externalId,
+                    'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
+                    'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
+                    'siteGuid' => $this->siteGuid,
+                    'tags' => $tags,
+                    'title' => $title,
+                    'campaignAssetGuid' => $campaign_asset_guid,
+                    'editUrl' => $editUrl,
+                    'featuredImageUrl' => $featured_image_url,
+                    'metaDescription' => $meta_description,
+                ]
+            ),
         ];
 
         $result = $this->runQuery( $mutation, $variables );
@@ -502,7 +504,7 @@ class OrganicSdk {
      */
     public function mutateAndQueryWordPressConfig( \Organic\Organic $organic ) {
         global $wp_version;
-        $mutation = ( new Mutation( 'syncWordpressPluginConfig' ) );
+        $mutation = new Mutation( 'syncWordpressPluginConfig' );
         $mutation->setVariables( [ new Variable( 'configInput', 'WordpressPluginConfigInput', true ) ] );
         $mutation->setArguments( [ 'configInput' => '$configInput' ] );
         $mutation->setSelectionSet(
@@ -536,7 +538,7 @@ class OrganicSdk {
         ];
 
         $result = $this->runQuery( $mutation, $variables );
-        return $result['data']['config'];
+        return $result['data']['syncWordpressPluginConfig']['config'];
     }
 
     /**

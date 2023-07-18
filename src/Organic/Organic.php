@@ -11,7 +11,6 @@ use WP_Post;
 use WP_Query;
 
 use function \get_user_by;
-use function Sentry\captureException;
 
 const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
@@ -198,7 +197,7 @@ class Organic {
             $result = get_option( $name );
 
             // Fallback to old version if it exists instead
-            if ( ! $result ) {
+            if ( false === $result ) {
                 $result = get_option( str_replace( 'organic::', 'empire::', $name ), $default );
             }
             return $result;
@@ -799,7 +798,7 @@ class Organic {
      * @param WP_Post $post
      * @return void|null
      */
-    public function syncPost( $post ) {
+    public function syncPost( WP_Post $post ) {
         if ( ! $this->isPostEligibleForSync( $post ) ) {
             $this->debug(
                 'Organic Sync: SKIPPED',
@@ -814,7 +813,7 @@ class Organic {
         }
 
         $canonical = get_permalink( $post );
-        $edit_url = get_edit_post_link( $post );
+        $edit_url = \Organic\get_edit_post_link( $post );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
         $external_id = \apply_filters( 'organic_post_id', $post->ID );
@@ -835,7 +834,7 @@ class Organic {
 
         $meta_description = get_the_excerpt( $post );
         if ( is_plugin_active( 'wordpress-seo/wp-seo.php' ) ) {
-            $meta_description = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true );
+            $meta_description = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true ) ?: $meta_description;
         }
         $meta_description = \apply_filters( 'organic_post_meta_description', $meta_description, $post->ID );
 
@@ -926,11 +925,11 @@ class Organic {
     /**
      * Helper function to actually execute sync calls to Organic Platform for posts
      *
-     * @param $posts
+     * @param WP_Post[] $posts
      * @return int # of posts sync-ed
      * @throws Exception
      */
-    private function _syncPosts( $posts ) {
+    private function _syncPosts( array $posts ): int {
         $updated = 0;
         foreach ( $posts as $post ) {
             $this->syncPost( $post );
@@ -1027,7 +1026,7 @@ class Organic {
 
         // If we are under the limit, find posts that have been recently updated
         $query = $this->buildQueryNewlyUnsyncedPosts( $max_to_sync - $updated );
-        $this->_syncPosts( $query->posts );
+        $updated += $this->_syncPosts( $query->posts );
 
         return $updated;
     }
@@ -1094,6 +1093,20 @@ class Organic {
 
     public function contentResyncTriggeredRecently(): bool {
         return 1 > $this->getContentResyncStartedAt()->diff( current_datetime(), true )->days;
+    }
+
+    public function triggerContentResync(): DateTimeImmutable {
+        if ( false === $this->contentResyncTriggeredRecently() ) {
+            global $wpdb;
+            $wpdb->get_results(
+                $wpdb->prepare(
+                    "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
+                    SYNC_META_KEY
+                )
+            );
+            $this->updateContentResyncStartedAt();
+        }
+        return $this->getContentResyncStartedAt();
     }
 
     /**
@@ -1325,29 +1338,25 @@ class Organic {
     public function syncPluginConfig() {
         try {
             $config = $this->sdk->mutateAndQueryWordPressConfig( $this );
+            if ( empty( $config ) ) {
+                throw new \UnexpectedValueException( 'Empty response from sdk->mutateAndQueryWordPressConfig', 204 );
+            }
+
+            $sentryDSN = $config['sentryDsn'];
+            if ( ! empty( $sentryDSN ) ) {
+                $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
+                $this->configureSentryForSite();
+            }
+            if ( true === $config['triggerContentResync'] ) {
+                $this->triggerContentResync();
+            }
         } catch ( \Exception $e ) {
             self::captureException( $e );
             return [
                 'updated' => false,
             ];
         }
-        if ( ! empty( $config ) ) {
-            $sentryDSN = $config['sentryDsn'];
-            if ( ! empty( $sentryDSN ) ) {
-                $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
-                $this->configureSentryForSite();
-            }
-            if ( $config['triggerContentResync'] && ! $this->contentResyncTriggeredRecently() ) {
-                global $wpdb;
-                $wpdb->get_results(
-                    $wpdb->prepare(
-                        "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
-                        SYNC_META_KEY
-                    )
-                );
-                $this->updateContentResyncStartedAt();
-            }
-        }
+
         return [
             'updated' => true,
         ];

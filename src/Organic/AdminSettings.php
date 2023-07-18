@@ -209,6 +209,8 @@ class AdminSettings {
         $amp_config = $this->organic->getAmpConfig();
         $prefill_config = $this->organic->getPrefillConfig();
         $affiliate_config = [ 'publicDomain' => $this->organic->getAffiliateDomain() ];
+
+        $contentSyncCron = \DateTimeImmutable::createFromFormat( 'U', wp_next_scheduled( 'organic_cron_sync_content' ) );
         ?>
         <div id="organic-settings-page" class="wrap">
             <div id="organic-notices">
@@ -313,7 +315,7 @@ class AdminSettings {
                             name="organic_amp_ads_enabled"
                             <?php echo $amp_ads_enabled ? 'checked' : ''; ?>
                         />
-                        AMP Intergation Enabled
+                        AMP Integration Enabled
                     </label>
                 </p>
                 <p>
@@ -465,6 +467,8 @@ class AdminSettings {
                 <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>
                 <?php $this->injectEnvInfo( 'PLATFORM_URL', $this->organic->getPlatformUrl() ); ?>
                 <?php $this->injectEnvInfo( 'ADS_TXT_URL', $this->organic->getAdsTxtManager()->getAdsTxtUrl() ); ?>
+                <?php $this->injectEnvInfo( 'Next Content Sync', $contentSyncCron ? $contentSyncCron->format( DATE_ATOM ) : 'false' ); ?>
+                <?php $this->injectEnvInfo( 'Content Re-Sync Triggered At', $this->organic->getContentResyncStartedAt()->format( DATE_ATOM ) ); ?>
                 <?php if ( ! $ads_txt_redirect ) { ?>
                     <p>
                         <label>
