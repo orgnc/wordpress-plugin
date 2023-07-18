@@ -1339,22 +1339,25 @@ class Organic {
     public function syncPluginConfig() {
         try {
             $config = $this->sdk->mutateAndQueryWordPressConfig( $this );
+            if ( empty( $config ) ) {
+                throw new \UnexpectedValueException( 'Empty response from sdk->mutateAndQueryWordPressConfig', 204 );
+            }
         } catch ( \Exception $e ) {
             self::captureException( $e );
             return [
                 'updated' => false,
             ];
         }
-        if ( ! empty( $config ) ) {
-            $sentryDSN = $config['sentryDsn'];
-            if ( ! empty( $sentryDSN ) ) {
-                $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
-                $this->configureSentryForSite();
-            }
-            if ( true === $config['triggerContentResync'] ) {
-                $this->triggerContentResync();
-            }
+
+        $sentryDSN = $config['sentryDsn'];
+        if ( ! empty( $sentryDSN ) ) {
+            $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
+            $this->configureSentryForSite();
         }
+        if ( true === $config['triggerContentResync'] ) {
+            $this->triggerContentResync();
+        }
+
         return [
             'updated' => true,
         ];
