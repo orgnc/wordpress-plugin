@@ -11,7 +11,6 @@ use WP_Post;
 use WP_Query;
 
 use function \get_user_by;
-use function Sentry\captureException;
 
 const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
@@ -814,7 +813,7 @@ class Organic {
         }
 
         $canonical = get_permalink( $post );
-        $edit_url = get_edit_post_link( $post );
+        $edit_url = \Organic\get_edit_post_link( $post );
 
         # In order to support non-standard post metadata, we have a filter for each attribute
         $external_id = \apply_filters( 'organic_post_id', $post->ID );
