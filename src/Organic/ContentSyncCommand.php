@@ -39,7 +39,9 @@ class ContentSyncCommand {
      * Wrapper for __invoke with no args to make it cron friendly
      */
     public function run() {
-         $this->__invoke( [], [] );
+        $this->organic->info( 'organic_cron_sync_content starting...' );
+        $this->__invoke( [], [] );
+        $this->organic->info( 'organic_cron_sync_content completed' );
     }
 
     /**
@@ -67,6 +69,7 @@ class ContentSyncCommand {
      * @since 0.1.0
      */
     public function __invoke( $args, $opts ) {
+        $this->organic->info( __CLASS__ . ' invoked', [ 'args' => $args, 'opts' => $opts ] );
         if ( ! $this->organic->isEnabledAndConfigured() ) {
             $this->organic->warning( 'Cannot sync articles without enabled integration with SDK API Key and Site ID' );
             return;
@@ -82,9 +85,12 @@ class ContentSyncCommand {
             return;
         }
 
+        $this->organic->info( 'Organic Sync ... categories' );
         $this->organic->syncCategories();
+
         $post_ids = array_filter( explode( ',', ( $opts['posts'] ?? '' ) ) );
         if ( count( $post_ids ) ) {
+            $this->organic->info( 'Organic Sync ... specific posts' );
             foreach ( $post_ids as $post_id ) {
                 $post = \WP_Post::get_instance( $post_id );
                 if ( ! $post ) {
