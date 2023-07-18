@@ -191,7 +191,7 @@ class OrganicSdk {
         $mutation->setSelectionSet( [ 'ok', 'gamId' ] );
 
         $variables = [
-            'input' => [
+            'input' => array_filter( [
                 'authors' => $authors,
                 'canonicalUrl' => $canonicalUrl,
                 'categories' => $categories,
@@ -206,7 +206,7 @@ class OrganicSdk {
                 'editUrl' => $editUrl,
                 'featuredImageUrl' => $featured_image_url,
                 'metaDescription' => $meta_description,
-            ],
+            ] ),
         ];
 
         $result = $this->runQuery( $mutation, $variables );
