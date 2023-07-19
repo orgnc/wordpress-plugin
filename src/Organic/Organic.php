@@ -799,6 +799,7 @@ class Organic {
      * @return void|null
      */
     public function syncPost( WP_Post $post ) {
+        wp_cache_flush();
         if ( ! $this->isPostEligibleForSync( $post ) ) {
             $this->debug(
                 'Organic Sync: SKIPPED',
