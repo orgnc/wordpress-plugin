@@ -779,7 +779,9 @@ class Organic {
             } else {
                 $parent = &$cat_id_map[ $cat->parent ];
                 $children = &$parent['children'];
-                array_push( $children, $cat_data );
+                if ( is_array( $children ) ) {
+                    array_push( $children, $cat_data );
+                }
             }
         }
         foreach ( $trees as &$tree ) {
