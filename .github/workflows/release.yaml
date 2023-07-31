@@ -5,6 +5,12 @@ on:
     types:
       - published
 
+permissions:
+   contents: write
+   id-token: write
+   packages: write
+   statuses: write
+
 jobs:
   deploy:
     name: Organic Wordpress Plugin - Build & Publish Package
@@ -13,6 +19,7 @@ jobs:
     env:
       AWS_REGION: us-west-2
       AWS_BUCKET: empire-wordpress-plugin
+      AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
       BUILD_NUMBER: ${{ github.event.release.tag_name }}
 
     steps:
@@ -26,7 +33,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP with composer
         uses: shivammathur/setup-php@v2
@@ -38,13 +45,13 @@ jobs:
       - name: Build plugin
         run: ./build-zip.sh ${{ env.BUILD_NUMBER }}
 
-      - name: Set up S3cmd cli tool
-        uses: s3-actions/s3cmd@v1.1
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          provider: aws # default is linode
-          region: ${{ env.AWS_REGION }}
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/GitHubActionIAMRole
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload plugin to GitHub Release Archive
         uses: skx/github-action-publish-binaries@master
@@ -55,8 +62,8 @@ jobs:
 
       - name: Upload plugin to S3
         run: |
-          s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
-          s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-latest.zip --acl-public
+          aws s3 cp build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-latest.zip
+          aws s3api put-object-acl --bucket ${{ env.AWS_BUCKET }} --key organic-latest.zip --acl public-read
 
       # Pre-configured step to send notification on build success
       - name: Notify slack success
