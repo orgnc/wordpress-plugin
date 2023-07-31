@@ -9,6 +9,13 @@ on:
       - reopened
       - synchronize
 
+permissions:
+   checks: write
+   contents: write
+   id-token: write
+   packages: write
+   statuses: write
+
 jobs:
   deploy:
     name: 'Organic Ad Wordpress: Build Dev Release'
@@ -17,11 +24,12 @@ jobs:
     env:
       AWS_REGION: us-west-2
       AWS_BUCKET: empire-wordpress-plugin
+      AWS_ACCOUNT: ${{ secret.AWS_ACCOUNT }}
       BUILD_NUMBER: dev-${{ github.event.pull_request.number }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP with composer
         uses: shivammathur/setup-php@v2
@@ -35,14 +43,13 @@ jobs:
         id: build-zip
         run: ./build-zip.sh ${{ env.BUILD_NUMBER }}
 
-      # Set up our S3 Connection
-      - name: Set up S3cmd cli tool
-        uses: s3-actions/s3cmd@v1.1
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          provider: aws # default is linode
-          region: ${{ env.AWS_REGION }}
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/GitHubActionIAMRole
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload Dev Build
         uses: actions/upload-artifact@v3
@@ -53,5 +60,5 @@ jobs:
       # Push zip to S3 for easy integration with Organic Platform
       - name: Deploy
         run: |
-          s3cmd put build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/
-          s3cmd setacl s3://${{ env.AWS_BUCKET }}/organic-${{ env.BUILD_NUMBER }}.zip --acl-public
+          aws s3 cp build/organic-${{ env.BUILD_NUMBER }}.zip s3://${{ env.AWS_BUCKET }}/organic-${{ env.BUILD_NUMBER }}.zip
+          aws s3api put-object-acl --bucket ${{ env.AWS_BUCKET }} --key organic-${{ env.BUILD_NUMBER }}.zip --acl public-read

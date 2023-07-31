@@ -26,7 +26,7 @@ jobs:
           latest: true
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ steps.latest_release.outputs.tag_name }}
 
