@@ -33,7 +33,7 @@ function is_valid_uuid( string $uuid ) {
  * @param string $url
  * @return string
  */
-function fix_url_spaces(string $url ) : string {
+function fix_url_spaces( string $url ) : string {
     return str_replace( ' ', '+', $url );
 }
 
