@@ -29,6 +29,15 @@ function is_valid_uuid( string $uuid ) {
 }
 
 /**
+ * Replace spaces in a URL with plus symbol (`+`)
+ * @param string $url
+ * @return string
+ */
+function fix_url_spaces(string $url ): string {
+    return str_replace( ' ', '+', $url );
+}
+
+/**
  * Copy of the built-in WordPress function `get_edit_post_link`.
  * Retrieves the edit post link for post without a permissions check.
  *
