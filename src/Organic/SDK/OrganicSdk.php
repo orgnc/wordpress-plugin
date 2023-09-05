@@ -14,6 +14,7 @@ use GuzzleHttp\Client as RestClient; // let's switch to GraphQL in the future
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
+use function Organic\fix_url_spaces;
 
 
 /**
@@ -194,7 +195,7 @@ class OrganicSdk {
             'input' => array_filter(
                 [
                     'authors' => $authors,
-                    'canonicalUrl' => $canonicalUrl,
+                    'canonicalUrl' => fix_url_spaces( $canonicalUrl ),
                     'categories' => $categories,
                     'content' => $content,
                     'externalId' => $externalId,
@@ -204,8 +205,8 @@ class OrganicSdk {
                     'tags' => $tags,
                     'title' => $title,
                     'campaignAssetGuid' => $campaign_asset_guid,
-                    'editUrl' => $editUrl,
-                    'featuredImageUrl' => $featured_image_url,
+                    'editUrl' => fix_url_spaces( $editUrl ),
+                    'featuredImageUrl' => fix_url_spaces( $featured_image_url ),
                     'metaDescription' => $meta_description,
                 ]
             ),
