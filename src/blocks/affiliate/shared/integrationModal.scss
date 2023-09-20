@@ -1,12 +1,9 @@
 .integration-modal {
   .components-modal__content {
     padding: 0;
+
     &::before {
       margin: 0;
-    }
-    /* fixes an issue where an extraneous div in the modal content prevents the iframe from spanning full height */
-    > div:not(.components-modal__header) {
-      height: 100%;
     }
   }
 }
