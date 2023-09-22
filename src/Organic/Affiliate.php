@@ -30,11 +30,36 @@ class Affiliate {
             $card_asset_file['dependencies'],
             $this->organic->version
         );
+        wp_enqueue_style(
+            'organic-affiliate-product-card-css-1',
+            plugins_url( 'blocks/affiliate/productCard/build/index.css', __DIR__ ),
+            [],
+            $this->organic->version
+        );
+        wp_enqueue_style(
+            'organic-affiliate-product-card-css-2',
+            plugins_url( 'blocks/affiliate/productCard/build/style-index.css', __DIR__ ),
+            [],
+            $this->organic->version
+        );
+
         $carousel_asset_file = include( plugin_dir_path( __DIR__ ) . 'blocks/affiliate/productCarousel/build/index.asset.php' );
         wp_register_script(
             'organic-affiliate-product-carousel',
             plugins_url( 'blocks/affiliate/productCarousel/build/index.js', __DIR__ ),
             $carousel_asset_file['dependencies'],
+            $this->organic->version
+        );
+        wp_enqueue_style(
+            'organic-affiliate-product-carousel-css-1',
+            plugins_url( 'blocks/affiliate/productCarousel/build/index.css', __DIR__ ),
+            [],
+            $this->organic->version
+        );
+        wp_enqueue_style(
+            'organic-affiliate-product-carousel-css-2',
+            plugins_url( 'blocks/affiliate/productCarousel/build/style-index.css', __DIR__ ),
+            [],
             $this->organic->version
         );
         $product_search_page_url = $this->organic->getPlatformUrl() . '/apps/affiliate/integrations/product-search';
