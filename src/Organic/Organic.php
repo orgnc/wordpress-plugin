@@ -823,7 +823,11 @@ class Organic {
         $featured_image_url = \apply_filters( 'organic_post_featured_image_url', get_the_post_thumbnail_url( $post ), $post->ID );
         $title = \htmlspecialchars_decode( $post->post_title );
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
-        $content = \apply_filters( 'organic_post_content', $post->post_content, $post->ID );
+
+        $content = \get_post_field( 'content', $post );
+        $content = \apply_filters( 'the_content', $content );
+        $content = \apply_filters( 'organic_post_content', $content, $post->ID );
+
         $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
         $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
         $campaign_asset_guid = null;
