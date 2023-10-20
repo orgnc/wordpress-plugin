@@ -50,7 +50,7 @@ register_activation_hook( __FILE__, function () use ( $organic ) {
     $resynced_on_version = get_option( 'organic::resynced_on_version', '0.0.0' );
     if ( version_compare( '1.14.4', $resynced_on_version, 'gt' ) ) {
         $organic->triggerContentResync();
-        update_option( 'organic::resynced_on_version', Organic\ORGANIC_PLUGIN_VERSION, false );
+        update_option( 'organic::resynced_on_version', \Organic\ORGANIC_PLUGIN_VERSION, false );
     }
 });
 
