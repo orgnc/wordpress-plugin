@@ -46,13 +46,16 @@ $organic->init(
 );
 
 // On update or activation, we need to make sure content is re-synced because of changes to the plugin code
-register_activation_hook( __FILE__, function () use ( $organic ) {
-    $resynced_on_version = get_option( 'organic::resynced_on_version', '0.0.0' );
-    if ( version_compare( '1.14.4', $resynced_on_version, 'gt' ) ) {
-        $organic->triggerContentResync();
-        update_option( 'organic::resynced_on_version', \Organic\ORGANIC_PLUGIN_VERSION, false );
+register_activation_hook(
+    __FILE__,
+    function () use ( $organic ) {
+        $resynced_on_version = get_option( 'organic::resynced_on_version', '0.0.0' );
+        if ( version_compare( '1.14.4', $resynced_on_version, 'gt' ) ) {
+            $organic->triggerContentResync();
+            update_option( 'organic::resynced_on_version', \Organic\ORGANIC_PLUGIN_VERSION, false );
+        }
     }
-});
+);
 
 function add_organic_block_category( $categories ) {
     return array_merge(
