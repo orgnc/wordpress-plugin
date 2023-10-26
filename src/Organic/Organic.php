@@ -325,12 +325,22 @@ class Organic {
     }
 
     /**
+     * Returns true if `SDK Key` and `Site ID` are configured.
+     * Does not check validity of the values!
+     *
+     * @return bool
+     */
+    public function isConfigured() : bool {
+        return $this->getSdkKey() && $this->getSiteId();
+    }
+
+    /**
      * Returns true if Organic integration is enabled and properly configured
      *
      * @return bool
      */
     public function isEnabledAndConfigured() : bool {
-        return $this->isEnabled() && $this->getSdkKey() && $this->getSiteId();
+        return $this->isEnabled() && $this->isConfigured();
     }
 
     public function adsTxtRedirectionEnabled() : bool {
@@ -824,7 +834,7 @@ class Organic {
         $title = \htmlspecialchars_decode( $post->post_title );
         $title = \apply_filters( 'organic_post_title', $title, $post->ID );
 
-        $content = \get_post_field( 'content', $post );
+        $content = \get_post_field( 'post_content', $post );
         $content = \apply_filters( 'the_content', $content );
         $content = \apply_filters( 'organic_post_content', $content, $post->ID );
 
