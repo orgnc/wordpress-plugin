@@ -45,17 +45,26 @@ $organic->init(
     getenv( 'ORGANIC_CDN_URL' ) ?: getenv( 'EMPIRE_CDN_URL' )
 );
 
-// On update or activation, we need to make sure content is re-synced because of changes to the plugin code
-register_activation_hook(
-    __FILE__,
-    function () use ( $organic ) {
-        $resynced_on_version = get_option( 'organic::resynced_on_version', '0.0.0' );
-        if ( version_compare( '1.14.4', $resynced_on_version, 'gt' ) ) {
-            $organic->triggerContentResync();
-            update_option( 'organic::resynced_on_version', \Organic\ORGANIC_PLUGIN_VERSION, false );
-        }
+$is_installed_as_mustuse_plugin = defined( 'WPMU_PLUGIN_DIR' )
+    && strpos( __FILE__, WPMU_PLUGIN_DIR ) === 0;
+
+$check_for_resync = function() use ( $organic, $is_installed_as_mustuse_plugin ) {
+    $option = 'organic::resynced_on_version';
+    $resynced_on_version = get_option( $option, '0.0.0' );
+    // Version should be manually incremented when a sync is necessary post-upgrade
+    if ( version_compare( '1.15.1', $resynced_on_version, 'gt' ) ) {
+        $organic->triggerContentResync();
+        update_option( $option, \Organic\ORGANIC_PLUGIN_VERSION, $is_installed_as_mustuse_plugin );
     }
-);
+};
+
+if ( $is_installed_as_mustuse_plugin ) {
+    // Activation hook is never called for must-use plugins. We need an additional solution.
+    $check_for_resync();
+} else {
+    // On update or activation, we need to make sure content is re-synced because of changes to the plugin code
+    register_activation_hook( __FILE__, $check_for_resync );
+}
 
 function add_organic_block_category( $categories ) {
     return array_merge(
