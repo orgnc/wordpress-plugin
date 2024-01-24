@@ -14,10 +14,10 @@ class AMP_BREAKPOINT {
     const XL = 1200;
 
     public static function minWidth( int $size ) {
-        return "(min-width: ${size}px)";
+        return "(min-width: {$size}px)";
     }
 
     public static function maxWidth( int $size ) {
-        return "(max-width: ${size}px)";
+        return "(max-width: {$size}px)";
     }
 }
