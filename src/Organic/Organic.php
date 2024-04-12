@@ -1112,7 +1112,7 @@ class Organic {
     }
 
     public function triggerContentResync(): DateTimeImmutable {
-        wp_cache_flush();
+        wp_cache_delete( 'organic::content_resync_started_at', 'options' );
         if ( false === $this->contentResyncTriggeredRecently() ) {
             global $wpdb;
             $wpdb->get_results(
@@ -1123,7 +1123,7 @@ class Organic {
             );
             $this->updateContentResyncStartedAt();
         }
-        wp_cache_flush();
+        wp_cache_delete( 'organic::content_resync_started_at', 'options' );
         return $this->getContentResyncStartedAt();
     }
 
