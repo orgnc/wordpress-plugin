@@ -237,7 +237,7 @@ class AdminSettings {
                             id="organic-test-mode"
                             <?php echo $test_mode ? 'checked' : ''; ?>
                         />
-                        Split Testing
+                        Split Testing Enabled
                     </label>
                 </p>
                 <div id="organic-splittest-config" class="<?php echo ( ! $test_mode ? 'organic-hidden' : '' ); ?>">
@@ -291,7 +291,7 @@ class AdminSettings {
                     <label>
                         Consent Management Platform:
                         <select id="organic-cmp" name="organic_cmp">
-                            <option value="">None (WARNING: DO NOT USE IN PRODUCTION)</option>
+                            <option value="">None</option>
                             <option value="built-in" <?php echo esc_html( ( $cmp == 'built-in' ? 'selected="selected"' : '' ) ); ?>>Built In</option>
                             <option value="one-trust" <?php echo esc_html( ( $cmp == 'one-trust' ? 'selected="selected"' : '' ) ); ?>>One Trust</option>
                         </select>
