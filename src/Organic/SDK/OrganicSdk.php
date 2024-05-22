@@ -282,6 +282,12 @@ class OrganicSdk {
                                                 'gamEnabled',
                                             ]
                                         ),
+                                        ( new Query( 'browsi' ) )->setSelectionSet(
+                                            [
+                                                'enabled',
+                                                'browsiId',
+                                            ]
+                                        ),
                                         ( new Query( 'outbrain' ) )->setSelectionSet(
                                             [
                                                 'enabled',
