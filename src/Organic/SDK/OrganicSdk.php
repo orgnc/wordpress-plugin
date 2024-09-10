@@ -562,7 +562,7 @@ class OrganicSdk {
         } catch ( QueryError $e ) {
             // Variable is encoded this way so we get more context in Sentry
             $query_error_details = json_encode( $e->getErrorDetails() );
-            throw new RuntimeException( 'Organic API Failed with ' . count( json_decode( $query_error_details ) . ' errors'), -1, $e );
+            throw new RuntimeException( 'Organic API Failed with ' . count( json_decode( $query_error_details ) . ' errors' ), -1, $e );
         }
     }
 
