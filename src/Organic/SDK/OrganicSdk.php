@@ -560,7 +560,9 @@ class OrganicSdk {
 
             return $result->getResults();
         } catch ( QueryError $e ) {
-            throw new RuntimeException( 'Organic API Failed', -1, $e );
+            // Variable is encoded this way so we get more context in Sentry
+            $query_error_details = json_encode( $e->getErrorDetails() );
+            throw new RuntimeException( 'Organic API Failed with ' . count( json_decode( $query_error_details ) . ' errors' ), -1, $e );
         }
     }
 
@@ -587,16 +589,15 @@ class OrganicSdk {
      *
      * @param $array
      * @param $dataType
-     * @throws InvalidArgumentException if a required value is missing
+     * @return object[]
      */
-    private function metaArrayToObjects( $array, $dataType ) {
+    private function metaArrayToObjects( $array, $dataType ): array {
         $objects = [];
 
         foreach ( $array as $value ) {
-            if ( ! isset( $value['externalId'] ) || ! isset( $value['name'] ) ) {
-                throw new InvalidArgumentException(
-                    'Missing externalId or name attribute in ' . $dataType
-                );
+            $value['name'] = $value['name'] ?? $value['email'] ?? '(not set)';
+            if ( ! isset( $value['externalId'] ) ) {
+                continue;
             }
             $objects[] = $value;
         }
