@@ -36,7 +36,7 @@ jobs:
         with:
           php-version: '7.4'
           extensions: zip
-          tools: composer:2.5.5
+          tools: composer
 
       # Create a packaged up zip file
       - name: Set Version Number & Build Zip
@@ -45,14 +45,14 @@ jobs:
 
       # Configure AWS credentials
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/GitHubActionIAMRole
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload Dev Build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: organic-${{ env.BUILD_NUMBER }}.zip
           path: build/organic-${{ env.BUILD_NUMBER }}.zip

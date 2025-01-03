@@ -35,7 +35,7 @@ jobs:
         with:
           php-version: '7.4'
           extensions: zip
-          tools: composer:2.5.5
+          tools: composer
 
       - name: Build plugin
         run: ./build-zip.sh ${{ steps.latest_release.outputs.tag_name }}
