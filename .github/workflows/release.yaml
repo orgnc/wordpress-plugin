@@ -40,14 +40,14 @@ jobs:
         with:
           php-version: '7.4'
           extensions: zip
-          tools: composer:2.5.5
+          tools: composer
 
       - name: Build plugin
         run: ./build-zip.sh ${{ env.BUILD_NUMBER }}
 
       # Configure AWS credentials
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/GitHubActionIAMRole
