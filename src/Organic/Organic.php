@@ -20,6 +20,7 @@ const SYNC_META_KEY = 'empire_sync';
 /**
  * Client Plugin for the Organic Platform
  */
+#[\AllowDynamicProperties]
 class Organic {
     public $version = \Organic\ORGANIC_PLUGIN_VERSION;
 
