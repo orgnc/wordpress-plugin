@@ -5,6 +5,7 @@ namespace Organic;
 use Exception;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\Chrome\ChromeOptions;
@@ -16,6 +17,7 @@ define( "Organic\WP_HOME", getenv('WP_HOME' ) . ( empty( WP_PORT ) ? '' : ':' . 
 
 const WP_LOGIN_URL = WP_HOME . '/wp-login.php';
 const WP_NEW_POST_URL = WP_HOME . '/wp-admin/post-new.php';
+const WP_POSTS_HOME = WP_HOME . '/wp-admin/edit.php';
 
 class SeleniumBrowser {
 
@@ -314,6 +316,64 @@ class SeleniumBrowser {
         // WordPress does some annoying DOM manipulation, so we need to click the p element first.
         $this->click( $this->getElementIfItExists( 'p', true )[$index] );
         $this->fillTextInput( $this->getElementIfItExists( 'p', true )[$index], $text );
+    }
+
+    /**
+     * @return void
+     */
+    function refreshPage(): void {
+        $this->driver->navigate()->refresh();
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    function savePostAsDraft() {
+        $this->click( 'button[aria-label="Save draft"]' );
+        // Once saved, we are redirected to a URL with a post ID. We wait for the save to complete.
+        $condition = WebDriverExpectedCondition::urlContains( 'post=' );
+        $this->waitForCondition( $condition );
+    }
+
+    /**
+     * @return string
+     */
+    function getCurrentPostID(): string
+    {
+        $url = $this->driver->getCurrentUrl();
+        preg_match( '/post=(\d+)(&|$)/', $url, $matches );
+        return $matches[1];
+    }
+
+    /**
+     * Delete posts corresponding to post IDs. This assumes the posts are all on the front
+     * page of the WP Admin Post Editor list.
+     * @return void
+     * @throws Exception
+     */
+    function deletePosts( array $postIDs ) {
+        $this->openPage( WP_POSTS_HOME );
+        // Select all the posts to move to the trash.
+        foreach ( $postIDs as $postID ) {
+            $this->click( "#cb-select-{$postID}" );
+        }
+        // Specify we want to move them to the trash.
+        $this->click( '#bulk-action-selector-top' );
+        $this->click('option[value="trash"]' );
+        // Move them to the trash.
+        $this->click( '#doaction' );
+        // Now we need to go to the Trash tab.
+        $this->click( 'li.trash' );
+        // Select all the posts to delete permanently.
+        foreach ( $postIDs as $postID ) {
+            $this->click( "#cb-select-{$postID}" );
+        }
+        // Specify we want to delete them.
+        $this->click( '#bulk-action-selector-top' );
+        $this->click( 'option[value="delete"]' );
+        // Delete them.
+        $this->click( '#doaction' );
     }
 
 }
