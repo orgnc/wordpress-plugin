@@ -39,6 +39,7 @@ data gets exposed. Valid values are:
 = 1.17.0 =
 * Remove content sync, content ID map sync, category sync, and related admin controls.
 * Add a WP-CLI cleanup command for orphaned content sync cron hooks, options, and postmeta.
+* Add a WP-CLI command to test Organic error reporting.
 * Decouple Organic error reporting from the Sentry PHP SDK to avoid conflicts with other Sentry plugins.
 
 = 1.13.1 =

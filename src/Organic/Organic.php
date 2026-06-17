@@ -265,6 +265,7 @@ class Organic {
         new CCPAPage( $this );
         new PageInjection( $this );
         new ContentSyncCleanupCommand( $this );
+        new ErrorReportingTestCommand( $this );
         new AdConfigSyncCommand( $this );
         new AdsTxtSyncCommand( $this );
         new AffiliateConfigSyncCommand(
