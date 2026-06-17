@@ -2,7 +2,7 @@
 Contributors: jdemaris, ryandial
 Tags: ads affiliate organic platform publishing
 Requires at least: 5.0
-Tested up to: 6.4.2
+Tested up to: 6.9.4
 Stable tag: ORGANIC_PLUGIN_VERSION_VALUE
 Requires PHP: 7.4
 License: GPLv2 or later
