@@ -2,7 +2,9 @@
 
 namespace Organic;
 
-define( 'Organic\ORGANIC_PLUGIN_VERSION', 'version' );
+if ( ! defined( 'Organic\ORGANIC_PLUGIN_VERSION' ) ) {
+    define( 'Organic\ORGANIC_PLUGIN_VERSION', 'version' );
+}
 
 use PHPUnit\Framework\TestCase;
 

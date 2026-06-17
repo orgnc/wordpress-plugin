@@ -6,7 +6,6 @@ use DateTime;
 use DateTimeImmutable;
 use Organic\SDK\OrganicSdk;
 use Exception;
-use Sentry\State\Hub;
 use WP_Post;
 use WP_Query;
 
@@ -31,9 +30,9 @@ class Organic {
     private $logToSentry = true;
 
     /**
-     * @var ?Hub
+     * @var ErrorReporter
      */
-    private $sentryHub = null;
+    private $errorReporter;
 
     /**
      * @var AdsTxt
@@ -155,10 +154,10 @@ class Organic {
      *
      * @param $environment string PRODUCTION or DEVELOPMENT
      */
-    public function __construct( string $environment, ?Hub $sentryHub ) {
+    public function __construct( string $environment, ?ErrorReporter $errorReporter ) {
         $this->environment = $environment;
         // If enabled (the default), we'll send errors to Organic Sentry.
-        $this->sentryHub = $sentryHub;
+        $this->errorReporter = $errorReporter ?: new NullErrorReporter();
         static::$instance = $this;
     }
 
@@ -311,7 +310,7 @@ class Organic {
     public function configureSentryForSite() {
         $sentryDSN = $this->getOption( 'organic::sentry_dsn' );
         if ( ! empty( $sentryDSN ) ) {
-            $this->sentryHub = init_organic_sentry( $sentryDSN, $this->getEnvironment() );
+            $this->errorReporter = init_organic_error_reporter( $sentryDSN, $this->getEnvironment() );
         }
     }
 
@@ -1432,19 +1431,11 @@ class Organic {
         return $this->splitTestPercent;
     }
 
-    public static function captureException( \Exception $e ) {
-        // If there is a current (non-Organic) hub, log the error using that hub.
-        if ( \Sentry\SentrySdk::getCurrentHub()->getClient() ) {
-            \Sentry\captureException( $e );
-        }
+    public static function captureException( \Throwable $e ) {
         if ( self::$instance->getEnvironment() != 'PRODUCTION' ) {
             error_log( $e->getMessage() );
         }
-        if ( ! self::$instance->sentryHub ) {
-            return;
-        }
-        // Also log the error to Organic if an Organic hub is configured.
-        self::$instance->sentryHub->captureException( $e );
+        self::$instance->errorReporter->captureException( $e );
     }
 
     public function loadCampaignsAssets() {

@@ -11,6 +11,8 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Organic\Organic;
+use Organic\NullErrorReporter;
+use Organic\SentryHttpErrorReporter;
 
 // The DSN to use before we load client-specific DSNs.
 const DEFAULT_SENTRY_DSN = 'https://e1cf660e5b3947a4bdf7c516afaaa7d2@o472819.ingest.sentry.io/4505048050434048';
@@ -22,24 +24,17 @@ if ( ! $environment ) {
     $environment = 'PRODUCTION';
 }
 
-function init_organic_sentry( string $dsn, string $environment ) : ?\Sentry\State\Hub {
+function init_organic_error_reporter( string $dsn, string $environment ) : \Organic\ErrorReporter {
     if ( ! in_array( $environment, [ 'PRODUCTION', 'STAGING' ] ) ) {
-        return null;
+        return new NullErrorReporter();
     }
-    if ( get_option( 'organic::log_to_sentry' ) === false ) {
-        return null;
+    if ( function_exists( 'get_option' ) && get_option( 'organic::log_to_sentry' ) === false ) {
+        return new NullErrorReporter();
     }
-    // Initialize a new Sentry Hub and Client to avoid interfering with
-    // any publisher's pre-existing Sentry configuration.
-    $options = [
-        'dsn' => $dsn,
-        'environment' => strtolower( $environment ),
-    ];
-    $client = \Sentry\ClientBuilder::create( $options )->getClient();
-    return new \Sentry\State\Hub( $client );
+    return new SentryHttpErrorReporter( $dsn, $environment );
 }
 
-$organic = new Organic( $environment, init_organic_sentry( DEFAULT_SENTRY_DSN, $environment ) );
+$organic = new Organic( $environment, init_organic_error_reporter( DEFAULT_SENTRY_DSN, $environment ) );
 $organic->init(
     getenv( 'ORGANIC_API_URL' ) ?: getenv( 'EMPIRE_API_URL' ),
     getenv( 'ORGANIC_CDN_URL' ) ?: getenv( 'EMPIRE_CDN_URL' )
