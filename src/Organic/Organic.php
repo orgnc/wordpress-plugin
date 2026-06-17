@@ -3,17 +3,11 @@
 namespace Organic;
 
 use DateTime;
-use DateTimeImmutable;
 use Organic\SDK\OrganicSdk;
 use Exception;
-use WP_Post;
-use WP_Query;
-
-use function \get_user_by;
 
 const CAMPAIGN_ASSET_META_KEY = 'empire_campaign_asset_guid';
 const GAM_ID_META_KEY = 'empire_gam_id';
-const SYNC_META_KEY = 'empire_sync';
 
 
 /**
@@ -43,11 +37,6 @@ class Organic {
      * @var string Which CMP are we using, '', 'built-in' or 'one-trust'
      */
     private $cmp;
-
-    /**
-     * @var bool True if we are forcing Content Meta synchronization into foreground
-     */
-    private $contentForeground = false;
 
     /**
      * @var bool True if we want to modify the RSS feeds to include featured images
@@ -265,7 +254,6 @@ class Organic {
         $this->postTypes = $this->getOption( 'organic::post_types', [ 'post', 'page' ] );
 
         $this->campaignsEnabled = $this->getOption( 'organic::campaigns_enabled' );
-        $this->contentForeground = $this->getOption( 'organic::content_foreground' );
 
         $this->affiliateEnabled = $this->getOption( 'organic::affiliate_enabled' );
         $this->affiliateDomain = $this->getOption( 'organic::affiliate_domain' );
@@ -276,8 +264,7 @@ class Organic {
 
         new CCPAPage( $this );
         new PageInjection( $this );
-        new ContentSyncCommand( $this );
-        new ContentIdMapSyncCommand( $this );
+        new ContentSyncCleanupCommand( $this );
         new AdConfigSyncCommand( $this );
         new AdsTxtSyncCommand( $this );
         new AffiliateConfigSyncCommand(
@@ -300,7 +287,6 @@ class Organic {
             new Affiliate( $this );
         }
 
-        add_action( 'save_post', [ $this, 'handleSavePostHook' ], 10, 3 );
     }
 
     /**
@@ -742,528 +728,6 @@ class Organic {
         return $result;
     }
 
-    /**
-     * Checks if post is eligible for sync
-     *
-     * @param $post
-     */
-    public function isPostEligibleForSync( $post ) {
-        // sync only real 'posts' not revisions or attachments
-        if ( ! in_array( $post->post_type, $this->getPostTypes() ) ) {
-            return false;
-        }
-
-        // sync only published posts
-        if ( $post->post_status != 'publish' ) {
-            return false;
-        }
-
-        // post should have at least title
-        if ( ! $post->post_title ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     *  Synchronizes the full tree of categories
-     *  @return void|null
-     */
-    public function syncCategories() {
-        $categories = get_categories( [ 'hide_empty' => false ] );
-        $cat_id_map = [];
-        $trees = [];
-        foreach ( $categories as $cat ) {
-            $cat_id_map[ $cat->term_id ] = [
-                'externalId' => (string) $cat->term_id,
-                'name' => $cat->name,
-                'children' => [],
-            ];
-        }
-        foreach ( $categories as &$cat ) {
-            $cat_data = &$cat_id_map[ $cat->term_id ];
-            if ( $cat->parent == 0 ) {
-                array_push( $trees, $cat_data );
-            } else {
-                $parent = &$cat_id_map[ $cat->parent ];
-                $children = &$parent['children'];
-                if ( is_array( $children ) ) {
-                    array_push( $children, $cat_data );
-                }
-            }
-        }
-        foreach ( $trees as &$tree ) {
-            $tree['siteGuid'] = $this->siteId;
-            try {
-                $this->sdk->categoryTreeUpdate( $tree );
-            } catch ( \Exception $e ) {
-                $this::captureException( $e );
-            }
-        }
-    }
-
-    /**
-     * Synchronizes a single Post to Organic
-     *
-     * @param WP_Post $post
-     * @return void|null
-     */
-    public function syncPost( WP_Post $post ) {
-        if ( ! $this->isPostEligibleForSync( $post ) ) {
-            $this->debug(
-                'Organic Sync: SKIPPED',
-                [
-                    'post_id' => $post->ID,
-                    'post_type' => $post->post_title,
-                    'post_status' => $post->post_status,
-                    'post_title' => $post->post_title,
-                ]
-            );
-            return null;
-        }
-
-        $canonical = get_permalink( $post );
-        $edit_url = \Organic\get_edit_post_link( $post );
-
-        # In order to support non-standard post metadata, we have a filter for each attribute
-        $external_id = \apply_filters( 'organic_post_id', $post->ID );
-        $canonical = \apply_filters( 'organic_post_url', $canonical, $post->ID );
-        $featured_image_url = \apply_filters( 'organic_post_featured_image_url', get_the_post_thumbnail_url( $post ), $post->ID );
-        $title = \htmlspecialchars_decode( $post->post_title );
-        $title = \apply_filters( 'organic_post_title', $title, $post->ID );
-
-        $content = \get_post_field( 'post_content', $post );
-        $content = \apply_filters( 'the_content', $content );
-        $content = \apply_filters( 'organic_post_content', $content, $post->ID );
-
-        $published_date = \apply_filters( 'organic_post_publish_date', $post->post_date, $post->ID );
-        $modified_date = \apply_filters( 'organic_post_modified_date', $post->post_modified, $post->ID );
-        $campaign_asset_guid = null;
-        if ( $this->useCampaigns() ) {
-            $campaign_asset_guid = get_post_meta( $post->ID, CAMPAIGN_ASSET_META_KEY, true );
-            if ( $campaign_asset_guid == '' ) {
-                $campaign_asset_guid = null;
-            }
-        }
-
-        $meta_description = get_the_excerpt( $post );
-        if ( is_plugin_active( 'wordpress-seo/wp-seo.php' ) ) {
-            $meta_description = get_post_meta( $post->ID, '_yoast_wpseo_metadesc', true ) ?: $meta_description;
-        }
-        $meta_description = \apply_filters( 'organic_post_meta_description', $meta_description, $post->ID );
-
-        $authors = [];
-        // Assume the default Wordpress author structure
-        $author_id = get_post_field( 'post_author', $post->ID );
-        if ( $author_id ) {
-            if ( get_user_by( 'id', $author_id ) ) {
-                $authors[] = [
-                    'externalId' => (string) $author_id,
-                    'name' => get_the_author_meta( 'display_name', $author_id ),
-                    'email' => get_the_author_meta( 'email', $author_id ),
-                    'imageUrl' => get_avatar_url( $author_id ),
-                ];
-            }
-        }
-        unset( $author_id ); // Cleanup after ourselves
-        // Allow sites to augment the assumed author data
-        $authors = \apply_filters( 'organic_post_authors', $authors, $post->ID );
-
-        $categories = [];
-        foreach ( wp_get_post_categories( $post->ID ) as $category_id ) {
-            $category = get_category( $category_id );
-            $categories[] = [
-                'externalId' => (string) $category->term_id,
-                'name' => $category->name,
-            ];
-        }
-
-        $tags = [];
-        foreach ( wp_get_post_tags( $post->ID ) as $tag_id ) {
-            $tag = get_tag( $tag_id );
-            $tags[] = [
-                'externalId' => (string) $tag->term_id,
-                'name' => $tag->name,
-            ];
-        }
-
-        try {
-            $result = $this->sdk->contentCreateOrUpdate(
-                $external_id,
-                $canonical,
-                $title,
-                new DateTime( $published_date ),
-                new DateTime( $modified_date ),
-                $content,
-                $authors,
-                $categories,
-                $tags,
-                $campaign_asset_guid,
-                $edit_url,
-                $featured_image_url,
-                $meta_description
-            );
-        } catch ( \Exception $e ) {
-            // We should manually let Sentry know about this, since theoretically the API
-            // shouldn't error out here.
-            $this::captureException( $e );
-            $this->warning(
-                'Organic Sync: ERROR',
-                [
-                    'external_id' => $external_id,
-                    'url' => $canonical,
-                ]
-            );
-
-            // Either way, don't disrupt the CMS operations about it
-            return null;
-        }
-        $this->debug(
-            'Organic Sync: SUCCESS',
-            [
-                'external_id' => $external_id,
-                'url' => $canonical,
-            ]
-        );
-
-        if ( $result['gamId'] ) {
-            update_post_meta( $post->ID, GAM_ID_META_KEY, $result['gamId'] );
-        } else {
-            delete_post_meta( $post->ID, GAM_ID_META_KEY );
-        }
-
-        // Mark the post as synchronized to exclude from the next batch
-        update_post_meta( $post->ID, SYNC_META_KEY, 'synced' );
-    }
-
-    /**
-     * Helper function to actually execute sync calls to Organic Platform for posts
-     *
-     * @param WP_Post[] $posts
-     * @return int # of posts sync-ed
-     * @throws Exception
-     */
-    private function _syncPosts( array $posts ): int {
-        $updated = 0;
-        foreach ( $posts as $post ) {
-            $this->syncPost( $post );
-            $updated++;
-        }
-
-        return $updated;
-    }
-
-    /**
-     * Build a query that looks at all posts that we want to keep in sync with Organic
-     *
-     * @param int $batch
-     * @param int $offset
-     * @param array|null $meta
-     * @return WP_Query
-     */
-    public function buildQuerySyncablePosts( $batch = 1000, $offset = 0, $meta = null ) {
-        $args = [
-            'post_type' => $this->getPostTypes(),
-            'post_status' => 'publish',
-            'posts_per_page' => $batch,
-            'offset' => $offset,
-            'orderby' => 'ID',
-            'order' => 'ASC',
-        ];
-
-        if ( ! empty( $meta ) ) {
-            $args['meta_query'] = $meta;
-        }
-
-        return new WP_Query( $args );
-    }
-
-    /**
-     * Build a query that can find the posts that have never been synced to Organic
-     *
-     * @param int $batch # of posts per page
-     * @param int $offset
-     * @return WP_Query
-     */
-    public function buildQueryNeverSyncedPosts( $batch = 1000, $offset = 0 ) {
-        return $this->buildQuerySyncablePosts(
-            $batch,
-            $offset,
-            [
-                [
-                    'key' => SYNC_META_KEY,
-                    'compare' => 'NOT EXISTS',
-                ],
-            ]
-        );
-    }
-
-    /**
-     * Build a query that can find the posts that have been synced before but have changed
-     *
-     * @param int $batch # of posts per page
-     * @param int $offset
-     * @return WP_Query
-     */
-    public function buildQueryNewlyUnsyncedPosts( $batch = 1000, $offset = 0 ) {
-        return $this->buildQuerySyncablePosts(
-            $batch,
-            $offset,
-            [
-                [
-                    'key' => SYNC_META_KEY,
-                    'value' => 'synced',
-                    'compare' => '!=',
-                ],
-            ]
-        );
-    }
-
-    /**
-     * Finds a batch of posts that have not been synchronized with Organic yet and publish their info
-     *
-     * Works in batches of 1000 to minimize load issues
-     *
-     * @param int $max_to_sync Number of posts to attempt to sync
-     * @return int Number of posts synchronized
-     * @throws Exception if posts have invalid published or modified dates
-     */
-    public function syncContent( $max_to_sync = 1000 ) : int {
-        // First go through ones that have never been sync-ed
-        $query = $this->buildQueryNeverSyncedPosts( $max_to_sync );
-        $updated = $this->_syncPosts( $query->posts );
-
-        // Cap our calls
-        if ( $updated >= $max_to_sync ) {
-            return $updated;
-        }
-
-        // If we are under the limit, find posts that have been recently updated
-        $query = $this->buildQueryNewlyUnsyncedPosts( $max_to_sync - $updated );
-        $updated += $this->_syncPosts( $query->posts );
-
-        return $updated;
-    }
-
-    /**
-     * Re-syncs all eligible posts
-     *
-     * @param int $batch
-     * @param int $sleep_between
-     * @return int Number of posts synchronized
-     * @throws Exception if posts have invalid published or modified dates
-     */
-    public function fullResyncContent( $batch = 50, $offset = 0, $sleep_between = 0 ) : int {
-        $this->updateContentResyncStartedAt();
-
-        $updated = 0;
-
-        while ( true ) {
-            $query = $this->buildQuerySyncablePosts( $batch, $offset );
-            $updated += $this->_syncPosts( $query->posts );
-            $this->debug(
-                'Organic Sync: SYNCING',
-                [
-                    'updated' => $updated,
-                    'offset' => $offset,
-                    'found_posts' => $query->found_posts,
-                    'max_num_pages' => $query->max_num_pages,
-                    'post_count' => $query->post_count,
-                    'request' => $query->request,
-                ]
-            );
-
-            if ( $query->post_count < $batch ) {
-                break;
-            }
-
-            if ( $sleep_between > 0 ) {
-                sleep( $sleep_between );
-            }
-
-            $offset += $batch;
-        }
-
-        return $updated;
-    }
-
-    public function getContentResyncStartedAt(): DateTimeImmutable {
-        return DateTimeImmutable::createFromFormat(
-            DATE_ATOM,
-            $this->getOption(
-                'organic::content_resync_started_at',
-                '2003-05-27T05:07:53+00:00'
-            )
-        );
-    }
-
-    public function updateContentResyncStartedAt(): bool {
-        $this->updateOption(
-            'organic::content_resync_started_at',
-            current_datetime()->format( DATE_ATOM )
-        );
-        return true;
-    }
-
-    public function contentResyncTriggeredRecently(): bool {
-        return 1 > $this->getContentResyncStartedAt()->diff( current_datetime(), true )->days;
-    }
-
-    public function triggerContentResync(): DateTimeImmutable {
-        wp_cache_delete( 'organic::content_resync_started_at', 'options' );
-        if ( false === $this->contentResyncTriggeredRecently() ) {
-            global $wpdb;
-            $wpdb->get_results(
-                $wpdb->prepare(
-                    "UPDATE $wpdb->postmeta SET meta_value = 'unsynced' WHERE meta_key = %s",
-                    SYNC_META_KEY
-                )
-            );
-            $this->updateContentResyncStartedAt();
-        }
-        wp_cache_delete( 'organic::content_resync_started_at', 'options' );
-        return $this->getContentResyncStartedAt();
-    }
-
-    /**
-     * Pulls current Content Id Map and updates GAM Ids for articles
-     */
-    public function syncContentIdMap() {
-        global $wpdb;
-
-        $mapping = [];
-        $stats = [
-            'deleted' => 0,
-            'untouched' => 0,
-            'skipped' => 0,
-            'cleaned' => 0,
-            'reassigned' => 0,
-            'created' => 0,
-            'total' => 0,
-        ];
-
-        $first = 100; // batch size
-        $skip = 0;
-        $count = 0;
-
-        // pull mapping of gamIds to externalIds
-        while ( true ) {
-            $id_map = $this->sdk->queryContentIdMap( $first, $skip );
-            $total_objects = $id_map['pageInfo']['totalObjects'];
-            foreach ( $id_map['edges'] as $edge ) {
-                $mapping[ $edge['node']['gamId'] ] = $edge['node']['externalId'];
-                $count++;
-            }
-
-            if ( $count >= $total_objects ) {
-                break;
-            }
-
-            $skip += $first;
-        }
-
-        $should_skip = function ( $post_id, $gam_id, $prefix = 'Skipping' ) {
-            $post = get_post( $post_id );
-            if ( ! $post ) {
-                $this->debug( $prefix . ' gamId(' . $gam_id . ') for ' . $post_id . ' - no such post' );
-                return true;
-            }
-            if ( ! in_array( $post->post_type, $this->getPostTypes() ) ) {
-                $this->debug( $prefix . ' gamId(' . $gam_id . ') for ' . $post_id . ' - not synchable type' );
-                return true;
-            }
-            return false;
-        };
-
-        $pop_by_key = function ( &$mapping, $key ) {
-            $value = $mapping[ $key ] ?? null;
-            unset( $mapping[ $key ] );
-            return $value;
-        };
-
-        // delete and reassign current gamIds
-        $metas = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT pm.meta_id AS id, pm.post_id, pm.meta_value AS gam_id
-                FROM {$wpdb->postmeta} pm
-                WHERE pm.meta_key = %s",
-                GAM_ID_META_KEY
-            )
-        );
-        $this->debug( 'Found mapped gamIds in DB: ' . count( $metas ) );
-        foreach ( $metas as $meta ) {
-            $external_id = $pop_by_key( $mapping, $meta->gam_id );
-
-            if ( ! $external_id ) {
-                // gamId was reassigned to different site or deleted
-                $this->debug( 'Deleting gamId(' . $meta->gam_id . ') for ' . $meta->post_id );
-                delete_meta( $meta->id );
-                $stats['deleted']++;
-                continue;
-            }
-
-            if ( $should_skip( $external_id, $meta->gam_id, 'Cleaning up' ) ) {
-                // cleanup bogus data, only real `posts` should have gamId
-                delete_meta( $meta->id );
-                $stats['cleaned']++;
-                continue;
-            }
-
-            if ( $external_id == $meta->post_id ) {
-                // gamId still assigned to the same post
-                $stats['untouched']++;
-                continue;
-            }
-
-            // gamId was re-assgined to different post
-            $this->debug( 'Re-assigning gamId(' . $meta->gam_id . ') from ' . $meta->post_id . ' to ' . $external_id );
-            delete_meta( $meta->id );
-            update_post_meta( $external_id, GAM_ID_META_KEY, $meta->gam_id );
-            $stats['reassigned']++;
-        }
-
-        // set new gamIds
-        foreach ( $mapping as $gam_id => $external_id ) {
-            if ( $should_skip( $external_id, $gam_id ) ) {
-                $stats['skipped']++;
-                continue;
-            }
-
-            $this->debug( 'Setting gamId(' . $gam_id . ') for ' . $external_id );
-            update_post_meta( $external_id, GAM_ID_META_KEY, $gam_id );
-            $stats['created']++;
-        }
-
-        $stats['total'] = array_sum( $stats );
-
-        return $stats;
-    }
-
-    /**
-     * Hook to see any newly created or updated posts and make sure we mark them as "dirty" for
-     * future Organic sync
-     *
-     * @param $post_ID
-     * @param $post
-     * @param $update
-     */
-    public function handleSavePostHook( $post_ID, $post, $update ) {
-        if ( ! $this->isEnabledAndConfigured() ) {
-            return;
-        }
-
-        if ( ! $this->isPostEligibleForSync( $post ) ) {
-            return;
-        }
-
-        update_post_meta( $post_ID, SYNC_META_KEY, 'unsynced' );
-
-        if ( $this->useSyncPostOnSave() ) {
-            $this->syncPost( $post );
-        }
-    }
-
     public function syncAdConfig() {
         $config = $this->sdk->queryAdConfig();
 
@@ -1364,9 +828,6 @@ class Organic {
                 $this->updateOption( 'organic::sentry_dsn', $sentryDSN, false );
                 $this->configureSentryForSite();
             }
-            if ( true === $config['triggerContentResync'] ) {
-                $this->triggerContentResync();
-            }
         } catch ( \Exception $e ) {
             self::captureException( $e );
             return [
@@ -1381,17 +842,6 @@ class Organic {
 
     public function getAdsTxtManager() : AdsTxt {
         return $this->adsTxt;
-    }
-
-    /**
-     * Check if we are configured for foreground synchronization.
-     * This does not block background / cron based synchronization as well,
-     * but may make your saves slower for the editors.
-     *
-     * @return bool
-     */
-    public function useSyncPostOnSave() : bool {
-        return $this->contentForeground;
     }
 
     /**

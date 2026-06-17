@@ -43,21 +43,6 @@ class AdminSettings {
                 AdminNotice::success( 'Settings saved' );
                 break;
 
-            case 'organic_content_sync':
-                $count = $this->organic->syncContent( 100 );
-                AdminNotice::success( 'Synced ' . $count . ' posts' );
-                break;
-
-            case 'organic_content_id_sync':
-                $stats = $this->organic->syncContentIdMap();
-                AdminNotice::success( 'Content Id-map synced | ' . json_encode( $stats ) );
-                break;
-
-            case 'organic_category_sync':
-                $this->organic->syncCategories();
-                AdminNotice::success( 'Categories synced' );
-                break;
-
             case 'organic_force_pull_configs':
                 $this->organic->syncPluginConfig();
                 $this->organic->syncAdsTxt();
@@ -168,12 +153,6 @@ class AdminSettings {
         );
         $this->organic->setPostTypes( $val );
 
-        $this->organic->updateOption(
-            'organic::content_foreground',
-            isset( $_POST['organic_content_foreground'] ) ? true : false,
-            false
-        );
-
     }
 
     public function showSettings() {
@@ -196,21 +175,15 @@ class AdminSettings {
 
         $feed_images = $this->organic->getOption( 'organic::feed_images' );
         $ads_txt_redirect = $this->organic->getOption( 'organic::ads_txt_redirect_enabled' );
-        $content_foreground = $this->organic->getOption( 'organic::content_foreground' );
 
         $ads_txt = $this->organic->getOption( 'organic::ads_txt' );
 
         $settings_last_updated = $this->organic->settingsLastUpdated();
 
-        $total_published_posts = $this->organic->buildQuerySyncablePosts( 1 )->found_posts;
-        $total_synced_posts = $this->organic->buildQueryNewlyUnsyncedPosts( 1 )->found_posts;
-
         $ad_config = $this->organic->getAdsConfig();
         $amp_config = $this->organic->getAmpConfig();
         $prefill_config = $this->organic->getPrefillConfig();
         $affiliate_config = [ 'publicDomain' => $this->organic->getAffiliateDomain() ];
-
-        $contentSyncCron = \DateTimeImmutable::createFromFormat( 'U', wp_next_scheduled( 'organic_cron_sync_content' ), wp_timezone() );
         ?>
         <div id="organic-settings-page" class="wrap">
             <div id="organic-notices">
@@ -387,20 +360,9 @@ class AdminSettings {
                         Ads.txt Redirect Enabled
                     </label>
                 </p>
-                <p>
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="organic_content_foreground"
-                            <?php echo $content_foreground ? 'checked' : ''; ?>
-                        />
-                        Force content sync on Save (use only if CRON is disabled on your site)
-                    </label>
-                </p>
                 <fieldset>
                     <p>
-                        Which post types from your CMS should be treated as content for synchronization with
-                        the Organic Platform and as eligible for the Organic SDK to be loaded on?
+                        Which post types from your CMS are eligible for the Organic SDK to be loaded on?
                         <ul>
                             <?php $this->injectPostTypesList(); ?>
                         </ul>
@@ -418,29 +380,6 @@ class AdminSettings {
 
             <hr />
             <h1>Status and Actions</h1>
-            <h2>Content Sync</h2>
-            <p>Known Posts: <?php echo number_format( $total_published_posts ); ?></p>
-            <p>Recently Updated Posts (unsynced): <?php echo number_format( $total_synced_posts ); ?></p>
-            <form method="post">
-                <?php wp_nonce_field( 'organic_settings_nonce' ); ?>
-                <p>
-                    <button type="submit" name="organic_action" value="organic_content_sync">
-                        Force-push Content Batch to the Organic Platform
-                    </button>
-                </p>
-                <p>
-                    <button type="submit" name="organic_action" value="organic_category_sync">
-                        Force-push Categories to the Organic Platform
-                    </button>
-                </p>
-                <p>
-                    <button type="submit" name="organic_action" value="organic_content_id_sync">
-                        Force-sync Content IDs to the Organic Platform
-                    </button>
-                </p>
-            </form>
-
-            <hr />
             <h2>Current configs pulled from Organic Platform</h2>
             <form method="post">
                 <?php wp_nonce_field( 'organic_settings_nonce' ); ?>
@@ -467,8 +406,6 @@ class AdminSettings {
                 <?php $this->injectEnvInfo( 'PREBID_URL', $this->organic->getAdsConfig()->getPrebidBuildUrl() ); ?>
                 <?php $this->injectEnvInfo( 'PLATFORM_URL', $this->organic->getPlatformUrl() ); ?>
                 <?php $this->injectEnvInfo( 'ADS_TXT_URL', $this->organic->getAdsTxtManager()->getAdsTxtUrl() ); ?>
-                <?php $this->injectEnvInfo( 'Next Content Sync', $contentSyncCron ? $contentSyncCron->format( DATE_ATOM ) : 'false' ); ?>
-                <?php $this->injectEnvInfo( 'Content Re-Sync Triggered At', $this->organic->getContentResyncStartedAt()->format( DATE_ATOM ) ); ?>
                 <?php if ( ! $ads_txt_redirect ) { ?>
                     <p>
                         <label>

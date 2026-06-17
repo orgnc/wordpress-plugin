@@ -2,8 +2,6 @@
 
 namespace Organic\SDK;
 
-use DateTime;
-use DateTimeInterface;
 use GraphQL\Client;
 use GraphQL\Exception\QueryError;
 use GraphQL\Mutation;
@@ -14,7 +12,6 @@ use GuzzleHttp\Client as RestClient; // let's switch to GraphQL in the future
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
 use RuntimeException;
-use function Organic\fix_url_spaces;
 
 
 /**
@@ -85,32 +82,6 @@ class OrganicSdk {
         $this->siteGuid = $siteGuid;
     }
 
-    /**
-     * Registers the complete tree of categories
-     *
-     * Example input:
-     *   array(
-     *     'externalId' => 'external_id_1',
-     *     'name' => 'Category level 0',
-     *     'children' => [
-     *       array(
-     *         'externalId' => 'external_id_2',
-     *         'name' => 'Category level 1',
-     *       )
-     *     ]
-     *   )
-     *
-     * @param array $categoryTree A hierarchical tree of categories
-     * @return array|object
-     */
-    public function categoryTreeUpdate( array $categoryTree ) {
-        $mutation = ( new NestedArgsMutation( 'categoryUpdate' ) );
-        $mutation->setArguments( $categoryTree );
-        $mutation->setSelectionSet( [ 'ok' ] );
-
-        return $this->runQuery( $mutation );
-    }
-
     public function getAPIUrl() {
         return $this->apiUrl;
     }
@@ -141,111 +112,6 @@ class OrganicSdk {
      */
     public function getFallbackPrebidBuildUrl() {
         return $this->cdnUrl . self::FALLBACK_PREBID_BUILD;
-    }
-
-    /**
-     * Registers or updates meta data about Articles and other content on this site
-     *
-     * Some posts may contain only meta data, such as a specialized template or
-     * be intentionally blank for use with partners that dynamically build in
-     * content like Nativo. So, content can be empty for sure. Title probably
-     * shouldn’t be blank and URL definitely can’t be blank.
-     *
-     * @param string $externalId Unique ID for this content on this site
-     * @param string $canonicalUrl
-     * @param string $title
-     * @param DateTime $publishedDate
-     * @param DateTime $modifiedDate
-     * @param string $content
-     * @param array $authors
-     * @param array $categories
-     * @param array $tags
-     * @param string|null $campaign_asset_guid
-     * @param string|null $editUrl
-     * @param string|null $featured_image_url
-     * @param string|null $meta_description
-     * @return array|object
-     */
-    public function contentCreateOrUpdate(
-        string $externalId,
-        string $canonicalUrl,
-        string $title,
-        DateTime $publishedDate,
-        DateTime $modifiedDate,
-        string $content,
-        array $authors = [],
-        array $categories = [],
-        array $tags = [],
-        string $campaign_asset_guid = null,
-        string $editUrl = null,
-        string $featured_image_url = null,
-        string $meta_description = null
-    ) {
-        // Validate the structure of the referenced metadata
-        $authors = $this->metaArrayToObjects( $authors, 'authors' );
-        $categories = $this->metaArrayToObjects( $categories, 'categories' );
-        $tags = $this->metaArrayToObjects( $tags, 'tags' );
-
-        $mutation = ( new Mutation( 'contentCreateOrUpdate' ) );
-        $mutation->setVariables( [ new Variable( 'input', 'CreateOrUpdateContentInput', true ) ] );
-        $mutation->setArguments( [ 'input' => '$input' ] );
-        $mutation->setSelectionSet( [ 'ok', 'gamId' ] );
-
-        $variables = [
-            'input' => array_filter(
-                [
-                    'authors' => $authors,
-                    'canonicalUrl' => fix_url_spaces( $canonicalUrl ),
-                    'categories' => $categories,
-                    'content' => $content,
-                    'externalId' => $externalId,
-                    'modifiedDate' => $modifiedDate->format( DateTimeInterface::ATOM ),
-                    'publishedDate' => $publishedDate->format( DateTimeInterface::ATOM ),
-                    'siteGuid' => $this->siteGuid,
-                    'tags' => $tags,
-                    'title' => $title,
-                    'campaignAssetGuid' => $campaign_asset_guid,
-                    'editUrl' => fix_url_spaces( $editUrl ),
-                    'featuredImageUrl' => fix_url_spaces( $featured_image_url ),
-                    'metaDescription' => $meta_description,
-                ]
-            ),
-        ];
-
-        $result = $this->runQuery( $mutation, $variables );
-        return $result['data']['contentCreateOrUpdate'];
-    }
-
-    public function queryContentIdMap( $first, $skip ) {
-        $gql = ( new Query( 'contentIdMap' ) );
-        $gql->setArguments(
-            [
-                'siteGuid' => $this->siteGuid,
-                'first' => $first,
-                'skip' => $skip,
-            ]
-        );
-        $gql->setSelectionSet(
-            [
-                ( new Query( 'edges' ) )->setSelectionSet(
-                    [
-                        ( new Query( 'node' ) )->setSelectionSet(
-                            [
-                                'externalId',
-                                'gamId',
-                            ]
-                        ),
-                    ]
-                ),
-                ( new Query( 'pageInfo' ) )->setSelectionSet(
-                    [
-                        'totalObjects',
-                    ]
-                ),
-            ]
-        );
-        $result = $this->runQuery( $gql );
-        return $result['data']['contentIdMap'];
     }
 
     public function queryAdConfig() {
@@ -509,7 +375,7 @@ class OrganicSdk {
         $mutation->setVariables( [ new Variable( 'configInput', 'WordpressPluginConfigInput', true ) ] );
         $mutation->setArguments( [ 'configInput' => '$configInput' ] );
         $mutation->setSelectionSet(
-            [ ( new Query( 'config' ) )->setSelectionSet( [ 'sentryDsn', 'triggerContentResync' ] ) ]
+            [ ( new Query( 'config' ) )->setSelectionSet( [ 'sentryDsn' ] ) ]
         );
 
         # Note that this might be true even before the site is fully migrated.
@@ -534,7 +400,6 @@ class OrganicSdk {
                 'splitTestEnabled' => $organic->useSplitTest(),
                 'consentManagementPlatform' => $organic->getCmp(),
                 'pluginSettingsLastUpdated' => $organic->settingsLastUpdated()->format( 'c' ),
-                'contentResyncStarted' => $organic->contentResyncTriggeredRecently(),
             ],
         ];
 
@@ -580,29 +445,6 @@ class OrganicSdk {
             $this->apiUrl,
             $params
         );
-    }
-
-    /**
-     * Helper to check if the given array contains 'externalId' and 'name' keys.
-     *
-     * Used for checking on authors, categories and tags
-     *
-     * @param $array
-     * @param $dataType
-     * @return object[]
-     */
-    private function metaArrayToObjects( $array, $dataType ): array {
-        $objects = [];
-
-        foreach ( $array as $value ) {
-            $value['name'] = $value['name'] ?? $value['email'] ?? '(not set)';
-            if ( ! isset( $value['externalId'] ) ) {
-                continue;
-            }
-            $objects[] = $value;
-        }
-
-        return $objects;
     }
 
     public function queryAssets() {
