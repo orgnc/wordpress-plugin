@@ -13,6 +13,7 @@ const GAM_ID_META_KEY = 'empire_gam_id';
 /**
  * Client Plugin for the Organic Platform
  */
+#[\AllowDynamicProperties]
 class Organic {
     public $version = \Organic\ORGANIC_PLUGIN_VERSION;
 
