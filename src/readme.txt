@@ -36,6 +36,9 @@ data gets exposed. Valid values are:
 
 
 == Changelog ==
+= 1.19.0 =
+* Add the lead image caption and credit to RSS media:content as media:title ("Image Caption (Credit: Image Credit)") for syndication partners.
+
 = 1.17.0 =
 * Remove content sync, content ID map sync, category sync, and related admin controls.
 * Add a WP-CLI cleanup command for orphaned content sync cron hooks, options, and postmeta.

@@ -553,12 +553,59 @@ class PageInjection {
     /**
      * Adds in media URLs to the RSS feed to allow outstream players to rely on the feed for slideshows (for Connatix)
      *
+     * Syndication partners (MSN, Yahoo) also expect the lead image to carry
+     * its caption and credit in media:title, formatted as
+     * “Image Caption (Credit: Image Credit)”.
+     *
      * @return void
      */
     public function injectRssImage() {
         if ( has_post_thumbnail() ) {
-            echo '<media:content url="' . esc_url( get_the_post_thumbnail_url( null, 'medium' ) ) . '" medium="image" />';
+            echo '<media:content url="' . esc_url( get_the_post_thumbnail_url( null, 'medium' ) ) . '" medium="image">';
+            $media_title = $this->get_lead_image_media_title();
+            if ( $media_title !== '' ) {
+                echo '<media:title>' . esc_html( $media_title ) . '</media:title>';
+            }
+            echo '</media:content>';
         }
+    }
+
+    /**
+     * Builds the lead-image media:title from the featured image caption and,
+     * unless the credit is already typed into the caption, the media credit
+     * field: “Image Caption (Credit: Image Credit)”.
+     *
+     * @return string
+     */
+    private function get_lead_image_media_title() {
+        $thumbnail_id = get_post_thumbnail_id();
+        $caption = wp_get_attachment_caption( $thumbnail_id );
+
+        $credit = '';
+        if ( function_exists( 'get_field' ) ) {
+            $credit = (string) get_field( 'media_credit_mc_name', $thumbnail_id );
+        }
+
+        if ( $credit === '' || $this->caption_has_manual_credit( $caption ) ) {
+            return $caption;
+        }
+
+        return trim( sprintf( '%s (Credit: %s)', $caption, $credit ) );
+    }
+
+    /**
+     * Detects credits typed directly into the caption, e.g. a trailing
+     * “(CREDIT: …)” note, which must not be complemented with the field
+     * credit to avoid crediting the same image twice.
+     *
+     * @param string $caption Featured image caption.
+     * @return bool
+     */
+    private function caption_has_manual_credit( $caption ) {
+        return (bool) preg_match(
+            '/\(\s*(?:image\s+credit|photo\s+credit|credit|photo|courtesy(?:\s+of)?)\s*:/i',
+            $caption
+        );
     }
 
     /**
