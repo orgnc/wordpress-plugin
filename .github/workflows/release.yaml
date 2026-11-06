@@ -50,7 +50,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/GitHubActionIAMRole
+          role-to-assume: arn:aws:iam::693435214819:role/gha-flexpress-wordpress-plugin
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload plugin to GitHub Release Archive
